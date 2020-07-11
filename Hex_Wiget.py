@@ -1,8 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QBoxLayout, QLineEdit, QFrame, QHBoxLayout, QPlainTextEdit
+    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QBoxLayout, QLineEdit, QFrame, QHBoxLayout, QPlainTextEdit,\
+    QTableWidget, QTableWidgetItem
 from PyQt5.QtGui import QIcon, QFont, QTextLayout, QPainter, QColor, QTextCursor
 import webbrowser
+
+# Поправка: Попробуем отдавать байт который изменили коду который ответственнен за зекс редактор
+# возрастут накладные расходы, но тогда высокоуровненвая политика изменениея байтов будет изолирована от деталей в виде гуи
 
 
 class Hex_widget(QWidget):
@@ -13,31 +17,46 @@ class Hex_widget(QWidget):
     def __init__(self):
         super().__init__()
         self.setGeometry(300, 300, 300, 220)
-        self.setMaximumSize(10 * 34 + 8 * 16 + 10, 500)
+        # self.setMaximumSize(10 * 34 + 8 * 16 + 10, 500)
         layout = QBoxLayout(QBoxLayout.LeftToRight)
-        txt = self.hex_matrix(self._pos_x, self._pos_y)
-        layout.addWidget(txt)
+        self.hex_matrix_table(self._pos_x, self._pos_y)
+        layout.addWidget(self.txt)
         asc = self.ascii_matrix(self._pos_x, self._pos_y)
         layout.addWidget(asc)
+        self.test()
         self.setLayout(layout)
         self.show()
 
-    def keyReleaseEvent(self, eventQKeyEvent):
-        key = eventQKeyEvent.key()
-        print(key)
-        if key == 16777235 and not eventQKeyEvent.isAutoRepeat():
-            self._pos_x = self.nav(-1, self._pos_x, 3)
-            print('released_up', self._pos_x)
-        elif key == 16777237 and not eventQKeyEvent.isAutoRepeat():
-            print('released_down')
-        elif key == 16777236 and not eventQKeyEvent.isAutoRepeat():
-            self._pos_y = self.nav(1, self._pos_y, 16)
-            print('released_right', self._pos_y)
-        elif key == 16777234 and not eventQKeyEvent.isAutoRepeat():
-            print('released_left')
-        elif key == 16777220 and not eventQKeyEvent.isAutoRepeat():
-            
-            print('enter')
+    def print_row(self):
+        items = self.txt.selectedItems()
+        print(str(items[0].text()), 0)
+
+    def print_row_c(self):
+        items = self.txt.selectedItems()
+        ed = self.txt.editItem(items[0])
+        print(str(items[0].text()), 1, ed)
+
+    def test(self):
+        self.txt.itemSelectionChanged.connect(self.print_row)
+        self.txt.itemClicked.connect(self.print_row_c)
+
+
+    # def keyReleaseEvent(self, eventQKeyEvent):
+    #     key = eventQKeyEvent.key()
+    #     print(key)
+    #     if key == 16777235 and not eventQKeyEvent.isAutoRepeat():
+    #         self._pos_x = self.nav(-1, self._pos_x, 3)
+    #         print('released_up', self._pos_x)
+    #     elif key == 16777237 and not eventQKeyEvent.isAutoRepeat():
+    #         print('released_down')
+    #     elif key == 16777236 and not eventQKeyEvent.isAutoRepeat():
+    #         self._pos_y = self.nav(1, self._pos_y, 16)
+    #         print('released_right', self._pos_y)
+    #     elif key == 16777234 and not eventQKeyEvent.isAutoRepeat():
+    #         print('released_left')
+    #     elif key == 16777220 and not eventQKeyEvent.isAutoRepeat():
+    #
+    #         print('enter')
 
     # Реализовать матрицы
     def ascii_matrix(self, pos_x: int, pos_y: int):
@@ -67,6 +86,27 @@ class Hex_widget(QWidget):
             asc.insertPlainText("\n")
         return asc
 
+    def hex_matrix_table(self, pos_x: int, pos_y: int):
+        inc_j = -1
+        inc_i = 0
+        hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
+                        ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
+                        ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
+        self.txt = QTableWidget()
+        self.txt.setColumnCount(16)
+        self.txt.setRowCount(16)
+        self.txt.setMinimumSize(16 * 40 + 8, 500)
+        for j in hex_row_line:
+            inc_j += 1
+            inc_i = 0
+            self.txt.setRowHeight(inc_j, 8)
+            for i in j:
+                self.txt.setColumnWidth(inc_i, 8)
+                self.txt.setItem(inc_j, inc_i, QTableWidgetItem(i))
+                inc_i += 1
+
+        return self.txt
+
     # Реализовать матрицы
     def hex_matrix(self, pos_x: int, pos_y: int):
         inc_j = 0
@@ -94,6 +134,7 @@ class Hex_widget(QWidget):
                 else:
                     txt.insertPlainText(i + " ")
             txt.insertPlainText("\n")
+
         return txt
 
     @staticmethod
