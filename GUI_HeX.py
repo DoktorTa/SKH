@@ -1,8 +1,13 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog
-from PyQt5.QtGui import QIcon, QFont
 import webbrowser
+
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
+    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QTabWidget
+from PyQt5.QtGui import QIcon, QFont
+
+from Hex_Wiget import Hex_widget
+from MyTab import MyTabWidget
+
 
 
 class Hex_view(QMainWindow):
@@ -20,18 +25,25 @@ class Hex_view(QMainWindow):
         self.setToolTip('This is a <b>QWidget</b> widget')
 
         # Мы создаём виджет кнопки и устанавливаем всплывающую подсказку для неё.
-        btn = QPushButton('Button', self)
-        btn.setToolTip('This is a <b>QPushButton</b> widget')
+        #btn = QPushButton('Button', self)
+        #btn.setToolTip('This is a <b>QPushButton</b> widget')
         # Меняем размер у кнопки, перемещаем её в окно. Метод sizeHint() даёт рекомендуемый размер для кнопки.
-        btn.resize(btn.sizeHint())
-        btn.move(70, 70)
+        #btn.resize(btn.sizeHint())
+        #btn.move(70, 70)
+        # self.widget_on_win()
+
+        self.test()
 
         self.menu_bar_init()
 
-        self.resize(250, 150)
+        self.resize(1080, 720)
         self.center()
         self.setWindowTitle('Tooltips')
         self.show()
+
+    def test(self):
+        self.tab_widget = MyTabWidget(self)
+        self.setCentralWidget(self.tab_widget)
 
     def file_serch(self):
         file_name = QFileDialog.getOpenFileName(self, "Open files", "/home/jana")

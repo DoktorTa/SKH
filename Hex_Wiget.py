@@ -16,30 +16,32 @@ class Hex_widget(QWidget):
     # Инициализировать поля и задать местоположение
     def __init__(self):
         super().__init__()
-        self.setGeometry(300, 300, 300, 220)
+        self.drawWiget()
+        self.test()
+        self.show()
+
+    def drawWiget(self):
         # self.setMaximumSize(10 * 34 + 8 * 16 + 10, 500)
         layout = QBoxLayout(QBoxLayout.LeftToRight)
         self.hex_matrix_table(self._pos_x, self._pos_y)
         layout.addWidget(self.txt)
         asc = self.ascii_matrix(self._pos_x, self._pos_y)
         layout.addWidget(asc)
-        self.test()
         self.setLayout(layout)
-        self.show()
 
-    def print_row(self):
+    def edit_item(self):
         items = self.txt.selectedItems()
-        print(str(items[0].text()), 0)
-
-    def print_row_c(self):
-        items = self.txt.selectedItems()
-        ed = self.txt.editItem(items[0])
-        print(str(items[0].text()), 1, ed)
+        self.txt.editItem(items[0])
+        print(str(items[0].text()), "edit")
 
     def test(self):
-        self.txt.itemSelectionChanged.connect(self.print_row)
-        self.txt.itemClicked.connect(self.print_row_c)
+        self.txt.itemEntered.connect(self.edit_item)
 
+    def keyReleaseEvent(self, eventQKeyEvent):
+        # Добавить проверку на то что фокус на виджете
+        key = eventQKeyEvent.key()
+        if key == 16777220 and not eventQKeyEvent.isAutoRepeat():
+            self.edit_item()
 
     # def keyReleaseEvent(self, eventQKeyEvent):
     #     key = eventQKeyEvent.key()
@@ -69,7 +71,7 @@ class Hex_widget(QWidget):
         asc = QTextEdit()
         asc.setReadOnly(True)
         asc.setFont(QFont("Times", 8, QFont.Bold))
-        asc.setMinimumSize(8 * 16, 250)
+        #asc.setMinimumSize(8 * 16, 250)
         asc.setMaximumSize(8 * 16, 500)
 
         for j in ascii_row_line:
@@ -95,7 +97,7 @@ class Hex_widget(QWidget):
         self.txt = QTableWidget()
         self.txt.setColumnCount(16)
         self.txt.setRowCount(16)
-        self.txt.setMinimumSize(16 * 40 + 8, 500)
+        #self.txt.setMinimumSize(16 * 40 + 8, 500)
         for j in hex_row_line:
             inc_j += 1
             inc_i = 0
