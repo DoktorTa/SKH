@@ -6,11 +6,18 @@ from PyQt5.QtGui import QIcon, QFont, QTextLayout, QPainter, QColor, QTextCursor
 from PyQt5.QtCore import Qt
 import webbrowser
 
-# Поправка: Попробуем отдавать байт который изменили коду который ответственнен за зекс редактор
+# Поправка: Попробуем отдавать байт который изменили коду который ответственнен за хекс редактор
 # возрастут накладные расходы, но тогда высокоуровненвая политика изменениея байтов будет изолирована от деталей в виде гуи
 
 
 class Hex_widget(QWidget):
+    """
+        Атрибуты:
+        ~~~~~~~~~~~~~~~~~~
+            **change_list**: dict - словарь с изменениями типа {'600000010': '1613'}
+                Первый символ ключа - номер колонны, остальные номер строкиб
+                Первые два символа значения - первоначальный байт, остальные текушее сохраненное состояние
+    """
     __pos_x = 1
     __pos_y = 1
 
@@ -20,12 +27,14 @@ class Hex_widget(QWidget):
     __hex_matrix = []
     __ascii_matrix = []
 
+    change_list = {}
+
     # Инициализировать поля и задать местоположение
-    def __init__(self, hex_matrix: list):
+    def __init__(self):
         super().__init__()
-        self.__hex_matrix = hex_matrix
-        self.drawWiget()
-        self.test()
+        self.__ascii_matrix = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
+        self.__hex_matrix = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
+        self.__draw_wiget()
         self.show()
 
     def set_page(self, row_num: list, hex_list: list, ascii_list: list):
@@ -37,36 +46,44 @@ class Hex_widget(QWidget):
         self.__hex_matrix = hex_list
         self.__ascii_matrix = ascii_list
 
-    def drawWiget(self):
-        # self.setMaximumSize(10 * 34 + 8 * 16 + 10, 500)
-        layout = QBoxLayout(QBoxLayout.LeftToRight)
+    def repaint_page(self):
+        """
+            Функция обновления таблиц
+        """
+        self.txt.setVerticalHeaderLabels(self.__row_num)
+        self.hex_matrix_loop()
+        self.ascii_matrix_loop()
+
+    # Ресует первичный виджет
+    def __draw_wiget(self):
         self.hex_matrix_table()
         self.ascii_matrix()
+
+        layout = QBoxLayout(QBoxLayout.LeftToRight)
         layout.addWidget(self.txt)
         layout.addWidget(self.asc)
         self.setLayout(layout)
 
-    def edit_item(self):
+    # Функция которая формирует лог изменений, лог расширяем
+    def __edit_item(self):
+        # TODO: добавить валидаторы
         items = self.txt.selectedItems()
-        self.txt.editItem(items[0])
-        print(str(items[0].text()), "edit")
+        row = self.txt.currentItem().row()
+        column = self.txt.currentItem().column()
 
-    def test(self):
-        self.txt.itemEntered.connect(self.edit_item)
+        index = str(hex(column)[2:]) + str(self.__row_num[row])
+        byte = str(self.__hex_matrix[row][column]) + str(items[0].text())
+
+        self.change_list.update({index: byte})
+        self.txt.editItem(items[0])
+
+        print(self.change_list)
 
     def keyReleaseEvent(self, eventQKeyEvent):
         # Добавить проверку на то что фокус на виджете
         key = eventQKeyEvent.key()
         if key == 16777220 and not eventQKeyEvent.isAutoRepeat():
-            self.edit_item()
-
-    def set_hex(self):
-        hex_row_line = [['00', '31', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
-                        ['00', '31', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
-                        ['00', '31', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
-        self.__hex_matrix = hex_row_line
-        self.hex_matrix_loop()
-        self.txt.repaint()
+            self.__edit_item()
 
     # Реализовать матрицы
     def ascii_matrix(self):
@@ -81,10 +98,7 @@ class Hex_widget(QWidget):
 
     def ascii_matrix_loop(self):
         inc_j = 0
-        ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'],
-                          ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'],
-                          ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
-        for j in ascii_row_line:
+        for j in self.__ascii_matrix:
             inc_j += 1
             inc_i = 0
             for i in j:
@@ -108,19 +122,21 @@ class Hex_widget(QWidget):
         self.txt.setMaximumSize(8 * 87 + 2, 8 * 51 + 2)
         self.txt.setMaximumSize(8 * 87 + 2, 1000)
         self.txt.setHorizontalHeaderLabels(colonum_hend)
-        self.txt.setVerticalHeaderLabels(self.__hex_row_label)
         self.txt.setFont(QFont('Courier New', 10))
         self.hex_matrix_loop()
 
     def hex_matrix_loop(self):
+        """
+            Метод обновляет хекс матрицу виджета в соответствии с hex_matrix
+        """
         inc_j = -1
-        for j in self.__hex_matrix:
+        for line in self.__hex_matrix:
             inc_j += 1
             inc_i = 0
             self.txt.setRowHeight(inc_j, 8)
-            for i in j:
+            for byte in line:
                 self.txt.setColumnWidth(inc_i, 8)
-                item_in_cell = QTableWidgetItem(i)
+                item_in_cell = QTableWidgetItem(byte)
                 item_in_cell.setFont(QFont('Courier New', 10))
                 item_in_cell.setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
                 self.txt.setItem(inc_j, inc_i, item_in_cell)
