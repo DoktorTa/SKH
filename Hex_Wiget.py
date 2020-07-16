@@ -30,11 +30,11 @@ class Hex_widget(QWidget):
     change_list = {}
 
     # Инициализировать поля и задать местоположение
-    def __init__(self):
+    def __init__(self, block_row_size=16):
         super().__init__()
         self.__ascii_matrix = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
         self.__hex_matrix = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
-        self.__draw_wiget()
+        self.__draw_wiget(block_row_size)
         self.show()
 
     def set_page(self, row_num: list, hex_list: list, ascii_list: list):
@@ -55,9 +55,9 @@ class Hex_widget(QWidget):
         self.ascii_matrix_loop()
 
     # Ресует первичный виджет
-    def __draw_wiget(self):
-        self.hex_matrix_table()
-        self.ascii_matrix()
+    def __draw_wiget(self, block_row_size: int):
+        self.__hex_matrix_table(block_row_size)
+        self.__ascii_matrix_table()
 
         layout = QBoxLayout(QBoxLayout.LeftToRight)
         layout.addWidget(self.txt)
@@ -72,58 +72,60 @@ class Hex_widget(QWidget):
         column = self.txt.currentItem().column()
 
         index = str(hex(column)[2:]) + str(self.__row_num[row])
-        byte = str(self.__hex_matrix[row][column]) + str(items[0].text())
-
-        self.change_list.update({index: byte})
+        if str(self.__hex_matrix[row][column]) != str(items[0].text()):
+            byte = str(self.__hex_matrix[row][column]) + str(items[0].text())
+            self.change_list.update({index: byte})
+            
         self.txt.editItem(items[0])
 
         print(self.change_list)
 
     def keyReleaseEvent(self, eventQKeyEvent):
-        # Добавить проверку на то что фокус на виджете
         key = eventQKeyEvent.key()
+        # Enter
         if key == 16777220 and not eventQKeyEvent.isAutoRepeat():
             self.__edit_item()
 
-    # Реализовать матрицы
-    def ascii_matrix(self):
-
+    # Инициализация аски матрицы
+    def __ascii_matrix_table(self):
         self.asc = QTextEdit()
         self.asc.setReadOnly(True)
-        self.asc.setFont(QFont("Times", 8, QFont.Bold))
+        self.asc.setFont(QFont('Courier New', 8))
+        # TODO: нужна нормальная размерность для отрисовки.
         #asc.setMinimumSize(8 * 16, 250)
         self.asc.setMaximumSize(8 * 16, 1000)
 
         self.ascii_matrix_loop()
 
-    def ascii_matrix_loop(self):
-        inc_j = 0
-        for j in self.__ascii_matrix:
-            inc_j += 1
-            inc_i = 0
-            for i in j:
-                inc_i += 1
-                # if inc_i == self.__pos_y and inc_j == self.__pos_x:
-                #     self.asc.setTextBackgroundColor(QColor(255, 0, 0))
-                #     self.asc.insertPlainText(i)
-                #     self.asc.setTextBackgroundColor(QColor(255, 255, 255))
-                # else:
-                self.asc.insertPlainText(i)
-            self.asc.insertPlainText("\n")
-
-    def hex_matrix_table(self):
-
+    # Инициализыция
+    def __hex_matrix_table(self, block_row_size: int):
         # Создает заголовки колон в hex формате с помошью длинны первой строки
         colonum_hend = [hex(i)[2:] for i in range(0, len(self.__hex_matrix[0]))]
 
         self.txt = QTableWidget()
         self.txt.setColumnCount(16)
-        self.txt.setRowCount(16)
-        self.txt.setMaximumSize(8 * 87 + 2, 8 * 51 + 2)
+        self.txt.setRowCount(block_row_size)
+        # TODO: нужна нормальная размерность для отрисовки.
+        self.txt.setMaximumSize(8 * 87 + 2, 200)
         self.txt.setMaximumSize(8 * 87 + 2, 1000)
         self.txt.setHorizontalHeaderLabels(colonum_hend)
         self.txt.setFont(QFont('Courier New', 10))
+
         self.hex_matrix_loop()
+
+    def ascii_matrix_loop(self):
+        """
+            Метод обновляет аски матрицу виджета в соответствии с ascii_matrix
+        """
+        self.asc.clear()
+        inc_j = 0
+        for line in self.__ascii_matrix:
+            inc_j += 1
+            inc_i = 0
+            for sumbol in line:
+                inc_i += 1
+                self.asc.insertPlainText(sumbol)
+            self.asc.insertPlainText("\n")
 
     def hex_matrix_loop(self):
         """
@@ -142,20 +144,3 @@ class Hex_widget(QWidget):
                 self.txt.setItem(inc_j, inc_i, item_in_cell)
                 inc_i += 1
         self.txt.resizeRowsToContents()
-
-
-if __name__ == '__main__':
-    hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
-                    ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
-                    ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
-    hex_row_label = ['00000000', '00000010', '00000020', '00000030',
-                     '00000040', '00000050', '00000060', '00000070',
-                     '00000080', '00000090', '000000a0', '000000b0',
-                     '000000c0', '000000d0', '000000e0', '000000f0']
-    ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'],
-                      ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'],
-                      ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
-
-    app = QApplication(sys.argv)
-    h = Hex_widget(hex_row_line)
-    sys.exit(app.exec_())
