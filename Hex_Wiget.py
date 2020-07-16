@@ -1,17 +1,27 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QBoxLayout, QLineEdit, QFrame, QHBoxLayout, QPlainTextEdit,\
-    QTableWidget, QTableWidgetItem
-from PyQt5.QtGui import QIcon, QFont, QTextLayout, QPainter, QColor, QTextCursor
+import re
+
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtWidgets import QWidget, QTextEdit, QBoxLayout, QTableWidget, QTableWidgetItem, QLineEdit, QItemDelegate
+from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
-import webbrowser
-
-# Поправка: Попробуем отдавать байт который изменили коду который ответственнен за хекс редактор
-# возрастут накладные расходы, но тогда высокоуровненвая политика изменениея байтов будет изолирована от деталей в виде гуи
 
 
-class Hex_widget(QWidget):
+class HexDelegate(QItemDelegate):
+    def createEditor(self, parent, option, index):
+        line = QLineEdit(parent)
+        line.setInputMask("HH")
+        return line
+
+
+class HexWidget(QWidget):
     """
+        Класс создает виджет хекс редактора и предостовляет редактирование.
+        Кормите данные через set_page, обновляйте данные на экране через repaint_page,
+        для подтверждения изменений обязательно кликайте энтер.
+
+        self.txt = QTableWidget
+        self.asc = QTextEdit
+
         Атрибуты:
         ~~~~~~~~~~~~~~~~~~
             **change_list**: dict - словарь с изменениями типа {'600000010': '1613'}
@@ -66,7 +76,6 @@ class Hex_widget(QWidget):
 
     # Функция которая формирует лог изменений, лог расширяем
     def __edit_item(self):
-        # TODO: добавить валидаторы
         items = self.txt.selectedItems()
         row = self.txt.currentItem().row()
         column = self.txt.currentItem().column()
@@ -75,9 +84,8 @@ class Hex_widget(QWidget):
         if str(self.__hex_matrix[row][column]) != str(items[0].text()):
             byte = str(self.__hex_matrix[row][column]) + str(items[0].text())
             self.change_list.update({index: byte})
-            
-        self.txt.editItem(items[0])
 
+        self.txt.editItem(items[0])
         print(self.change_list)
 
     def keyReleaseEvent(self, eventQKeyEvent):
@@ -110,6 +118,8 @@ class Hex_widget(QWidget):
         self.txt.setMaximumSize(8 * 87 + 2, 1000)
         self.txt.setHorizontalHeaderLabels(colonum_hend)
         self.txt.setFont(QFont('Courier New', 10))
+
+        self.txt.setItemDelegate(HexDelegate())
 
         self.hex_matrix_loop()
 
