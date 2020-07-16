@@ -2,37 +2,19 @@ import sys
 import webbrowser
 import copy
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
     QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget
 from PyQt5.QtGui import QIcon, QFont
 
-from Hex_Wiget import HexWidget
+from Interface.Hex_Wiget import HexWidget
 
 
-# Creating tab widgets
-class MyTabWidget(QWidget):
-    def __init__(self, parent):
-        super(QWidget, self).__init__(parent)
-        self.layout = QHBoxLayout(self)
+class HexTab(QWidget):
 
-        # Initialize tab screen
-        self.tabs = QTabWidget()
-        self.tab1 = QWidget()
-        self.tab2 = QWidget()
-        self.tab3 = QWidget()
-        self.tabs.resize(300, 200)
-
-        # Add tabs
-        self.tabs.addTab(self.tab1, "Hex")
-        self.tabs.addTab(self.tab2, "For")
-        self.tabs.addTab(self.tab3, "Geeks")
-
+    def __init__(self):
+        super().__init__()
         self.tab_hex()
-        self.layout.addWidget(self.tabs)
-        self.setLayout(self.layout)
-
-        #self.l.setText("This is the first tab")
 
     def tab_hex(self):
         hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
@@ -49,11 +31,20 @@ class MyTabWidget(QWidget):
         self.hex_wid = HexWidget()
         self.hex_wid.set_page(hex_row_label, hex_row_line, ascii_row_line)
         self.hex_wid.repaint_page()
+        # self.hex_wid.widget_update.connect(self.gopa)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.history_update)
+        self.timer.start(1000)
 
         btn_next_page = QPushButton("Next page")
         btn_next_page.clicked.connect(self.hex_wid.repaint_page)
 
         btn_early_page = QPushButton("Early page")
+
+        btn_delete_last = QPushButton("Cansel last")
+
+        btn_delete_all = QPushButton("Cansel all")
+
 
         self.history_list = QTextEdit()
         self.history_list.setReadOnly(True)
@@ -83,4 +74,3 @@ class MyTabWidget(QWidget):
             value = change_form.get(key)
             change_str += f"{key[0]} | {key[1:]} | {value[0:2]} | {value[2:4]}\n"
         self.history_list.setText(change_str)
-

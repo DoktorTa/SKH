@@ -74,6 +74,8 @@ class HexWidget(QWidget):
         layout.addWidget(self.asc)
         self.setLayout(layout)
 
+    # widget_update = pyqtSignal()
+
     # Функция которая формирует лог изменений, лог расширяем
     def __edit_item(self):
         items = self.txt.selectedItems()
@@ -84,6 +86,7 @@ class HexWidget(QWidget):
         if str(self.__hex_matrix[row][column]) != str(items[0].text()):
             byte = str(self.__hex_matrix[row][column]) + str(items[0].text())
             self.change_list.update({index: byte})
+            # self.up.widget_update.emit()
 
         self.txt.editItem(items[0])
         print(self.change_list)

@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
     QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QTabWidget
 from PyQt5.QtGui import QIcon, QFont
 
-from MyTab import MyTabWidget
+from Interface.MyTab import MyTabWidget
 
 
 
