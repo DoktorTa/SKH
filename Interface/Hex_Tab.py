@@ -2,6 +2,7 @@ import sys
 import webbrowser
 import copy
 
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
     QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget
@@ -42,9 +43,10 @@ class HexTab(QWidget):
         btn_early_page = QPushButton("Early page")
 
         btn_delete_last = QPushButton("Cansel last")
+        btn_delete_last.clicked.connect(self.history_del_last)
 
         btn_delete_all = QPushButton("Cansel all")
-
+        btn_delete_all.clicked.connect(self.history_del_all)
 
         self.history_list = QTextEdit()
         self.history_list.setReadOnly(True)
@@ -53,12 +55,14 @@ class HexTab(QWidget):
         # {'700000010': '1722'}
         # history_list.setText()
 
-        self.tab1.layout = QHBoxLayout()
-        self.tab1.layout.addWidget(self.hex_wid)
-        self.tab1.layout.addWidget(btn_next_page)
-        self.tab1.layout.addWidget(btn_early_page)
-        self.tab1.layout.addWidget(self.history_list)
-        self.tab1.setLayout(self.tab1.layout)
+        self.layout = QHBoxLayout()
+        self.layout.addWidget(self.hex_wid)
+        self.layout.addWidget(btn_next_page)
+        self.layout.addWidget(btn_delete_last)
+        self.layout.addWidget(btn_delete_all)
+        self.layout.addWidget(btn_early_page)
+        self.layout.addWidget(self.history_list)
+        self.setLayout(self.layout)
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
@@ -74,3 +78,18 @@ class HexTab(QWidget):
             value = change_form.get(key)
             change_str += f"{key[0]} | {key[1:]} | {value[0:2]} | {value[2:4]}\n"
         self.history_list.setText(change_str)
+
+    # TODO: добавить возможность удалять определенное кол-во изменений
+    def history_del_last(self):
+        self.hex_wid.history_del()
+
+    def history_del_all(self):
+        self.hex_wid.change_list = {}
+
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication([])
+    application = HexTab()
+    application.show()
+
+    sys.exit(app.exec())

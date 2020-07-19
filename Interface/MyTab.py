@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
 from PyQt5.QtGui import QIcon, QFont
 
 from Interface.Hex_Wiget import HexWidget
-
+from Interface.Hex_Tab import HexTab
 
 # Creating tab widgets
 class MyTabWidget(QWidget):
@@ -46,50 +46,10 @@ class MyTabWidget(QWidget):
                           ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'],
                           ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
 
-        self.hex_wid = HexWidget()
-        self.hex_wid.set_page(hex_row_label, hex_row_line, ascii_row_line)
-        self.hex_wid.repaint_page()
-        # self.hex_wid.widget_update.connect(self.gopa)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.history_update)
-        self.timer.start(1000)
+        self.hex_wid = HexTab()
 
-        btn_next_page = QPushButton("Next page")
-        btn_next_page.clicked.connect(self.hex_wid.repaint_page)
-
-        btn_early_page = QPushButton("Early page")
-
-        btn_delete_last = QPushButton("Cansel last")
-
-        btn_delete_all = QPushButton("Cansel all")
-
-
-        self.history_list = QTextEdit()
-        self.history_list.setReadOnly(True)
-        self.history_list.setMaximumSize(128, 400)
-
-        # {'700000010': '1722'}
-        # history_list.setText()
 
         self.tab1.layout = QHBoxLayout()
         self.tab1.layout.addWidget(self.hex_wid)
-        self.tab1.layout.addWidget(btn_next_page)
-        self.tab1.layout.addWidget(btn_early_page)
-        self.tab1.layout.addWidget(self.history_list)
         self.tab1.setLayout(self.tab1.layout)
-
-    def keyReleaseEvent(self, eventQKeyEvent):
-        key = eventQKeyEvent.key()
-        # Enter
-        if key == 16777220 and not eventQKeyEvent.isAutoRepeat():
-            print("Contact")
-            self.history_update()
-
-    def history_update(self):
-        change_form = copy.deepcopy(self.hex_wid.change_list)
-        change_str = "column | row | old | new\n"
-        for key in change_form:
-            value = change_form.get(key)
-            change_str += f"{key[0]} | {key[1:]} | {value[0:2]} | {value[2:4]}\n"
-        self.history_list.setText(change_str)
 

@@ -74,7 +74,11 @@ class HexWidget(QWidget):
         layout.addWidget(self.asc)
         self.setLayout(layout)
 
-    # widget_update = pyqtSignal()
+    def history_del(self):
+        if len(self.change_list) is not 0:
+            history_last_point = self.change_list.popitem()
+            key,  value = history_last_point
+            self.txt.setItem(int(int(key[1:]) / 10), int(key[0]), QTableWidgetItem(value[0:2]))
 
     # Функция которая формирует лог изменений, лог расширяем
     def __edit_item(self):

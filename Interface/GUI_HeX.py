@@ -8,7 +8,6 @@ from PyQt5.QtGui import QIcon, QFont
 from Interface.MyTab import MyTabWidget
 
 
-
 class Hex_view(QMainWindow):
 
     def __init__(self):
