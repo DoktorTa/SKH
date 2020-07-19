@@ -5,7 +5,7 @@ import copy
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget
+    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout
 from PyQt5.QtGui import QIcon, QFont
 
 from Interface.Hex_Wiget import HexWidget
@@ -16,6 +16,7 @@ class HexTab(QWidget):
     def __init__(self):
         super().__init__()
         self.tab_hex()
+        self.location_on_widget()
 
     def tab_hex(self):
         hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
@@ -37,31 +38,34 @@ class HexTab(QWidget):
         self.timer.timeout.connect(self.history_update)
         self.timer.start(1000)
 
-        btn_next_page = QPushButton("Next page")
-        btn_next_page.clicked.connect(self.hex_wid.repaint_page)
+        self.btn_next_page = QPushButton("Next page")
+        self.btn_next_page.clicked.connect(self.hex_wid.repaint_page)
 
-        btn_early_page = QPushButton("Early page")
+        self.btn_early_page = QPushButton("Early page")
 
-        btn_delete_last = QPushButton("Cansel last")
-        btn_delete_last.clicked.connect(self.history_del_last)
+        self.btn_delete_last = QPushButton("Cansel last")
+        self.btn_delete_last.clicked.connect(self.history_del_last)
 
-        btn_delete_all = QPushButton("Cansel all")
-        btn_delete_all.clicked.connect(self.history_del_all)
+        self.btn_delete_all = QPushButton("Cansel all")
+        self.btn_delete_all.clicked.connect(self.history_del_all)
 
         self.history_list = QTextEdit()
         self.history_list.setReadOnly(True)
         self.history_list.setMaximumSize(128, 400)
 
-        # {'700000010': '1722'}
-        # history_list.setText()
+    def location_on_widget(self):
+        self.layout = QGridLayout()
+        # self.layout = QHBoxLayout()
 
-        self.layout = QHBoxLayout()
-        self.layout.addWidget(self.hex_wid)
-        self.layout.addWidget(btn_next_page)
-        self.layout.addWidget(btn_delete_last)
-        self.layout.addWidget(btn_delete_all)
-        self.layout.addWidget(btn_early_page)
-        self.layout.addWidget(self.history_list)
+        #self.layout.setColumnMinimumWidth(1, 10)
+        #self.layout.setColumnStretch(1, 0)
+
+        self.layout.addWidget(self.hex_wid, 1, 0, 5, 1)
+        self.layout.addWidget(self.history_list, 1, 2, 1, 2)
+        self.layout.addWidget(self.btn_next_page, 3, 2)
+        self.layout.addWidget(self.btn_early_page, 3, 3)
+        self.layout.addWidget(self.btn_delete_last, 2, 2)
+        self.layout.addWidget(self.btn_delete_all, 2, 3)
         self.setLayout(self.layout)
 
     def keyReleaseEvent(self, eventQKeyEvent):

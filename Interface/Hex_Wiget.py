@@ -1,7 +1,7 @@
 import re
 
 from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QTextEdit, QBoxLayout, QTableWidget, QTableWidgetItem, QLineEdit, QItemDelegate
+from PyQt5.QtWidgets import QWidget, QTextEdit, QTableWidget, QTableWidgetItem, QLineEdit, QItemDelegate, QGridLayout
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
@@ -69,9 +69,13 @@ class HexWidget(QWidget):
         self.__hex_matrix_table(block_row_size)
         self.__ascii_matrix_table()
 
-        layout = QBoxLayout(QBoxLayout.LeftToRight)
-        layout.addWidget(self.txt)
-        layout.addWidget(self.asc)
+        layout = QGridLayout()
+        layout.setColumnMinimumWidth(1, 10)
+        layout.setColumnMinimumWidth(3, 10)
+        layout.setColumnStretch(1, -1)
+        layout.setColumnStretch(3, 1)
+        layout.addWidget(self.txt, 0, 0)
+        layout.addWidget(self.asc, 0, 2)
         self.setLayout(layout)
 
     def history_del(self):
@@ -107,7 +111,7 @@ class HexWidget(QWidget):
         self.asc.setReadOnly(True)
         self.asc.setFont(QFont('Courier New', 8))
         # TODO: нужна нормальная размерность для отрисовки.
-        #asc.setMinimumSize(8 * 16, 250)
+        self.asc.setMinimumSize(8 * 16, 250)
         self.asc.setMaximumSize(8 * 16, 1000)
 
         self.ascii_matrix_loop()
@@ -121,7 +125,7 @@ class HexWidget(QWidget):
         self.txt.setColumnCount(16)
         self.txt.setRowCount(block_row_size)
         # TODO: нужна нормальная размерность для отрисовки.
-        self.txt.setMaximumSize(8 * 87 + 2, 200)
+        self.txt.setMinimumSize(8 * 87 + 2, 200)
         self.txt.setMaximumSize(8 * 87 + 2, 1000)
         self.txt.setHorizontalHeaderLabels(colonum_hend)
         self.txt.setFont(QFont('Courier New', 10))
