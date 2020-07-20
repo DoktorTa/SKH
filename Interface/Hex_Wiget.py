@@ -7,8 +7,10 @@ from PyQt5.QtCore import Qt
 
 
 class HexDelegate(QItemDelegate):
-    def createEditor(self, parent, option, index):
+    def createEditor(self, parent, option, index, read_only=False):
         line = QLineEdit(parent)
+        if read_only is  False:
+            line.setReadOnly(True)
         line.setInputMask("HH")
         return line
 
@@ -31,6 +33,8 @@ class HexWidget(QWidget):
     __pos_x = 1
     __pos_y = 1
 
+    __read_only = False
+
     __colonum_hend = ()
 
     __row_num = []
@@ -46,6 +50,9 @@ class HexWidget(QWidget):
         self.__hex_matrix = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
         self.__draw_wiget(block_row_size)
         self.show()
+
+    def setReadOnly(self, read: bool):
+        self.__read_only = read
 
     def set_page(self, row_num: list, hex_list: list, ascii_list: list):
         """
