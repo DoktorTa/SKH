@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
     QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout
 from PyQt5.QtGui import QIcon, QFont, QColor
 
-from Hex_Wiget import HexWidget
+from Interface.Hex_Wiget import HexWidget
 
 
 class TotalTab(QWidget):
