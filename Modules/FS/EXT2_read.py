@@ -10,21 +10,21 @@ class EXT2Reader:
     def __init__(self, data: EXT2Data):
         self.data = data
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as self.file:
-            self.superblockc_read(data, file)
+            self.superblockc_read(data)
             root_num_descriptor = 2
-            self._table_descriptor_block(file, data)
+            self._table_descriptor_block(data)
             self._inode(root_num_descriptor)
-            # self.get_inode(data, 8)
+            self.get_inode(data, 8)
             logging.debug(str(data))
 
-    def _table_descriptor_block(self, file, data: EXT2Data):
+    def _table_descriptor_block(self, data: EXT2Data):
         block_size = 32
         data.block_size = 1024 << int(data.s_log_block_size)
         data.group_count = math.ceil(int(data.s_blocks_count, 16) / int(data.s_blocks_per_group, 16))
         seek_descriptor = (int(data.s_first_data_block, 16) + 1) * data.block_size
         for i in range(data.group_count):
-            file.seek(seek_descriptor + i * block_size)
-            buf = file.read(block_size).hex()
+            self.file.seek(seek_descriptor + i * block_size)
+            buf = self.file.read(block_size).hex()
 
             descriptor_g = EXT2DescriptorGroup(i)
             self.table_descriptor_block_init(descriptor_g, buf)
@@ -34,19 +34,29 @@ class EXT2Reader:
 
             logging.debug(f"Descriptor: {str(descriptor_g)}")
 
-    def _inode(self, inodes_num, file):
-        group_index = (inodes_num - 1) % int(data.s_inodes_per_group, 16)
-        block_disc = data.group_description_table[(inodes_num - 1) / int(data.s_inodes_per_group, 16)]
-        offset = block_disc.inode_table * data.block_size   # go to inode table
-        offset += group_index * data.s_inode_size
-        # a = e2inode(inodes_num, self.io, offset, data.s_inode_size)
+# TODO: REFACTORING: PROCESSED
+#################################################################################################################################
 
-        file.seek(offset)
-        buf = file.read(data.s_inode_size).hex()
+    def _inode(self, inodes_num: int) -> list:
+        """
+            Функция обрабатывает инод с помошью его номера, и выдает лист его кластеров, или по другому блоков.
+        """
+        group_index = (inodes_num - 1) % int(self.data.s_inodes_per_group, 16)
+        block_disc = self.data.group_description_table[(inodes_num - 1) // int(self.data.s_inodes_per_group, 16)]
+        offset = int(block_disc.bg_inode_table, 16) * self.data.block_size
+        offset += group_index * int(self.data.s_inode_size, 16)
+
+        logging.debug(f"Descriptor block: {block_disc.num_descriptor}, Offset inode: {offset}")
+
+        self.file.seek(offset)
+        inode_block = self.file.read(int(self.data.s_inode_size, 16)).hex()
+
         inode = EXT2Inode()
-        self.inode_init(inode, buf)
+        inode = self.inode_init(inode, inode_block)
 
-        self.block_list = self._block_list_creater(inode)
+        block_list = self._block_list_creater(inode)
+        print(block_list)
+        return block_list
 
     def __list_of_double_indirects(self, block: str):
         blocks = []
@@ -72,15 +82,17 @@ class EXT2Reader:
         buf = self.file.read(self.data.block_size)
         return buf
 
-    def _block_list_creater(self, inode):
+    def _block_list_creater(self, inode: EXT2Inode) -> list:  # TODO: THIS
+        """
+            Возврашает полный лист блоков инода
+        """
         blocks = []
-        first_block_level = 12
-        for i in range(first_block_level):
+        for i in range(inode.FIRST_BLOCK_DATA):
             block_num = inode.i_block[i]
             if block_num == 0:
                 return blocks
             blocks.append(block_num)
-        if inode.i_block[13] != 0:
+        if int(inode.i_block[13]) != 0:
             blocks = self.__check_first_double_block(inode, blocks)
         return blocks
 
@@ -116,9 +128,11 @@ class EXT2Reader:
 
         return blocks
 
-    def superblockc_read(self, data: EXT2Data, file):
-        file.seek(1024)
-        superblock = file.read(1024).hex()
+#################################################################################################################################
+
+    def superblockc_read(self, data: EXT2Data):
+        self.file.seek(1024)
+        superblock = self.file.read(1024).hex()
         self.super_block_initilaiz(data, superblock)
         if data.s_magic != "ef53":
             self.error = "Файловая система не является EXT2"
@@ -156,6 +170,7 @@ class EXT2Reader:
         inode.i_links_count = self.reversed_byte_ararry(inode_byte[52:56])  # 26	    2
         for i in range(15):
             inode.i_block.append(self.reversed_byte_ararry(inode_byte[80 + i * 8:88 + i * 8]))  # 40	    15 х 4
+        return inode
 
     def table_descriptor_block_init(self, descriptor_g: EXT2DescriptorGroup, table_descriptor: str):
         descriptor_g.bg_block_bitmap = self.reversed_byte_ararry(table_descriptor[0:8])  # 0   4

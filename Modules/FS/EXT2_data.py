@@ -117,6 +117,8 @@ class EXT2DescriptorGroup:
 
 
 class EXT2Inode:
+    FIRST_BLOCK_DATA = 12
+
     i_mode = 0                         # 0	    2
     i_uid = 0                          # 2	    2
     i_size = 0                         # 4	    4
