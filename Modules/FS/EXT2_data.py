@@ -60,20 +60,14 @@ class EXT2Data:
     # s_first_meta_bg = 0              # 260 4
     # 264 760 Unused - reserved for future revisions
 
-    # -- Table discriptor --
-    bg_block_bitmap = 0                # 0   4
-    bg_inode_bitmap = 0                # 4   4
-    bg_inode_table = 0                 # 8   4
-    # bg_free_blocks_count = 0         # 12  2
-    # bg_free_inodes_count = 0         # 14  2
-    # bg_used_dirs_count = 0           # 16  2
-    # bg_pad = 0                       # 18  2
-    # bg_reserved = 0                  # 20  12
 
     block_size = 0                     # 1, 2, 4, 8 КБ
+    group_count = 0
+    group_description_table = []       # Содержит в себе дескрипторы
 
     def __str__(self):
-        str_f = f"Inodes count:      {self.s_inodes_count} \n" \
+        str_f = f"\n" \
+                f"Inodes count:      {self.s_inodes_count} \n" \
                 f"Block count:       {self.s_blocks_count} \n" \
                 f"Free block count:  {self.s_free_blocks_count} \n" \
                 f"Free inodes count: {self.s_free_inodes_count} \n" \
@@ -86,9 +80,58 @@ class EXT2Data:
                 f"Errors:            {self.s_errors} \n" \
                 f"-- EXT2_DYNAMIC_REV Specific --\n" \
                 f"First inodes:      {self.s_first_ino} \n" \
-                f"Inose size:        {self.s_inode_size} \n" \
+                f"Inode size:        {self.s_inode_size} \n\n" \
+                f"BLOCK SIZE:        {self.block_size}\n" \
+                f"Group count:       {self.group_count}\n\n"
+        return str_f
+
+
+class EXT2DescriptorGroup:
+    num_descriptor = 0
+    # -- Table discriptor --
+    bg_block_bitmap = 0                # 0   4
+    bg_inode_bitmap = 0                # 4   4
+    bg_inode_table = 0                 # 8   4
+    # bg_free_blocks_count = 0           # 12  2
+    # bg_free_inodes_count = 0           # 14  2
+    # bg_used_dirs_count = 0             # 16  2
+    # bg_pad = 0                         # 18  2
+    # bg_reserved = 0                    # 20  12
+
+    start_seek = 0
+    end_seek = 0
+
+    def __init__(self, num_descriptor):
+        self.num_descriptor = num_descriptor
+
+    def __str__(self):
+        str_f = f"\n" \
+                f"Num descriptor:    {self.num_descriptor}\n" \
+                f"Start seek desc:   {self.start_seek}\n" \
+                f"End seek desc:     {self.end_seek}\n\n" \
                 f"-- Table discriptor --\n" \
                 f"Block bitmap:      {self.bg_block_bitmap} \n" \
                 f"Inode bitmap:      {self.bg_inode_bitmap} \n" \
                 f"Inode table:       {self.bg_inode_table}"
         return str_f
+
+
+class EXT2Inode:
+    i_mode = 0                         # 0	    2
+    i_uid = 0                          # 2	    2
+    i_size = 0                         # 4	    4
+    # i_atime = 0                        # 8	    4
+    # i_ctime = 0                        # 12	    4
+    # i_mtime = 0                        # 16	    4
+    # i_dtime = 0                        # 20	    4
+    i_gid = 0                          # 24	    2
+    i_links_count = 0                  # 26	    2
+    # i_blocks = 0                       # 28	    4
+    # i_flags = 0                        # 32	    4
+    # i_osd1 = 0                         # 36	    4
+    i_block = []                       # 40	    15 х 4
+    # i_generation = 0                   # 100	4
+    # i_file_acl = 0                     # 104	4
+    # i_dir_acl = 0                      # 108	4
+    # i_faddr = 0                        # 112	4
+    # i_osd2 = 0                         # 116   12
