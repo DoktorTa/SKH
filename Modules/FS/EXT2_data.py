@@ -1,4 +1,6 @@
 class EXT2Data:
+    SIZE_BLOCK_IN_BLOCK_TABLE = 4
+
     s_inodes_count = 0               # 0   4
     s_blocks_count = 0               # 4   4
     # s_r_blocks_count = 0             # 8   4
@@ -60,7 +62,6 @@ class EXT2Data:
     # s_first_meta_bg = 0              # 260 4
     # 264 760 Unused - reserved for future revisions
 
-
     block_size = 0                     # 1, 2, 4, 8 КБ
     group_count = 0
     group_description_table = []       # Содержит в себе дескрипторы
@@ -117,7 +118,10 @@ class EXT2DescriptorGroup:
 
 
 class EXT2Inode:
-    FIRST_BLOCK_DATA = 12
+    FIRST_INDIRECT_BLOCK = 12
+    FIRST_SINGLE_INDIRECT_BLOCK = 13
+    FIRST_DOUBLE_INDIRECT_BLOCK = 14
+    FIRST_TRIPLE_INDIRECT_BLOCK = 15
 
     i_mode = 0                         # 0	    2
     i_uid = 0                          # 2	    2

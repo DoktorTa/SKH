@@ -34,9 +34,6 @@ class EXT2Reader:
 
             logging.debug(f"Descriptor: {str(descriptor_g)}")
 
-# TODO: REFACTORING: PROCESSED
-#################################################################################################################################
-
     def _inode(self, inodes_num: int) -> list:
         """
             Функция обрабатывает инод с помошью его номера, и выдает лист его кластеров, или по другому блоков.
@@ -54,81 +51,93 @@ class EXT2Reader:
         inode = EXT2Inode()
         inode = self.inode_init(inode, inode_block)
 
-        block_list = self._block_list_creater(inode)
+        block_list = self._read_straight_blocks(inode)
         print(block_list)
         return block_list
 
-    def __list_of_double_indirects(self, block: str):
+    def _list_of_double_indirects(self, block: str) -> list:
         blocks = []
-        for i in range(self.data.block_size / 4):
-            aggregate_element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]))
+        for i in range(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE):
+            aggregate_element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
             if aggregate_element_block is 0:
                 return blocks
             ib = self.read_block(aggregate_element_block).hex()
-            blocks += self.__list_of_indirects(ib)
+            blocks += self._list_of_indirects(ib)
         return blocks
 
-    def __list_of_indirects(self, block: str):
+    def _list_of_indirects(self, block: str) -> list:
         blocks = []
-        for i in range(self.data.block_size / 4):
-            element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]))
+        for i in range(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE):
+            element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
             if element_block is 0:
                 return blocks
             blocks.append(element_block)
         return blocks
 
-    def read_block(self, block_num):
+    def read_block(self, block_num: int) -> bytes:
+        """
+            Читает определенный номер блока
+        """
         self.file.seek(block_num * self.data.block_size)
         buf = self.file.read(self.data.block_size)
         return buf
 
-    def _block_list_creater(self, inode: EXT2Inode) -> list:  # TODO: THIS
+    def _read_straight_blocks(self, inode: EXT2Inode) -> list:
         """
             Возврашает полный лист блоков инода
         """
         blocks = []
-        for i in range(inode.FIRST_BLOCK_DATA):
-            block_num = inode.i_block[i]
-            if block_num == 0:
+        for i in range(inode.FIRST_INDIRECT_BLOCK):
+            straight_block = inode.i_block[i]
+            if straight_block == 0:
                 return blocks
-            blocks.append(block_num)
-        if int(inode.i_block[13]) != 0:
-            blocks = self.__check_first_double_block(inode, blocks)
+            blocks.append(straight_block)
+        if int(inode.i_block[inode.FIRST_SINGLE_INDIRECT_BLOCK], 16) != 0:
+            blocks = self._check_first_indirect_block(inode, blocks)
         return blocks
 
-    def __check_first_double_block(self, inode: EXT2Inode, blocks: list) -> list:
-        double_block = inode.i_block[13]
-        i1b = self.read_block(double_block).hex()
-        blocks += self.__list_of_indirects(i1b)
+    def _check_first_indirect_block(self, inode: EXT2Inode, blocks: list) -> list:
+        block_num = int(inode.i_block[inode.FIRST_SINGLE_INDIRECT_BLOCK], 16)
+        i1b = self.read_block(block_num).hex()
+        blocks += self._list_of_indirects(i1b)
 
-        if int(inode.i_block[14]) != 0:
-            blocks = self.__check_first_three_block(inode, blocks)
+        if int(inode.i_block[inode.FIRST_DOUBLE_INDIRECT_BLOCK]) != 0:
+            blocks = self._check_double_indirect_block(inode, blocks)
         return blocks
 
-    def __check_first_three_block(self, inode: EXT2Inode, blocks: list) -> list:
-        three_block = int(inode.i_block[14])
+    def _check_double_indirect_block(self, inode: EXT2Inode, blocks: list) -> list:
+        """
+            Из документации EXT2.
+            14-я запись в массиве является номером блока первого дважды косвенного блока
+            который является блоком, содержащим массив идентификаторов косвенных блоков,
+            причем каждый из этих косвенных блоков содержит массив блоков, содержащих данные.
+        """
+        three_block = int(inode.i_block[inode.FIRST_DOUBLE_INDIRECT_BLOCK], 16)
         i2b = self.read_block(three_block).hex()
-        blocks += self.__list_of_double_indirects(i2b)
+        blocks += self._list_of_double_indirects(i2b)
 
-        if int(inode.i_block[15]) != 0:
-            blocks += self.__check_first_name_ref(inode)
+        if int(inode.i_block[inode.FIRST_TRIPLE_INDIRECT_BLOCK]) != 0:
+            blocks += self._check_triple_indirect_block(inode, blocks)
         return blocks
 
-    def __check_first_name_ref(self, inode: EXT2Inode):
-        # TODO: Рефакторинг всей работы с инодом, срочно ебать, это просто вьетнам нахуй.
-        blocks = []
-        i3b_num = int(inode.i_block[15])
+    def _check_triple_indirect_block(self, inode: EXT2Inode, blocks: list) -> list:
+        """
+            Из документации EXT2.
+            15-я запись в массиве является номером блока с тройным непрямым блоком;
+            который является блоком, содержащим массив дважды косвенных идентификаторов блоков,
+            причем каждый из этих дважды косвенных блоков содержит массив косвенных блоков,
+            а каждый из этих косвенных блоков содержит массив прямых блоков.
+            В файловой системе объемом 1 КБ это будет в общей сложности 16777216 блоков на блок с тройной непрямой связью.
+        """
+        i3b_num = int(inode.i_block[inode.FIRST_TRIPLE_INDIRECT_BLOCK])
         block = self.read_block(i3b_num).hex()
         for i in range(self.data.block_size / 4):
             element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]))
             if element_block is 0:
                 return blocks
-            dib = self.read_block(element_block)
-            blocks.extend(self.__list_of_double_indirects(dib))
-
+            dib = self.read_block(element_block).hex()
+            blocks += self._list_of_double_indirects(dib)
         return blocks
-
-#################################################################################################################################
 
     def superblockc_read(self, data: EXT2Data):
         self.file.seek(1024)
