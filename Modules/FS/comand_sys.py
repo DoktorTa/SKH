@@ -60,7 +60,6 @@ class Command:
                 error = ""
                 self.pwd = element[0]
                 elements_on_dir = self._reader.reder_directory(mount_file_sys, claster_sequence)
-                print(elements_on_dir)
                 return elements_on_dir, error
             else:
                 error = "Ощибка при чтении директроии"
