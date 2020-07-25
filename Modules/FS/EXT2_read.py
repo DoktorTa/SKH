@@ -13,9 +13,50 @@ class EXT2Reader:
             self.superblockc_read(data)
             root_num_descriptor = 2
             self._table_descriptor_block(data)
-            self._inode(root_num_descriptor)
-            self.get_inode(data, 8)
+            blocks_root = self._inode(root_num_descriptor)
+            # print(int(blocks_root[0], 16) * 1024)
+
+            self.file.seek(int(blocks_root[0], 16) * 1024)
+            block_root = self.file.read(self.data.block_size).hex()
+            root = self.linked_directory_entry(block_root)
+            blocks_root = self._inode(int(root[3][0], 16))
+            print(root)
+            print(blocks_root)
+            # self.ls("/")
+
+            # self.get_inode(data, 8)
             logging.debug(str(data))
+
+    def linked_directory_entry(self, block: str) -> list:
+        dir_entry = []
+        while True:
+            inode_num = self.reversed_byte_ararry(block[0:8])
+            if inode_num == "":
+                break
+            rec_len = self.reversed_byte_ararry(block[8:12])
+            name_len = block[12:14]
+
+            print(int(name_len, 16))
+
+            file_type = block[14:16]
+            name = block[16:16 + 2 * int(name_len, 16)]
+            block = block[0 + 2 * int(rec_len, 16):]
+            element_block = [inode_num, rec_len, name_len, file_type, self.name_to_ascii(name)]
+            dir_entry.append(element_block)
+        return dir_entry
+
+    # Да он собирает аски имя(
+    @staticmethod
+    def name_to_ascii(name_h: str) -> str:
+        i = 0
+        j = 2
+        name = ""
+
+        while len(name_h) != 0:
+            name += chr(int(name_h[i:j], 16))
+            name_h = name_h[j:]
+
+        return name
 
     def _table_descriptor_block(self, data: EXT2Data):
         block_size = 32
@@ -32,10 +73,10 @@ class EXT2Reader:
             descriptor_g.end = descriptor_g.start + int(data.s_blocks_per_group, 16)
             data.group_description_table.append(descriptor_g)
 
-            logging.debug(f"Descriptor: {str(descriptor_g)}")
+            # logging.debug(f"Descriptor: {str(descriptor_g)}")
 
     def _inode(self, inodes_num: int) -> list:
-        """
+        """247
             Функция обрабатывает инод с помошью его номера, и выдает лист его кластеров, или по другому блоков.
         """
         group_index = (inodes_num - 1) % int(self.data.s_inodes_per_group, 16)
@@ -43,7 +84,10 @@ class EXT2Reader:
         offset = int(block_disc.bg_inode_table, 16) * self.data.block_size
         offset += group_index * int(self.data.s_inode_size, 16)
 
-        logging.debug(f"Descriptor block: {block_disc.num_descriptor}, Offset inode: {offset}")
+        logging.debug(f"Inode num: {inodes_num},"
+                      f" Descriptor block: {block_disc.num_descriptor},"
+                      f" Offset inode: {offset},"
+                      f" Group index: {group_index}")
 
         self.file.seek(offset)
         inode_block = self.file.read(int(self.data.s_inode_size, 16)).hex()
@@ -57,21 +101,29 @@ class EXT2Reader:
 
     def _list_of_double_indirects(self, block: str) -> list:
         blocks = []
+
         for i in range(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE):
             aggregate_element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
+
             if aggregate_element_block is 0:
                 return blocks
+
             ib = self.read_block(aggregate_element_block).hex()
             blocks += self._list_of_indirects(ib)
+
         return blocks
 
     def _list_of_indirects(self, block: str) -> list:
         blocks = []
+
         for i in range(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE):
             element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
+
             if element_block is 0:
                 return blocks
+
             blocks.append(element_block)
+
         return blocks
 
     def read_block(self, block_num: int) -> bytes:
@@ -87,13 +139,18 @@ class EXT2Reader:
             Возврашает полный лист блоков инода
         """
         blocks = []
+
         for i in range(inode.FIRST_INDIRECT_BLOCK):
             straight_block = inode.i_block[i]
+
             if straight_block == 0:
                 return blocks
+
             blocks.append(straight_block)
+
         if int(inode.i_block[inode.FIRST_SINGLE_INDIRECT_BLOCK], 16) != 0:
             blocks = self._check_first_indirect_block(inode, blocks)
+
         return blocks
 
     def _check_first_indirect_block(self, inode: EXT2Inode, blocks: list) -> list:
@@ -153,23 +210,10 @@ class EXT2Reader:
     def get_inode(self, data: EXT2Data, inode_num: int):
         # Вычисляем номер группы блоков, в которой находится inode с порядковым номером inode_num:
         group = (inode_num - 1) / int(data.s_inodes_per_group, 16)
-
         index = (inode_num - 1) % int(data.s_inodes_per_group, 16)
-
         containing_block = (index * int(data.s_inode_size, 16)) // data.block_size
-
-        #pos = ((__u64)da.bg_inode_table) * data.block_size + (index * int(data.s_inode_size, 16))
+        # pos = ((__u64)da.bg_inode_table) * data.block_size + (index * int(data.s_inode_size, 16))
         logging.debug(f"Num inode: {inode_num}, Her group: {group}, Index: {index}, Containing block {containing_block}")
-    """
-            Из таблицы дескрипторов групп извлекаем дескриптор группы group и копируем его в структуру struct ext2_group_desc gd:
-            memset((void *)&gd, 0, sizeof(gd));
-            memcpy((void *)&gd, buff_grp + (group * (sizeof(gd))), sizeof(gd));
-            Вычисляем позицию inode c порядковым номером inode_num в таблице inode группы group и считываем этот inode в структуру struct ext2_inode:
-            index = (inode_num - 1) % sb.s_inodes_per_group;
-            pos = ((__u64)gd.bg_inode_table) * BLKSIZE + (index * sb.s_inode_size);
-            pread64(indev, in, sb.s_inode_size, pos);
-            return;
-    """
 
     def inode_init(self, inode: EXT2Inode, inode_byte: str):
         inode.i_mode = self.reversed_byte_ararry(inode_byte[0:4])  # 0	    2

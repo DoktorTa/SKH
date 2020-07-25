@@ -1,5 +1,5 @@
 import unittest
-from comand_sys import Command
+from Modules.FS.comand_sys import Command
 
 
 class TestCommand(unittest.TestCase):

@@ -1,5 +1,5 @@
 import unittest
-from FAT321612_read import Reader
+from Modules.FS.FAT321612_read import Reader
 
 
 class ReaderTest(unittest.TestCase):
