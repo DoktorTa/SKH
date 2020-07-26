@@ -4,7 +4,7 @@ import curses
 import curses.textpad
 
 from CUI import CUI
-from Modules.FS.comand_sys import Command
+from Modules.FS.FAT_comand_sys import Command
 from CUI_hex_menu import CUIHex
 
 

@@ -133,7 +133,7 @@ class EXT2Inode:
     i_gid = 0                          # 24	    2
     i_links_count = 0                  # 26	    2
     # i_blocks = 0                       # 28	    4
-    # i_flags = 0                        # 32	    4
+    i_flags = 0                        # 32	    4
     # i_osd1 = 0                         # 36	    4
     i_block = []                       # 40	    15 х 4
     # i_generation = 0                   # 100	4
@@ -141,3 +141,6 @@ class EXT2Inode:
     # i_dir_acl = 0                      # 108	4
     # i_faddr = 0                        # 112	4
     # i_osd2 = 0                         # 116   12
+
+    def __init__(self):
+        self.i_block = []

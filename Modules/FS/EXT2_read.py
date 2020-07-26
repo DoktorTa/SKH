@@ -9,25 +9,23 @@ class EXT2Reader:
 
     def __init__(self, data: EXT2Data):
         self.data = data
-        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as self.file:
-            self.superblockc_read(data)
-            root_num_descriptor = 2
-            self._table_descriptor_block(data)
-            blocks_root = self._inode(root_num_descriptor)
-            # print(int(blocks_root[0], 16) * 1024)
 
+    def root_catalog_read(self):
+        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as self.file:
+            self.superblockc_read(self.data)
+            self._table_descriptor_block(self.data)
+
+            root_num_descriptor = 2
+            blocks_root = self._inode(root_num_descriptor)
             self.file.seek(int(blocks_root[0], 16) * 1024)
             block_root = self.file.read(self.data.block_size).hex()
-            root = self.linked_directory_entry(block_root)
-            blocks_root = self._inode(int(root[3][0], 16))
-            print(root)
-            print(blocks_root)
-            # self.ls("/")
+            root = self._linked_directory_entry(block_root)
 
-            # self.get_inode(data, 8)
-            logging.debug(str(data))
+            logging.debug(f"Root: {root},\nBlocks root: {blocks_root}")
+            logging.debug(str(self.data))
+        return root
 
-    def linked_directory_entry(self, block: str) -> list:
+    def _linked_directory_entry(self, block: str) -> list:
         dir_entry = []
         while True:
             inode_num = self.reversed_byte_ararry(block[0:8])
@@ -35,9 +33,6 @@ class EXT2Reader:
                 break
             rec_len = self.reversed_byte_ararry(block[8:12])
             name_len = block[12:14]
-
-            print(int(name_len, 16))
-
             file_type = block[14:16]
             name = block[16:16 + 2 * int(name_len, 16)]
             block = block[0 + 2 * int(rec_len, 16):]
@@ -69,25 +64,28 @@ class EXT2Reader:
 
             descriptor_g = EXT2DescriptorGroup(i)
             self.table_descriptor_block_init(descriptor_g, buf)
-            descriptor_g.start = int(data.s_first_data_block, 16) + i * int(data.s_blocks_per_group, 16)
-            descriptor_g.end = descriptor_g.start + int(data.s_blocks_per_group, 16)
+            descriptor_g.start_seek = int(data.s_first_data_block, 16) + i * int(data.s_blocks_per_group, 16)
+            descriptor_g.end_seek = descriptor_g.start_seek + int(data.s_blocks_per_group, 16)
             data.group_description_table.append(descriptor_g)
 
             # logging.debug(f"Descriptor: {str(descriptor_g)}")
 
     def _inode(self, inodes_num: int) -> list:
-        """247
+        """
             Функция обрабатывает инод с помошью его номера, и выдает лист его кластеров, или по другому блоков.
         """
+
+        block_group = (inodes_num - 1) / int(self.data.s_inodes_per_group, 16)
+
         group_index = (inodes_num - 1) % int(self.data.s_inodes_per_group, 16)
         block_disc = self.data.group_description_table[(inodes_num - 1) // int(self.data.s_inodes_per_group, 16)]
         offset = int(block_disc.bg_inode_table, 16) * self.data.block_size
         offset += group_index * int(self.data.s_inode_size, 16)
 
-        logging.debug(f"Inode num: {inodes_num},"
-                      f" Descriptor block: {block_disc.num_descriptor},"
-                      f" Offset inode: {offset},"
-                      f" Group index: {group_index}")
+        logging.debug(f"Inode num: {inodes_num}, "
+                      f"Offset inode: {offset}, "
+                      f"Group index: {group_index}, "
+                      f"Descriptor block: {block_disc.num_descriptor}")
 
         self.file.seek(offset)
         inode_block = self.file.read(int(self.data.s_inode_size, 16)).hex()
@@ -96,7 +94,6 @@ class EXT2Reader:
         inode = self.inode_init(inode, inode_block)
 
         block_list = self._read_straight_blocks(inode)
-        print(block_list)
         return block_list
 
     def _list_of_double_indirects(self, block: str) -> list:
@@ -221,6 +218,7 @@ class EXT2Reader:
         inode.i_size = self.reversed_byte_ararry(inode_byte[8:16])  # 4	    4
         inode.i_gid = self.reversed_byte_ararry(inode_byte[48:52])  # 24	    2
         inode.i_links_count = self.reversed_byte_ararry(inode_byte[52:56])  # 26	    2
+        inode.i_flags = self.reversed_byte_ararry(inode_byte[64:70])  # 32	    4
         for i in range(15):
             inode.i_block.append(self.reversed_byte_ararry(inode_byte[80 + i * 8:88 + i * 8]))  # 40	    15 х 4
         return inode
