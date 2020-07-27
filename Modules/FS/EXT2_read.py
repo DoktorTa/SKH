@@ -7,25 +7,28 @@ from Modules.FS.EXT2_data import EXT2Data, EXT2DescriptorGroup, EXT2Inode
 class EXT2Reader:
     error = ""
 
-    def __init__(self, data: EXT2Data):
+    def __init__(self, data: EXT2Data, file):
+        self.file = file
         self.data = data
 
     def root_catalog_read(self):
-        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as self.file:
-            self.superblockc_read(self.data)
-            self._table_descriptor_block(self.data)
+        self.superblockc_read(self.data)
+        self._table_descriptor_block(self.data)
 
-            root_num_descriptor = 2
-            blocks_root = self._inode(root_num_descriptor)
-            self.file.seek(int(blocks_root[0], 16) * 1024)
-            block_root = self.file.read(self.data.block_size).hex()
-            root = self._linked_directory_entry(block_root)
+        root_num_descriptor = 2
+        blocks_root = self.inode(root_num_descriptor)
+        self.file.seek(int(blocks_root[0], 16) * 1024)
+        block_root = self.file.read(self.data.block_size).hex()
+        root = self.linked_directory_entry(block_root)
 
-            logging.debug(f"Root: {root},\nBlocks root: {blocks_root}")
-            logging.debug(str(self.data))
+        logging.debug(f"Root: {root},\nBlocks root: {blocks_root}")
+        logging.debug(str(self.data))
         return root
 
-    def _linked_directory_entry(self, block: str) -> list:
+    def linked_directory_entry(self, block: str) -> list:
+        """
+            [inode_num, rec_len, name_len, file_type, name_ascii]
+        """
         dir_entry = []
         while True:
             inode_num = self.reversed_byte_ararry(block[0:8])
@@ -70,7 +73,7 @@ class EXT2Reader:
 
             # logging.debug(f"Descriptor: {str(descriptor_g)}")
 
-    def _inode(self, inodes_num: int) -> list:
+    def inode(self, inodes_num: int) -> list:
         """
             Функция обрабатывает инод с помошью его номера, и выдает лист его кластеров, или по другому блоков.
         """
@@ -91,7 +94,7 @@ class EXT2Reader:
         inode_block = self.file.read(int(self.data.s_inode_size, 16)).hex()
 
         inode = EXT2Inode()
-        inode = self.inode_init(inode, inode_block)
+        inode = self._inode_init(inode, inode_block)
 
         block_list = self._read_straight_blocks(inode)
         return block_list
@@ -203,16 +206,16 @@ class EXT2Reader:
 
         logging.debug(f"Magic: {data.s_magic}, State: {data.s_state}, Error: {data.s_errors}")
 
-    # Функция получения содержимого inode по его номеру
-    def get_inode(self, data: EXT2Data, inode_num: int):
-        # Вычисляем номер группы блоков, в которой находится inode с порядковым номером inode_num:
-        group = (inode_num - 1) / int(data.s_inodes_per_group, 16)
-        index = (inode_num - 1) % int(data.s_inodes_per_group, 16)
-        containing_block = (index * int(data.s_inode_size, 16)) // data.block_size
-        # pos = ((__u64)da.bg_inode_table) * data.block_size + (index * int(data.s_inode_size, 16))
-        logging.debug(f"Num inode: {inode_num}, Her group: {group}, Index: {index}, Containing block {containing_block}")
+    # # Функция получения содержимого inode по его номеру
+    # def _get_inode(self, data: EXT2Data, inode_num: int):
+    #     # Вычисляем номер группы блоков, в которой находится inode с порядковым номером inode_num:
+    #     group = (inode_num - 1) / int(data.s_inodes_per_group, 16)
+    #     index = (inode_num - 1) % int(data.s_inodes_per_group, 16)
+    #     containing_block = (index * int(data.s_inode_size, 16)) // data.block_size
+    #     # pos = ((__u64)da.bg_inode_table) * data.block_size + (index * int(data.s_inode_size, 16))
+    #     logging.debug(f"Num inode: {inode_num}, Her group: {group}, Index: {index}, Containing block {containing_block}")
 
-    def inode_init(self, inode: EXT2Inode, inode_byte: str):
+    def _inode_init(self, inode: EXT2Inode, inode_byte: str):
         inode.i_mode = self.reversed_byte_ararry(inode_byte[0:4])  # 0	    2
         inode.i_uid = self.reversed_byte_ararry(inode_byte[4:8])  # 2	    2
         inode.i_size = self.reversed_byte_ararry(inode_byte[8:16])  # 4	    4
