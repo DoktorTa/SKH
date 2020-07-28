@@ -1,5 +1,6 @@
 import logging
 import math
+import copy
 
 from Modules.FS.EXT2_data import EXT2Data
 from Modules.FS.EXT2_read import EXT2Reader
@@ -7,40 +8,54 @@ from Modules.FS.Interface_FS import IFSWork
 
 
 class CommandEXT2(IFSWork):
+    """
+        Класс командной системы для фс ext2
+
+        Обеспечивает команды для:
+            * Перемешения по директориям
+            * Чтение определенного колличества блоков из файла в директории
+    """
     __ext2_fs = 0
     __root = []
     __pwd = ""
 
     def __init__(self, ext2_fs: EXT2Reader):
         self.__ext2_fs = ext2_fs
-        self.root = self.__ext2_fs.root_catalog_read()
-        self.root = self._conversion(self.root)
+        self.__root = self.__ext2_fs.root_catalog_read()
+        self.__root = self._conversion(self.__root)
 
     @staticmethod
     def _conversion(catalog_old: list) -> list:
         """
-            [inode_num, rec_len, name_len, file_type, name_ascii]
+            Метод преобразует лист инода в стандартный для фс лист элемента.
+            [Номер инода, Длинна записи, длинна имени, Тип записи, Имя в аски кодировке]
             ->
             [Имя, Аттрибут, Дата последней записи, Размер в байтах, Номер первого кластера элемента, Длинное имя]
         """
+        # TODO: Реализовать конвертацию по средством чтения инода для более полного заполнения листа элемента.
         catalog_new = []
 
         for element_old in catalog_old:
             file_type = element_old[3]
 
-            if file_type == "":
+            if file_type == "02":
                 file_type = "D"
             else:
                 file_type = "F"
 
             element_new = [element_old[4], file_type, 0, 0, element_old[0], 0]
+
+            root_file = ['', 'F', 0, 0, '00000000', 0]
+            if element_new == root_file:
+                continue
+
             catalog_new.append(element_new)
 
         return catalog_new
 
     def cd(self, dir_now: list, num_in_dir: int) -> (list, int):
-        catalog = []
         error = 0
+        catalog = []
 
         try:
             element_dir = dir_now[num_in_dir]
@@ -52,6 +67,7 @@ class CommandEXT2(IFSWork):
 
         elements_list = self.__ext2_fs.inode(inode_num)
         for block in elements_list:
+            # TODO: Можно добавить механизм выдачи больших каталогов, но я думаю памяти хватит и так.
             if block == "00000000":
                 break
 
@@ -62,11 +78,9 @@ class CommandEXT2(IFSWork):
 
         return catalog, error
 
-    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> (str, list, int, int):
-        catalog = []
+    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> (str, int, int):
         error = 0
         blocks = ""
-        step = 1
 
         try:
             element_dir = dir_now[num_in_dir]
@@ -74,25 +88,29 @@ class CommandEXT2(IFSWork):
         except LookupError:
             error = -1
             logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
-            return "", [], 0, error
+            return "", 0, error
 
         elements_list = self.__ext2_fs.inode(inode_num)
         if count < 0:
-            count = math.fabs(count)
-            step = -1
+            count_s = copy.deepcopy(count)
+            pointer += count_s
+            count = int(math.fabs(count))
 
-        for i in range(count):
+        for inc in range(count):
             try:
                 block = elements_list[pointer]
-                pointer += step
+                pointer += 1
             except LookupError:
                 error = -1
                 logging.error(f"No reading is possible. All blocks: {len(elements_list)}, required item: {pointer}")
-                return blocks, elements_list, pointer, error
+                break
             block_hex = self.__ext2_fs.read_block(int(block, 16)).hex()
             blocks += block_hex
 
-        return blocks, elements_list, pointer, error
+        if count < 0:
+            pointer += count_s
+
+        return blocks, pointer, error
 
     def pwd(self) -> str:
         return self.__pwd
@@ -107,7 +125,15 @@ if __name__ == '__main__':
         data = EXT2Data()
         p = EXT2Reader(data, file)
         com = CommandEXT2(p)
-        root = com.root
-        print(root)
-        c, e, p, i = com.read(root, 3, 1, 0)
-        print(c, e, p, i)
+        root = com.root()
+        # print(root)
+        dir, b = com.cd(root, 3)
+        print(dir)
+        c, p, i = com.read(dir, 3, 1, 0)
+        print(c, p, i)
+
+        c, p, i = com.read(dir, 3, 3, 1)
+        print(c, p, i)
+
+        c, p, i = com.read(dir, 3, -1, 1)
+        print(c, p, i)

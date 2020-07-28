@@ -116,7 +116,7 @@ class EXT2Reader:
     def _list_of_indirects(self, block: str) -> list:
         blocks = []
 
-        for i in range(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE):
+        for i in range(int(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE)):
             element_block = int(self.reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
 
             if element_block is 0:
