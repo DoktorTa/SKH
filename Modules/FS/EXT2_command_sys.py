@@ -81,6 +81,7 @@ class CommandEXT2(IFSWork):
     def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> (str, int, int):
         error = 0
         blocks = ""
+        count_s = 0
 
         try:
             element_dir = dir_now[num_in_dir]
@@ -107,7 +108,7 @@ class CommandEXT2(IFSWork):
             block_hex = self.__ext2_fs.read_block(int(block, 16)).hex()
             blocks += block_hex
 
-        if count < 0:
+        if count_s < 0:
             pointer += count_s
 
         return blocks, pointer, error
@@ -126,14 +127,3 @@ if __name__ == '__main__':
         p = EXT2Reader(data, file)
         com = CommandEXT2(p)
         root = com.root()
-        # print(root)
-        dir, b = com.cd(root, 3)
-        print(dir)
-        c, p, i = com.read(dir, 3, 1, 0)
-        print(c, p, i)
-
-        c, p, i = com.read(dir, 3, 3, 1)
-        print(c, p, i)
-
-        c, p, i = com.read(dir, 3, -1, 1)
-        print(c, p, i)
