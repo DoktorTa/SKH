@@ -1,6 +1,14 @@
 class EXT2Data:
     SIZE_BLOCK_IN_BLOCK_TABLE = 4
 
+    EXT2_FEATURE_INCOMPAT_COMPRESSION = 1
+    EXT2_FEATURE_INCOMPAT_FILETYPE = 2
+    EXT3_FEATURE_INCOMPAT_RECOVER = 4
+    EXT3_FEATURE_INCOMPAT_JOURNAL_DEV = 8
+    EXT2_FEATURE_INCOMPAT_META_BG = 16
+
+    EXT2_ROOT_DESCRIPTOR = 2
+
     s_inodes_count = 0               # 0   4
     s_blocks_count = 0               # 4   4
     # s_r_blocks_count = 0             # 8   4
@@ -34,7 +42,7 @@ class EXT2Data:
     s_inode_size = 0                 # 88  2
     # s_block_group_nr = 0             # 90  2
     # s_feature_compat = 0             # 92  4
-    # s_feature_incompat = 0           # 96  4
+    s_feature_incompat = 0           # 96  4
     # s_feature_ro_compat = 0          # 100 4
     # s_uuid = 0                       # 104 16
     # s_volume_name = 0                # 120 16
@@ -83,7 +91,8 @@ class EXT2Data:
                 f"First inodes:      {self.s_first_ino} \n" \
                 f"Inode size:        {self.s_inode_size} \n\n" \
                 f"BLOCK SIZE:        {self.block_size}\n" \
-                f"Group count:       {self.group_count}\n\n"
+                f"Group count:       {self.group_count}\n" \
+                f"Feature incompat:  {self.s_feature_incompat}\n\n"
         return str_f
 
 
@@ -144,3 +153,7 @@ class EXT2Inode:
 
     def __init__(self):
         self.i_block = []
+
+    def __str__(self):
+        str_f = f"Blocks: {self.i_block}"
+        return str_f

@@ -68,10 +68,10 @@ class CommandEXT2(IFSWork):
         elements_list = self.__ext2_fs.inode(inode_num)
         for block in elements_list:
             # TODO: Можно добавить механизм выдачи больших каталогов, но я думаю памяти хватит и так.
-            if block == "00000000":
+            if block == 0:
                 break
 
-            part_catalog_hex = self.__ext2_fs.read_block(int(block, 16)).hex()
+            part_catalog_hex = self.__ext2_fs.read_block(block).hex()
             part_catalog = self.__ext2_fs.linked_directory_entry(part_catalog_hex)
             part_catalog = self._conversion(part_catalog)
             catalog += part_catalog
@@ -79,6 +79,7 @@ class CommandEXT2(IFSWork):
         return catalog, error
 
     def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> (str, int, int):
+        # TODO: !!!НЕОБХОДИМО!!! Буфферы для листов блоков.
         error = 0
         blocks = ""
         count_s = 0
@@ -105,7 +106,7 @@ class CommandEXT2(IFSWork):
                 error = -1
                 logging.error(f"No reading is possible. All blocks: {len(elements_list)}, required item: {pointer}")
                 break
-            block_hex = self.__ext2_fs.read_block(int(block, 16)).hex()
+            block_hex = self.__ext2_fs.read_block(block).hex()
             blocks += block_hex
 
         if count_s < 0:
@@ -114,6 +115,7 @@ class CommandEXT2(IFSWork):
         return blocks, pointer, error
 
     def pwd(self) -> str:
+        # TODO: реализовать.
         return self.__pwd
 
     def root(self) -> list:
