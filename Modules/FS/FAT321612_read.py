@@ -352,59 +352,15 @@ class Reader:
 
     # Разбирает загрузочный сектор ФС
     def load_sector(self, load_sector_h: str) -> [int, int, int, int, int, int]:
-        bpb_eb = load_sector_h[0:6]
-        bpb_os_or_fs_identifier = load_sector_h[6:22]
-        bpb_byte_in_sector = load_sector_h[22:26]
-
-        # Это значение должно быть степенью 2, которая больше 0
+        bpb_byte_in_sector = self.reversed_byte_ararry(load_sector_h[22:26])
         bpb_sector_in_claster = load_sector_h[26:28]
-
-        # Для томов FAT12 и FAT16 это значение никогда не должно быть
-        # ничем иным, чем 1. Для томов FAT32 это значение обычно равно 32.
-        bpb_reversed_sector = load_sector_h[28:32]
+        bpb_reversed_sector = self.reversed_byte_ararry(load_sector_h[28:32])
         bpb_num_fat = load_sector_h[32:34]
-
-        # Для томов FAT12 и FAT16 это значение всегда должно указывать счетчик,
-        # который при умножении на 32 приводит к четному кратному
-        # BPB_BytsPerSec. Для FAT32 поле всегда 0
-        bpb_root_ent_cnt = load_sector_h[34:38]
-
-        # Если это 0, то BPB_TotSec32 должен быть ненулевым.
-        # Для томов FAT32 это поле должно быть 0.
-        # Для томов FAT12 и FAT16 это поле содержит количество секторов,
-        # а BPB_TotSec32 равно 0, если общее количество секторов меньше 0x10000
-        bpb_total_sector_16_12 = load_sector_h[38:42]
-        bpb_media = load_sector_h[42:44]
-
-        # Это поле является 16-разрядным счетчиком FAT12 / FAT16 секторов,
-        # занятых ONE FAT. На томах FAT32 это поле должно быть 0,
-        # а BPB_FATSz32 содержит счетчик размеров FAT.
-        bpb_fat_size_16_12 = load_sector_h[44:48]
-        bpb_sector_on_track = load_sector_h[48:52]
-        bpb_num_heads = load_sector_h[52:56]
-        bpb_hidden_sector = load_sector_h[56:64]
-
-        # 32-разрядное общее количество секторов в томе.
-        # Это количество включает в себя количество всех секторов
-        # во всех четырех областях тома. Если это 0, то BPB_TotSec16
-        # должен быть ненулевым.
-        # Для томов FAT32 это поле должно быть ненулевым.
-        # Для томов FAT12 / FAT16 это поле содержит количество секторов,
-        # если BPB_TotSec16 равно 0 (количество больше или равно 0x10000).
-        bpb_total_sector_32 = load_sector_h[64:72]
-
-        # Это поле является 32-битным счетчиком FAT32 секторов,
-        # занятых ONE FAT.
-        bpb_fat_size_32 = load_sector_h[72:80]
-
-        bpb_root_ent_cnt = self.reversed_byte_ararry(bpb_root_ent_cnt)
-        bpb_byte_in_sector = self.reversed_byte_ararry(bpb_byte_in_sector)
-        bpb_fat_size_16_12 = self.reversed_byte_ararry(bpb_fat_size_16_12)
-        bpb_fat_size_32 = self.reversed_byte_ararry(bpb_fat_size_32)
-        bpb_total_sector_16_12 = self.reversed_byte_ararry(
-            bpb_total_sector_16_12)
-        bpb_total_sector_32 = self.reversed_byte_ararry(bpb_total_sector_32)
-        bpb_reversed_sector = self.reversed_byte_ararry(bpb_reversed_sector)
+        bpb_root_ent_cnt = self.reversed_byte_ararry(load_sector_h[34:38])
+        bpb_total_sector_16_12 = self.reversed_byte_ararry(load_sector_h[38:42])
+        bpb_fat_size_16_12 = self.reversed_byte_ararry(load_sector_h[44:48])
+        bpb_total_sector_32 = self.reversed_byte_ararry(load_sector_h[64:72])
+        bpb_fat_size_32 = self.reversed_byte_ararry(load_sector_h[72:80])
 
         bpb_root_ent_cnt = int(str(bpb_root_ent_cnt), 16)
         bpb_byte_in_sector = int(str(bpb_byte_in_sector), 16)
@@ -444,57 +400,10 @@ class Reader:
             return all_fat_size, root_dir_sector, not_bpb_root_claster, bpb_reversed_sector, bpb_fat_size_16_12
 
     def loaded_fat16(self, load_sector_h: str):
-        bs_num_drv = load_sector_h[72:74]
-
-        # Код, который форматирует тома FAT,
-        # должен всегда устанавливать этот байт в 0.
-        bs_reversed_1 = load_sector_h[74:76]
-
-        # Указывает на наличие следующих трех полей в загрузочном секторе.
-        bs_boot_signature = load_sector_h[76:78]
-        bs_serian_num_tom = load_sector_h[78:86]
-        bs_mets_tom = load_sector_h[86:108]
-
-        # Этой Иуде неверит даже Microsoft
-        bs_fs_t = load_sector_h[108:124]
+        pass
 
     def loaded_fat32(self, load_sector_h: str) -> int:
-        # Биты 0-3 - количество активных FAT на основе нуля.
-        # Действителен только если зеркальное отображение отключено.
-        # Биты 4-6 - зарезервированы.
-        # Бит 7 - 0 означает, что FAT отражается во все FAT .
-        # - 1 означает, что активен только один FAT это ссылка на биты 0-3.
-        # Биты 8-15 - зарезервированы.
-        bpb_ext_flags = load_sector_h[80:84]
-        bpb_fs_ver = load_sector_h[84:88]
-
-        # Это номер кластера первого кластера корневого каталога, обычно 2.
         bpb_root_claster = load_sector_h[88:96]
-
-        # Номер сектора структуры FSINFO в зарезервированной области FAT32.
-        bpb_fs_info = load_sector_h[96:100]
-
-        # Если не ноль, указывает номер сектора в зарезервированной области
-        # тома копии загрузочной записи.
-        bpb_bk_boot_sector = load_sector_h[100:104]
-        bpb_reversed = load_sector_h[104:128]
-
-        # !!!Далее то же что и в FAT12 и FAT16, но с другим смешением!!!
-
-        bs_num_drv = load_sector_h[128:130]
-
-        # Код, который форматирует тома FAT,
-        # должен всегда устанавливать этот байт в 0.
-        bs_reversed_1 = load_sector_h[130:132]
-
-        # Указывает на наличие следующих трех полей в загрузочном секторе.
-        bs_boot_signature = load_sector_h[132:134]
-        bs_serian_num_tom = load_sector_h[134:142]
-        bs_mets_tom = load_sector_h[142:164]
-
-        # Этой Иуде неверит даже Microsoft
-        bs_fs_t = load_sector_h[164:180]
-
         bpb_root_claster = self.reversed_byte_ararry(bpb_root_claster)
         bpb_root_claster = int(str(bpb_root_claster), 10)
 
