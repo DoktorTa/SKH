@@ -2,10 +2,10 @@ import unittest
 from Modules.FS.FAT_comand_sys import Command
 
 
-class TestCommand(unittest.TestCase):
+class TestComSysFAT3216(unittest.TestCase):
 
     def test_cd(self):
-        with open("test16.img", "rb") as file:
+        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\test16.img", "rb") as file:
             c = Command(file)
 
             answer_0 = [['.          ', '10', '5072', 0, 3, ''],
@@ -23,7 +23,7 @@ class TestCommand(unittest.TestCase):
             self.assertEqual(c.cd(file, answer_0, 5), (answer_0, error_1))
 
     def test_read(self):
-        with open("test16.img", "rb") as file:
+        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\test16.img", "rb") as file:
             c = Command(file)
 
             file.seek(122880)

@@ -6,19 +6,19 @@ from Modules.FS.EXT2_data import EXT2Data, EXT2DescriptorGroup, EXT2Inode
 
 class EXT2Reader:
     error = ""
+    data: EXT2Data
 
     def __init__(self, data: EXT2Data, file):
         self.file = file
         self.data = data
 
-    def root_catalog_read(self):
+    def root_catalog_read(self) -> list:
         self.superblock_read()
         self._table_descriptor_block()
 
         blocks_root = self.inode(self.data.EXT2_ROOT_DESCRIPTOR)
 
         self.file.seek(blocks_root[0] * 1024)
-
         block_root = self.file.read(self.data.block_size).hex()
         root = self.linked_directory_entry(block_root)
 
@@ -315,9 +315,3 @@ class EXT2Reader:
             bytes += one_byte
 
         return bytes
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    data = EXT2Data()
-    p = EXT2Reader(data)

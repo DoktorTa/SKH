@@ -4,6 +4,8 @@ import argparse
 
 from TestModules.FS.test_EXT2_command_sys import TestComSysEXT2
 from TestModules.FS.test_read_EXT2 import TestReadEXT2
+from TestModules.FS.test_read_FAT3216 import TestReadFAT3216
+from TestModules.FS.test_FAT3216_command_sys import TestComSysFAT3216
 
 
 def main():
@@ -19,6 +21,11 @@ def main():
         if mode[0] == 1:
             test_group_fs.addTest(TestComSysEXT2('test_cd'))
             test_group_fs.addTest(TestComSysEXT2('test_read'))
+
+            # TODO: Переработать тесты
+            test_group_fs.addTest(TestReadFAT3216('test_root_catalog_reader'))
+            test_group_fs.addTest(TestComSysFAT3216('test_cd'))
+            test_group_fs.addTest(TestComSysFAT3216('test_read'))
 
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(test_group_fs)

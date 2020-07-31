@@ -65,7 +65,7 @@ class Reader:
             fat16
     """
 
-    seek_fs = 4128768  # 4128768
+    seek_fs = 0  # 4128768
     fat_seek_b = 0
     fs = ""
     bpb_byte_in_sector = 0
