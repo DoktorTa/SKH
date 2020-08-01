@@ -1,4 +1,5 @@
 class FATData:
+    FAT_version = ''
     # bpb_eb = 0                         # 0    3
     # bpb_os_or_fs_identifier = 0        # 3    11
     bpb_byte_in_sector = 0
@@ -91,4 +92,70 @@ class FATData:
     # bs_fs_t = load_sector_h[164:180]
     # ^ FAT32 load dlc ^----------------------------------------------------------------------------------------------------
 
+    def __str__(self):
+        str_f = f"\n" \
+                f"FAT version:        {self.FAT_version}" \
+                f"Bytes in sectors:   {self.bpb_byte_in_sector}\n" \
+                f"Sector per claster: {self.bpb_sector_in_claster}\n" \
+                f"Reversed sectors:   {self.bpb_reversed_sector}\n" \
+                f"Nums fat table:     {self.bpb_num_fat}\n" \
+                f"Root ent cnt:       {self.bpb_root_ent_cnt}\n" \
+                f"Total sectors 1:    {self.bpb_total_sector_16_12}\n" \
+                f"Total sectors 2:    {self.bpb_total_sector_32}\n" \
+                f"FAT size 12, 16:    {self.bpb_fat_size_16_12}\n" \
+                f"FAT size 32:        {self.bpb_fat_size_32}\n" \
+                f"First root claster: {self.bpb_root_claster}\n"
+        return str_f
 
+
+class FATLongName:
+    l_element_ord = 0
+    l_element_name_1 = 0
+    # l_element_attr = element_h[22:24]
+    # l_element_type = element_h[24:26]
+    # l_element_chksum = element_h[26:28]
+    l_element_name_2 = 0
+    # l_element_fts_claster_lo = element_h[52:56]
+    l_element_name_3 = 0
+
+    l_element_name = ""
+
+    def __str__(self):
+        str_f = f"\n" \
+                f"Element\n" \
+                f"Ord:                 {self.l_element_ord}\n" \
+                f"Name 1:              {self.l_element_name_1}\n" \
+                f"Name 2:              {self.l_element_name_2}\n" \
+                f"Name 3:              {self.l_element_name_3}\n" \
+                f"Name:                {self.l_element_name}\n"
+        return str_f
+
+
+class FATDirectory:
+    element_name = 0
+    element_attr = 0
+    # Зарезервировано для использования Windows NT
+    # element_NT = element_h[24:26]
+    # element_ctr_time_tenth = element_h[26:28]
+    # element_ctr_time = element_h[28:32]
+    element_ctr_data = 0
+    # element_lst_acc_date = element_h[36:40]
+    element_fst_claster_hi = 0
+    # element_wrt_time = element_h[44:48]
+    # element_wrt_data = element_h[48:52]
+    element_fst_claster_lo = 0
+    element_size = 0
+
+    element_fst_claster = 0
+
+    def __str__(self):
+        str_f = f"\n" \
+                f"Element\n" \
+                f"Name:                {self.element_name}\n" \
+                f"Attributes:          {self.element_attr}\n" \
+                f"Creating data:       {self.element_ctr_data}\n" \
+                f"First claster high:  {self.element_fst_claster_hi}\n" \
+                f"First claster low:   {self.element_fst_claster_lo}\n" \
+                f"Size:                {self.element_size}\n" \
+                f"First claster:       {self.element_fst_claster}"
+        return str_f

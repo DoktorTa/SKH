@@ -1,5 +1,7 @@
 import copy
-from Modules.FS.FAT321612_read import Reader
+
+from Modules.FS.FAT321612_read import FATReader
+from Modules.FS.FAT3216_data import FATData
 
 
 class Command:
@@ -34,9 +36,9 @@ class Command:
     root = []
     _reader = object
 
-    def __init__(self, mount):
-        self._reader = Reader()
-        root, error = self._reader.root_catalog_read(mount)
+    def __init__(self, mount, data: FATData):
+        self._reader = FATReader(data, mount)
+        root, error = self._reader.root_catalog_read()
         self.root = root
 
     def cd(self, mount_file_sys, dir_now: list, num: int) -> [list, str]:
@@ -54,12 +56,12 @@ class Command:
             if num_first_claster == root_claster:
                 return copy.deepcopy(self.root), error
             else:
-                claster_sequence, error = self._reader.build_cls_sequence(mount_file_sys, num_first_claster)
+                claster_sequence, error = self._reader.build_cls_sequence(num_first_claster)
 
             if error == 0:
                 error = ""
                 self.pwd = element[0]
-                elements_on_dir = self._reader.reder_directory(mount_file_sys, claster_sequence)
+                elements_on_dir = self._reader.reder_directory(claster_sequence)
                 return elements_on_dir, error
             else:
                 error = "Ощибка при чтении директроии"
@@ -72,29 +74,12 @@ class Command:
     def read(self, mount_file_sys, dir_now: list, num: int) -> [str, list, str]:
         element = dir_now[num]
         num_first_claster = element[4]
-        claster_sequence, error = self._reader.build_cls_sequence(mount_file_sys, num_first_claster)
+        claster_sequence, error = self._reader.build_cls_sequence(num_first_claster)
 
         if error == 0:
             error = ""
-            element_byte, claster_sequence = self._reader.read_claster(mount_file_sys, claster_sequence)
+            element_byte, claster_sequence = self._reader.read_claster(claster_sequence)
             return element_byte, claster_sequence, error
         else:
             error = "Ощибка при чтении элемента"
             return "", claster_sequence, error
-
-
-if __name__ == '__main__':
-
-    way = r"A:\Programming languages\In developing\Python\FAT 32\test16.img"
-    mount = open(way, "rb")
-    c = Command(mount)
-    #print(c.root)
-     # x, e, r = c.read(mount, c.root, 0)
-    # print(len(x))
-    # print(x)
-    x, e = c.cd(mount, c.root, 0)
-    print(c.pwd, e)
-    # z, e = c.cd(mount, x, 4)
-    # print(z, e)
-    mount.close()
-
