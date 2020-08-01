@@ -48,7 +48,13 @@ class TestReadFAT3216(unittest.TestCase):
 
     def test_build_cls_sequence(self):
         data = FATData()
-        with open(r"", "rb") as file:
+        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t32.img", "rb") as file:
             reader = FATReader(data, file)
+            reader.set_seek_fs(4128768)
             reader.root_catalog_read()
-            claste_sequence
+
+            elements_claster = [("02", ([2], 0)), ("03", ([3], 0)), ("04", ([4], 0))]
+
+            for element_claster in elements_claster:
+                element_claster, answer = element_claster
+                self.assertEqual(reader.build_cls_sequence(element_claster), answer)

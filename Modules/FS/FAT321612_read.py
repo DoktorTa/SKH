@@ -193,7 +193,7 @@ class FATReader:
         return claster, claster_sequence
 
     # Определяет формат метки EOF
-    def eof_point(self, len_fat_record: int) -> int:
+    def _eof_point(self, len_fat_record: int) -> int:
         self.mount_file_sys.seek(self.fat_seek_b + len_fat_record + self.__seek_fs)
 
         record_last = self.mount_file_sys.read(len_fat_record)
@@ -207,8 +207,6 @@ class FATReader:
     # Строит цепь кластеров
     def build_cls_sequence(self, element_claster: str) -> [list, int]:
         len_fat_record = 0
-        len_fat_16_record = 2
-        len_fat_32_record = 4
 
         record_next = 0  # Максимальное значение следующей записи
         record_error = 0
@@ -218,15 +216,15 @@ class FATReader:
         claster_sequence = []
 
         if self.data.FAT_version == "FAT16":
-            len_fat_record = len_fat_16_record
+            len_fat_record = self.data.FAT16_LEN_RECORD
             record_next = 0x0fff8
             record_error = 0xfff7
         elif self.data.FAT_version == "FAT32":
-            len_fat_record = len_fat_32_record
+            len_fat_record = self.data.FAT32_LEN_RECORD
             record_next = 0x0ffffff8
             record_error = 0x0ffffff7
 
-        record_last = self.eof_point(len_fat_record)
+        record_last = self._eof_point(len_fat_record)
 
         element_claster = int(str(element_claster), 10)
         element_claster = element_claster & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)

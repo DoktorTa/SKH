@@ -1,4 +1,7 @@
 class FATData:
+    FAT16_LEN_RECORD = 2
+    FAT32_LEN_RECORD = 4
+
     FAT_version = ''
     # bpb_eb = 0                         # 0    3
     # bpb_os_or_fs_identifier = 0        # 3    11

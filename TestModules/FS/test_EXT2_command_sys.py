@@ -50,7 +50,7 @@ class TestComSysEXT2(unittest.TestCase):
             data = EXT2Data()
             p = EXT2Reader(data, file)
             com = CommandEXT2(p)
-            root = com.root()
+            root = com.get_root()
 
             root_dir = [['.', 'D', 0, 0, '00000002', 0],
                         ['..', 'D', 0, 0, '00000002', 0],
@@ -91,7 +91,7 @@ class TestComSysEXT2(unittest.TestCase):
                 data = EXT2Data()
                 p = EXT2Reader(data, file)
                 com = CommandEXT2(p)
-                root = com.root()
+                root = com.get_root()
                 dir, b = com.cd(root, 3)
                 # print(dir)
 

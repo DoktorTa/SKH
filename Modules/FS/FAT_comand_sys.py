@@ -1,10 +1,12 @@
 import copy
+import logging
 
 from Modules.FS.FAT321612_read import FATReader
 from Modules.FS.FAT3216_data import FATData
+from Modules.FS.Interface_FS import IFSWork
 
 
-class Command:
+class CommandFAT3216(IFSWork):
     """
     Класс отвечает за операции с файловой системой,
         в данный момент реализованы операции:
@@ -41,11 +43,19 @@ class Command:
         root, error = self._reader.root_catalog_read()
         self.root = root
 
-    def cd(self, mount_file_sys, dir_now: list, num: int) -> [list, str]:
+    def cd(self, dir_now: str, num_in_dir: int) -> [list, str]:
         root_claster = 0
         error = ""
-        element = dir_now[num]
-        element_attr = element[1]
+
+        try:
+            element = dir_now[num_in_dir]
+            element_attr = element[1]
+        except LookupError:
+            error = -1
+            logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
+            return dir_now, error
+
+        # ПРОДОЛЖИТЬ ТУТ.
 
         if element_attr == "20":
             error = "Элемент являеться файлом, а не директорией"
@@ -83,3 +93,9 @@ class Command:
         else:
             error = "Ощибка при чтении элемента"
             return "", claster_sequence, error
+
+    def get_pwd(self) -> str:
+        return self.pwd
+
+    def get_root(self) -> list:
+        return self.root

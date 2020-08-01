@@ -42,7 +42,7 @@ class IFSWork(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def root(self) -> list:
+    def get_root(self) -> list:
         """
             Возврашает содержимое корневого котолога файловой системы.
         """
@@ -51,7 +51,7 @@ class IFSWork(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def pwd(self) -> str:
+    def get_pwd(self) -> str:
         """
             Возврашает имя текушего каталога.
         """

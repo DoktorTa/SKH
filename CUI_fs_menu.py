@@ -4,7 +4,7 @@ import curses
 import curses.textpad
 
 from CUI import CUI
-from Modules.FS.FAT_comand_sys import Command
+from Modules.FS.FAT_comand_sys import CommandFAT3216
 from CUI_hex_menu import CUIHex
 
 
@@ -49,7 +49,7 @@ class CUI_FS_menu(CUI):
         stdscr.refresh()
 
         mount_file_sys = open(self.address, "rb")
-        c = Command(mount_file_sys)
+        c = CommandFAT3216(mount_file_sys)
         catalog = copy.deepcopy(c.root)
         height, width = stdscr.getmaxyx()
         self.create_element_line(width, copy.deepcopy(catalog))
@@ -77,7 +77,7 @@ class CUI_FS_menu(CUI):
 
             k = stdscr.getch()
 
-    def next_dir(self, stdscr, mount_file_sys, c: Command, catalog: list) -> [object, str, list]:
+    def next_dir(self, stdscr, mount_file_sys, c: CommandFAT3216, catalog: list) -> [object, str, list]:
         height, width = stdscr.getmaxyx()
         attr_dir = "10"
         element = catalog[self.position]
@@ -93,7 +93,7 @@ class CUI_FS_menu(CUI):
 
         return stdscr, error, catalog
 
-    def read_hex(self, mount_file_sys, stdscr, c: Command, catalog: list):
+    def read_hex(self, mount_file_sys, stdscr, c: CommandFAT3216, catalog: list):
         claster_sequence = [1]
 
         while len(claster_sequence) != 0:

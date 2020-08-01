@@ -114,11 +114,11 @@ class CommandEXT2(IFSWork):
 
         return blocks, pointer, error
 
-    def pwd(self) -> str:
+    def get_pwd(self) -> str:
         # TODO: реализовать.
         return self.__pwd
 
-    def root(self) -> list:
+    def get_root(self) -> list:
         return self.__root
 
 
@@ -128,4 +128,4 @@ if __name__ == '__main__':
         data = EXT2Data()
         p = EXT2Reader(data, file)
         com = CommandEXT2(p)
-        root = com.root()
+        root = com.get_root()
