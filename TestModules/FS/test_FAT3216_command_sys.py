@@ -23,6 +23,7 @@ class TestComSysFAT3216(unittest.TestCase):
             self.assertEqual(c.cd(c.root, 0), (answer_0, error_0))
             self.assertEqual(c.cd(answer_0, 1), (answer_1, error_0))
             self.assertEqual(c.cd(answer_0, 5), (answer_0, error_1))
+            self.assertEqual(c.cd(c.root, 10), (c.root, -1))
 
     def test_read(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\test16.img", "rb") as file:
@@ -34,7 +35,8 @@ class TestComSysFAT3216(unittest.TestCase):
             answer = answer.hex()
             claster_sq = [3]
             error = 0
-            self.assertEqual(c.read(c.root, 0, 1, 0), (answer, claster_sq, error))
+            self.assertEqual(c.read(c.root, 0, 1, 0), (answer, 1, error))
+            self.assertEqual(c.read(c.root, 10, 1, 0), ("", 0, -1))
 
 
 if __name__ == '__main__':

@@ -90,7 +90,7 @@ class CommandFAT3216(IFSWork):
         except LookupError:
             error = -1
             logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
-            return dir_now, error
+            return "", 0, error
 
         claster_sequence, error = self._reader.build_cls_sequence(num_first_claster)
         if count < 0:
@@ -105,10 +105,10 @@ class CommandFAT3216(IFSWork):
                 pointer += 1
             if count_s < 0:
                 pointer += count_s
-            return all_byte_elements, claster_sequence, error
+            return all_byte_elements, pointer, error
         else:
             error = "Ощибка при чтении элемента"
-            return "", claster_sequence, error
+            return "", pointer, error
 
     def get_pwd(self) -> str:
         return self.pwd

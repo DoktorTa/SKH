@@ -14,15 +14,15 @@ def main():
 
     test_group_fs = unittest.TestSuite()
     if "a" or "f" in type_w:
-        # test_group_fs.addTest(TestComSysEXT2('test_conversion'))
-        # test_group_fs.addTest(TestReadEXT2('test_revers_block'))
-        # test_group_fs.addTest(TestReadEXT2('test_superblock_check'))
-        # test_group_fs.addTest(TestReadEXT2('test_read_straight_blocks'))
+        test_group_fs.addTest(TestComSysEXT2('test_conversion'))
+        test_group_fs.addTest(TestReadEXT2('test_revers_block'))
+        test_group_fs.addTest(TestReadEXT2('test_superblock_check'))
+        test_group_fs.addTest(TestReadEXT2('test_read_straight_blocks'))
 
         test_group_fs.addTest(TestReadFAT3216('test_mixing'))
         if mode[0] == 1:
-            # test_group_fs.addTest(TestComSysEXT2('test_cd'))
-            # test_group_fs.addTest(TestComSysEXT2('test_read'))
+            test_group_fs.addTest(TestComSysEXT2('test_cd'))
+            test_group_fs.addTest(TestComSysEXT2('test_read'))
 
             test_group_fs.addTest(TestReadFAT3216('test_build_cls_sequence'))
             # TODO: Переработать тесты v
