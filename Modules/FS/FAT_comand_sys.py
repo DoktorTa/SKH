@@ -1,5 +1,6 @@
 import copy
 import logging
+import math
 
 from Modules.FS.FAT321612_read import FATReader
 from Modules.FS.FAT3216_data import FATData
@@ -43,9 +44,9 @@ class CommandFAT3216(IFSWork):
         root, error = self._reader.root_catalog_read()
         self.root = root
 
-    def cd(self, dir_now: str, num_in_dir: int) -> [list, str]:
+    def cd(self, dir_now: str, num_in_dir: int) -> [list, int]:
         root_claster = 0
-        error = ""
+        error = 0
 
         try:
             element = dir_now[num_in_dir]
@@ -55,10 +56,8 @@ class CommandFAT3216(IFSWork):
             logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
             return dir_now, error
 
-        # ПРОДОЛЖИТЬ ТУТ.
-
         if element_attr == "20":
-            error = "Элемент являеться файлом, а не директорией"
+            error = 1
             return dir_now, error
         elif element_attr == "10":
             num_first_claster = element[4]
@@ -69,27 +68,44 @@ class CommandFAT3216(IFSWork):
                 claster_sequence, error = self._reader.build_cls_sequence(num_first_claster)
 
             if error == 0:
-                error = ""
+                error = 0
                 self.pwd = element[0]
                 elements_on_dir = self._reader.reder_directory(claster_sequence)
                 return elements_on_dir, error
             else:
-                error = "Ощибка при чтении директроии"
+                error = 1
                 return dir_now, error
         
         else:
-            error = "Работа с этими элементами католога невозможна в данной версии программы"
+            error = 2
             return dir_now, error
 
-    def read(self, mount_file_sys, dir_now: list, num: int) -> [str, list, str]:
-        element = dir_now[num]
-        num_first_claster = element[4]
+    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> [str, list, str]:
+        all_byte_elements = ""
+        count_s = 0
+
+        try:
+            element = dir_now[num_in_dir]
+            num_first_claster = element[4]
+        except LookupError:
+            error = -1
+            logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
+            return dir_now, error
+
         claster_sequence, error = self._reader.build_cls_sequence(num_first_claster)
+        if count < 0:
+            count_s = copy.deepcopy(count)
+            pointer += count_s
+            count = int(math.fabs(count))
 
         if error == 0:
-            error = ""
-            element_byte, claster_sequence = self._reader.read_claster(claster_sequence)
-            return element_byte, claster_sequence, error
+            for i in range(count):
+                element_byte = self._reader.read_claster(claster_sequence, pointer)
+                all_byte_elements += element_byte
+                pointer += 1
+            if count_s < 0:
+                pointer += count_s
+            return all_byte_elements, claster_sequence, error
         else:
             error = "Ощибка при чтении элемента"
             return "", claster_sequence, error
