@@ -2,7 +2,7 @@ import struct
 
 
 class ELFData:
-    ELF_SIGNATURE = "7f454c46"
+    ELF_SIGNATURE = b'\x7fELF'
 
     ELF_CLASS_NONE = 0
     ELF_CLASS_32 = 1
@@ -58,9 +58,7 @@ class ELFReader:
 
         elf_e_ident = ["ei_mag0", "ei_class", "ei_data", "ei_version",
                        "ei_osabi", "ei_abiversion", "ei_pad"]
-        e_ident_format = "4sbbbbbb"
+        e_ident_format = "4s6b"
         struct_elf = struct.unpack(e_ident_format, e_ident)
-        print(struct_elf)
         for inc in range(len(elf_e_ident)):
-            print(self.data.e_ident)
-            self.data.e_ident.update((elf_e_ident[inc], struct_elf[inc]))
+            self.data.e_ident.update({elf_e_ident[inc]: struct_elf[inc]})

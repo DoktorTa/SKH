@@ -13,7 +13,7 @@ class TestELFReader(unittest.TestCase):
 
         self.assertEqual(data.e_ident.get("ei_mag0"), data.ELF_SIGNATURE)
         self.assertEqual(data.e_ident.get("ei_class"), data.ELF_CLASS_64)
-        self.assertEqual(data.e_ident.get("ei_data"), data.ELF_DATA_2MSB)
+        self.assertEqual(data.e_ident.get("ei_data"), data.ELF_DATA_2LSB)
         self.assertEqual(data.e_ident.get("ei_version"), data.EV_CURRENT)
         self.assertEqual(data.e_ident.get("ei_osabi"), data.ELF_OS_ABI_NONE)
 
