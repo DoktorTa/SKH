@@ -9,6 +9,7 @@ from TestModules.FS.test_FAT3216_command_sys import TestComSysFAT3216
 
 from TestModules.ExecutableFiles.test_elf_read import TestELFReader
 
+
 def main():
     logging.basicConfig(level=logging.CRITICAL)
     type_w, mode = arguments()
