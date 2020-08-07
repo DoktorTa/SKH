@@ -1,3 +1,24 @@
+class ELFHendlerSection:
+    SHT_NULL = 0
+    SHT_PROGBITS = 1
+    SHT_SYMTAB = 2
+    SHT_STRTAB = 3
+    SHT_RELA = 4
+    SHT_HASH = 5
+    SHT_DYNAMIC = 6
+    SHT_NOTE = 7
+    SHT_NOBITS = 8
+    SHT_REL = 9
+    SHT_SHLIB = 10
+    SHT_DYNSYM = 11
+    SHT_INIT_ARRAY = 14
+    SHT_FINI_ARRAY = 15
+    SHT_PREINIT_ARRAY = 16
+    SHT_GROUP = 17
+    SHT_SYMTAB_SHNDX = 18
+
+
+
 class ELFTableHendler:
     PT_NULL = 0
     PT_LOAD = 1
@@ -30,6 +51,10 @@ class ELFTableHendler:
     def __init__(self):
         for key in self.program_header_fields:
             self.program_header_fields.update({key: 0})
+
+    def __str__(self):
+        str_f = f"{self.program_header_fields}"
+        return str_f
 
 
 class ELFData:

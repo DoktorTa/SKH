@@ -27,9 +27,9 @@ class ELFReader:
 
                 self.file.seek(table_hendler_seek)
                 element_table = self.file.read(element_table_size)
-                self.program_header_table_init(element_table, table_hendler)
+                self._program_header_table_init(element_table, table_hendler)
 
-    def program_header_table_init(self, element_table: bytes, table_hendler: ELFTableHendler):
+    def _program_header_table_init(self, element_table: bytes, table_hendler: ELFTableHendler):
         if self.data.bit_class == 32:
             hendler_format = "l7i"
             hendler_keys = ["p_type", "p_offset", "p_vaddr", "p_paddr", "p_filesz", "p_memsz", "p_flags", "p_align"]
@@ -37,10 +37,13 @@ class ELFReader:
             hendler_format = "li6q"
             hendler_keys = ["p_type", "p_flags", "p_offset", "p_vaddr", "p_paddr", "p_filesz", "p_memsz", "p_align"]
 
-        struct_hendler = struct.unpack(hendler_format, element_table)
-        # for
+        struct_hendler = struct.unpack(self.data.byte_order + hendler_format, element_table)
+        for inc in range(len(struct_hendler)):
+            table_hendler.program_header_fields.update({hendler_keys[inc]: struct_hendler[inc]})
 
-    def e_load_init(self, e_load: bytes):
+        logging.debug(str(table_hendler))
+
+    def _e_load_init(self, e_load: bytes):
 
         elf_e_ident = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi", "ei_abiversion",
                        "ei_pad0", "ei_pad1", "ei_pad2", "ei_pad3", "ei_pad4", "ei_pad5", "ei_pad6"]

@@ -33,7 +33,7 @@ def main():
 
     if ("a" in type_w) or ("e" in type_w):
         test_group_fs.addTest(TestELFReader('test_e_load_init'))
-        test_group_fs.addTest(TestELFReader('test_program_hendler_table_read'))
+        test_group_fs.addTest(TestELFReader('test_program_hendler_table_init'))
 
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(test_group_fs)

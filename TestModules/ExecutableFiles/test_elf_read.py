@@ -11,23 +11,29 @@ class TestELFReader(unittest.TestCase):
              b"\x40\x00\x00\x00\x00\x00\x00\x00\x28\x17\x02\x00\x00\x00\x00\x00" \
              b"\x00\x00\x00\x00\x40\x00\x38\x00\x0b\x00\x40\x00\x1d\x00\x1c\x00"
 
-    def test_program_hendler_table_read(self):
+    def test_program_hendler_table_init(self):
         data = ELFData()
         elf = ELFReader(data, file=0)
         table_hedler = ELFTableHendler()
-        e_ident_b = self.e_load
-        # elf.e_load_init(e_ident_b)
+        data.bit_class = 64
+        data.byte_order = "<"
 
-        table_hedler = b"\x06\x00\x00\x00\x04\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00" \
-                       b"\x40\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00" \
-                       b"\x68\x02\x00\x00\x00\x00\x00\x00\x68\x02\x00\x00\x00\x00\x00\x00" \
-                       b"\x08\x00\x00\x00\x00\x00\x00\x00"
+        table_hedler_b = b"\x06\x00\x00\x00\x04\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00" \
+                         b"\x40\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00" \
+                         b"\x68\x02\x00\x00\x00\x00\x00\x00\x68\x02\x00\x00\x00\x00\x00\x00" \
+                         b"\x08\x00\x00\x00\x00\x00\x00\x00"
+        elf._program_header_table_init(table_hedler_b, table_hedler)
+
+        key = ['p_type', 'p_flags', 'p_offset', 'p_vaddr', 'p_paddr', 'p_filesz', 'p_memsz', 'p_align']
+        answer = [6, 4, 64, 64, 64, 616, 616, 8]
+        for inc in range(8):
+            self.assertEqual(table_hedler.program_header_fields.get(key[inc]), answer[inc])
 
     def test_e_load_init(self):
         data = ELFData()
         elf = ELFReader(data, file=0)
         e_ident_b = self.e_load
-        elf.e_load_init(e_ident_b)
+        elf._e_load_init(e_ident_b)
 
         keys = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi"]
         true_value = [data.ELF_SIGNATURE, data.ELF_CLASS_64, data.ELF_DATA_2LSB, data.EV_CURRENT, data.ELF_OS_ABI_NONE]
