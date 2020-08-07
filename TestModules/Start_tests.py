@@ -11,7 +11,7 @@ from TestModules.ExecutableFiles.test_elf_read import TestELFReader
 
 
 def main():
-    logging.basicConfig(level=logging.CRITICAL)
+    logging.basicConfig(level=logging.DEBUG)
     type_w, mode = arguments()
 
     test_group_fs = unittest.TestSuite()
@@ -32,7 +32,8 @@ def main():
             test_group_fs.addTest(TestComSysFAT3216('test_read'))
 
     if ("a" in type_w) or ("e" in type_w):
-        test_group_fs.addTest(TestELFReader('test_e_ident_init'))
+        test_group_fs.addTest(TestELFReader('test_e_load_init'))
+        test_group_fs.addTest(TestELFReader('test_program_hendler_table_read'))
 
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(test_group_fs)

@@ -1,21 +1,33 @@
 import unittest
-from Modules.ExecutableFiles.ELF_data import ELFData
-from Modules.ExecutableFiles.ELF_data import ELFReader
+import logging
+
+from Modules.ExecutableFiles.ELF_data import ELFData, ELFTableHendler
+from Modules.ExecutableFiles.ELF_read import ELFReader
 
 
 class TestELFReader(unittest.TestCase):
-    def test_e_ident_init(self):
+    e_load = b"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
+             b"\x03\x00\x3e\x00\x01\x00\x00\x00\x30\x61\x00\x00\x00\x00\x00\x00" \
+             b"\x40\x00\x00\x00\x00\x00\x00\x00\x28\x17\x02\x00\x00\x00\x00\x00" \
+             b"\x00\x00\x00\x00\x40\x00\x38\x00\x0b\x00\x40\x00\x1d\x00\x1c\x00"
+
+    def test_program_hendler_table_read(self):
         data = ELFData()
-        elf = ELFReader(data)
-        e_ident_s = r"7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00" \
-                    r"03 00 3e 00 01 00 00 00|30 61 00 00 00 00 00 00" \
-                    r"40 00 00 00 00 00 00 00 28 17 02 00 00 00 00 00" \
-                    r"00 00 00 00 40 00 38 00 0b 00 40 00 1d 00 1c 00"
-        e_ident_b = b"\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00" \
-                    b"\x03\x00\x3e\x00\x01\x00\x00\x00\x30\x61\x00\x00\x00\x00\x00\x00" \
-                    b"\x40\x00\x00\x00\x00\x00\x00\x00\x28\x17\x02\x00\x00\x00\x00\x00" \
-                    b"\x00\x00\x00\x00\x40\x00\x38\x00\x0b\x00\x40\x00\x1d\x00\x1c\x00"
-        elf.e_ident_init(e_ident_b)
+        elf = ELFReader(data, file=0)
+        table_hedler = ELFTableHendler()
+        e_ident_b = self.e_load
+        # elf.e_load_init(e_ident_b)
+
+        table_hedler = b"\x06\x00\x00\x00\x04\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00" \
+                       b"\x40\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00" \
+                       b"\x68\x02\x00\x00\x00\x00\x00\x00\x68\x02\x00\x00\x00\x00\x00\x00" \
+                       b"\x08\x00\x00\x00\x00\x00\x00\x00"
+
+    def test_e_load_init(self):
+        data = ELFData()
+        elf = ELFReader(data, file=0)
+        e_ident_b = self.e_load
+        elf.e_load_init(e_ident_b)
 
         keys = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi"]
         true_value = [data.ELF_SIGNATURE, data.ELF_CLASS_64, data.ELF_DATA_2LSB, data.EV_CURRENT, data.ELF_OS_ABI_NONE]

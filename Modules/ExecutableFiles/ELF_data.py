@@ -1,4 +1,35 @@
-import struct
+class ELFTableHendler:
+    PT_NULL = 0
+    PT_LOAD = 1
+    PT_DYNAMIC = 2
+    PT_INTERP = 3
+    PT_NOTE = 4
+    PT_SHLIB = 5
+    PT_PHDR = 6
+    PT_TLS = 7
+
+    PF_X = 0x1
+    PF_W = 0x2
+    PF_R = 0x4
+    PF_MASKOS = 0x0ff00000
+    PF_MASKPROC = 0xf0000000
+    PF_name = ["Разрешение на исполнение", "Разрешение на запись", "Разрешение на чтение"]
+
+    program_header_fields = {
+        "p_type": 0,
+        "p_flags": 0,
+        "p_offset": 0,
+        "p_vaddr": 0,
+        "p_paddr": 0,
+        "p_filesz": 0,
+        "p_memsz": 0,
+        # "p_flags": 0,
+        "p_align": 0
+    }
+
+    def __init__(self):
+        for key in self.program_header_fields:
+            self.program_header_fields.update({key: 0})
 
 
 class ELFData:
@@ -53,6 +84,9 @@ class ELFData:
     EM_PPC64 = 21  # 64-bit PowerPC
     EM_X86_64 = 62  # x86-64
 
+    byte_order = None
+    bit_class = None
+
     e_ident = {"ei_mag0": 0,
                "ei_class": 0,
                "ei_data": 0,
@@ -70,52 +104,15 @@ class ELFData:
                          "e_shoff": 0,
                          "e_flags": 0,
                          "e_ehsize": 0,
-                         "e_phentsize": 0,
+                         "e_phentsize": 0,  # Я очень недоволен этим значением, его можно принять за константу, лишнее.
                          "e_phnum": 0,
                          "e_shentsize": 0,
                          "e_shnum": 0,
                          "e_shstrndx": 0}
 
-
-class ELFReader:
-    data: ELFData
-
-    def __init__(self, data: ELFData):
-        self.data = data
-
-    def e_ident_init(self, e_load: bytes):
-
-        elf_e_ident = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi", "ei_abiversion",
-                       "ei_pad0", "ei_pad1", "ei_pad2", "ei_pad3", "ei_pad4", "ei_pad5", "ei_pad6"]
-
-        e_ident = e_load[:16]
-        e_ident_format = "4s12b"
-        struct_elf = struct.unpack(e_ident_format, e_ident)
-        for inc in range(len(elf_e_ident)):
-            self.data.e_ident.update({elf_e_ident[inc]: struct_elf[inc]})
-
-        if self.data.e_ident.get("ei_data") == self.data.ELF_DATA_2LSB:
-            byte_order = "<"
-        else:  # self.data.e_ident.get("ei_data") == self.data.ELF_DATA_2MSB
-            byte_order = ">"
-
-        e_midel = e_load[16:24]
-        e_midel_format = byte_order + "2hi"
-        struct_elf = struct.unpack(e_midel_format, e_midel)
-        elf_e_midle = ["e_type", "e_machine", "e_version"]
-        for inc in range(3):
-            self.data.e_middle_load_record.update({elf_e_midle[inc]: struct_elf[inc]})
-
-        if self.data.e_ident.get("ei_class") == self.data.ELF_CLASS_32:
-            e_end_format = "4i6h"
-            last_point = 28
-        else:  # self.data.e_ident.get("ei_class") == self.data.ELF_CLASS_64:
-            e_end_format = "3qi6h"
-            last_point = 40
-
-        e_end = e_load[24:24 + last_point]
-        struct_elf = struct.unpack(e_end_format, e_end)
-        elf_e_end = ["e_entry", "e_phoff", "e_shoff", "e_flags", "e_ehsize",
-                     "e_phentsize", "e_phnum", "e_shentsize", "e_shnum", "e_shstrndx"]
-        for inc in range(10):
-            self.data.e_end_load_rectord.update({elf_e_end[inc]: struct_elf[inc]})
+    def __str__(self) -> str:
+        str_f = f"\n" \
+                f"{self.e_ident}\n" \
+                f"{self.e_middle_load_record}\n" \
+                f"{self.e_end_load_rectord}\n"
+        return str_f
