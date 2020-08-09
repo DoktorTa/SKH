@@ -1,7 +1,7 @@
 import logging
 import struct
 
-from Modules.ExecutableFiles.ELF_data import ELFData, ELFTableHendler
+from Modules.ExecutableFiles.ELF_data import ELFData, ELFTableHendler, ELFHendlerSection
 
 
 class ELFReader:
@@ -11,25 +11,69 @@ class ELFReader:
         self.data = data
         self.file = file
 
-    def program_header_table_read(self):
-        table_hendler_seek = self.data.e_end_load_rectord.get("e_phoff")
-        if table_hendler_seek == 0:
-            return
+    def program_hendler_section_read(self):
+        section_table_seek = self.data.e_end_load_record.get("e_shoff")
+        if section_table_seek == 0:
+            logging.info(f"Смешение таблицы секций равно 0, она не существует.")
         else:
-            print(self.data.e_middle_load_record.get("e_phnum"))
-            for inc in range(self.data.e_middle_load_record.get("e_phnum")):
+            count_records = self.data.e_end_load_record.get("e_shnum")
+
+            if self.data.bit_class == 32:
+                element_size = 40
+            else:  # self.data.bit_class == 64
+                element_size = 64
+
+            for inc in range(count_records):
+                section = ELFHendlerSection()
+
+                self.file.seek(section_table_seek + (inc * element_size))
+                element_b = self.file.read(element_size)
+
+                section = self._program_hendler_section_init(element_b, section)
+                self.data.section_hendler_records.append(section)
+
+    def _program_hendler_section_init(self, element_b: bytes, section: ELFHendlerSection) -> ELFHendlerSection:
+        if self.data.bit_class == 32:
+            section_format = "10i"
+            section_keys = ["sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset",
+                            "sh_size", "sh_link", "sh_info", "sh_addralign", "sh_entsize"]
+        else:  # self.data.bit_class == 64
+            section_format = "2i4q2i2q"
+            section_keys = ["sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset",
+                            "sh_size", "sh_link", "sh_info", "sh_addralign", "sh_entsize"]
+
+        struct_section = struct.unpack(self.data.byte_order + section_format, element_b)
+        for inc in range(len(struct_section)):
+            section.program_hendler_section_fileds.update({section_keys[inc]: struct_section[inc]})
+
+        logging.debug(f"{str(section)}")
+        return section
+
+    def __name_segment_get(self):
+        pass
+
+    def program_header_table_read(self):
+        table_hendler_seek = self.data.e_end_load_record.get("e_phoff")
+        if table_hendler_seek == 0:
+            logging.info(f"Смешение таблицы заголовков равно 0, она не существует")
+        else:
+            count_records = self.data.e_end_load_record.get("e_phnum")
+
+            if self.data.bit_class == 32:
+                element_table_size = 32
+            else:  # self.data.bit_class == 64
+                element_table_size = 56
+
+            for inc in range(count_records):
                 table_hendler = ELFTableHendler()
 
-                if self.data.bit_class == 32:
-                    element_table_size = 32
-                else:  # self.data.bit_class == 64
-                    element_table_size = 56
-
-                self.file.seek(table_hendler_seek)
+                self.file.seek(table_hendler_seek + (inc * element_table_size))
                 element_table = self.file.read(element_table_size)
-                self._program_header_table_init(element_table, table_hendler)
 
-    def _program_header_table_init(self, element_table: bytes, table_hendler: ELFTableHendler):
+                table_hendler = self._program_header_table_init(element_table, table_hendler)
+                self.data.tables_hendler_records.append(table_hendler)
+
+    def _program_header_table_init(self, element_table: bytes, table_hendler: ELFTableHendler) -> ELFTableHendler:
         if self.data.bit_class == 32:
             hendler_format = "l7i"
             hendler_keys = ["p_type", "p_offset", "p_vaddr", "p_paddr", "p_filesz", "p_memsz", "p_flags", "p_align"]
@@ -42,6 +86,7 @@ class ELFReader:
             table_hendler.program_header_fields.update({hendler_keys[inc]: struct_hendler[inc]})
 
         logging.debug(str(table_hendler))
+        return table_hendler
 
     def _e_load_init(self, e_load: bytes):
 
@@ -80,6 +125,6 @@ class ELFReader:
         elf_e_end = ["e_entry", "e_phoff", "e_shoff", "e_flags", "e_ehsize",
                      "e_phentsize", "e_phnum", "e_shentsize", "e_shnum", "e_shstrndx"]
         for inc in range(10):
-            self.data.e_end_load_rectord.update({elf_e_end[inc]: struct_elf[inc]})
+            self.data.e_end_load_record.update({elf_e_end[inc]: struct_elf[inc]})
 
         logging.debug(str(self.data))

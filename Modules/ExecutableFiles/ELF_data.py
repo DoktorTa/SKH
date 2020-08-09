@@ -17,6 +17,25 @@ class ELFHendlerSection:
     SHT_GROUP = 17
     SHT_SYMTAB_SHNDX = 18
 
+    program_hendler_section_fileds = {
+        "sh_name": 0,
+        "sh_type": 0,
+        "sh_flags": 0,
+        "sh_addr": 0,
+        "sh_offset": 0,
+        "sh_size": 0,
+        "sh_link": 0,
+        "sh_info": 0,
+        "sh_addralign": 0,
+        "sh_entsize": 0
+    }
+
+    def __init__(self):
+        self.program_hendler_section_fileds = {}
+
+    def __str__(self) -> str:
+        str_f = f"{self.program_hendler_section_fileds}"
+        return str_f
 
 
 class ELFTableHendler:
@@ -49,8 +68,7 @@ class ELFTableHendler:
     }
 
     def __init__(self):
-        for key in self.program_header_fields:
-            self.program_header_fields.update({key: 0})
+        self.program_header_fields = {}
 
     def __str__(self):
         str_f = f"{self.program_header_fields}"
@@ -124,7 +142,7 @@ class ELFData:
                             "e_machine": 0,  # Platform # 2
                             "e_version": 0}  # 4
 
-    e_end_load_rectord = {"e_entry": 0,
+    e_end_load_record = {"e_entry": 0,
                          "e_phoff": 0,
                          "e_shoff": 0,
                          "e_flags": 0,
@@ -135,9 +153,12 @@ class ELFData:
                          "e_shnum": 0,
                          "e_shstrndx": 0}
 
+    tables_hendler_records = []
+    section_hendler_records = []
+
     def __str__(self) -> str:
         str_f = f"\n" \
                 f"{self.e_ident}\n" \
                 f"{self.e_middle_load_record}\n" \
-                f"{self.e_end_load_rectord}\n"
+                f"{self.e_end_load_record}\n"
         return str_f

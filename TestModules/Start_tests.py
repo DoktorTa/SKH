@@ -35,6 +35,10 @@ def main():
         test_group_fs.addTest(TestELFReader('test_e_load_init'))
         test_group_fs.addTest(TestELFReader('test_program_hendler_table_init'))
 
+        if mode[0] == 1:
+            test_group_fs.addTest(TestELFReader('test_program_hendler_table_read'))
+            test_group_fs.addTest(TestELFReader('test_program_hendler_section_read'))
+
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(test_group_fs)
 
