@@ -1,23 +1,25 @@
-class ELFHendlerSection:
-    SHT_NULL = 0
-    SHT_PROGBITS = 1
-    SHT_SYMTAB = 2
-    SHT_STRTAB = 3
-    SHT_RELA = 4
-    SHT_HASH = 5
-    SHT_DYNAMIC = 6
-    SHT_NOTE = 7
-    SHT_NOBITS = 8
-    SHT_REL = 9
-    SHT_SHLIB = 10
-    SHT_DYNSYM = 11
-    SHT_INIT_ARRAY = 14
-    SHT_FINI_ARRAY = 15
-    SHT_PREINIT_ARRAY = 16
-    SHT_GROUP = 17
-    SHT_SYMTAB_SHNDX = 18
+class ELFHeaderSection:
+    sh_type_value = {
+        0: ("SHT_NULL", ""),
+        1: ("SHT_PROGBITS", ""),
+        2: ("SHT_SYMTAB", ""),
+        3: ("SHT_STRTAB", ""),
+        4: ("SHT_RELA", ""),
+        5: ("SHT_HASH", ""),
+        6: ("SHT_DYNAMIC", ""),
+        7: ("SHT_NOTE ", ""),
+        8: ("SHT_NOBITS", ""),
+        9: ("SHT_REL", ""),
+        10: ("SHT_SHLIB", ""),
+        11: ("SHT_DYNSYM", ""),
+        14: ("SHT_INIT_ARRAY", ""),
+        15: ("SHT_FINI_ARRAY", ""),
+        16: ("SHT_PREINIT_ARRAY", ""),
+        17: ("SHT_GROUP", ""),
+        18: ("SHT_SYMTAB_SHNDX", "")
+    }
 
-    program_hendler_section_fileds = {
+    program_header_section_fileds = {
         "sh_name": 0,
         "sh_type": 0,
         "sh_flags": 0,
@@ -31,22 +33,24 @@ class ELFHendlerSection:
     }
 
     def __init__(self):
-        self.program_hendler_section_fileds = {}
+        self.program_header_section_fileds = {}
 
     def __str__(self) -> str:
-        str_f = f"{self.program_hendler_section_fileds}"
+        str_f = f"{self.program_header_section_fileds}"
         return str_f
 
 
-class ELFTableHendler:
-    PT_NULL = 0
-    PT_LOAD = 1
-    PT_DYNAMIC = 2
-    PT_INTERP = 3
-    PT_NOTE = 4
-    PT_SHLIB = 5
-    PT_PHDR = 6
-    PT_TLS = 7
+class ELFTableHeader:
+    p_type_value = {
+        0: ("PT_NULL", ""),
+        1: ("PT_LOAD", ""),
+        2: ("PT_DYNAMIC", ""),
+        3: ("PT_INTERP", ""),
+        4: ("PT_NOTE", ""),
+        5: ("PT_SHLIB", ""),
+        6: ("PT_PHDR", ""),
+        7: ("PT_TLS", "")
+    }
 
     PF_X = 0x1
     PF_W = 0x2
@@ -78,10 +82,11 @@ class ELFTableHendler:
 class ELFData:
     ELF_SIGNATURE = b'\x7fELF'
 
-    ELF_CLASS_NONE = 0
-    ELF_CLASS_32 = 1
-    ELF_CLASS_64 = 2
-    ELF_CLASS_name = ["None", "32", "64"]
+    elf_class_value = {
+        0: ("ELF_CLASS_NONE", ""),
+        1: ("ELF_CLASS_32", "32 bit system"),
+        2: ("ELF_CLASS_64", "64 bit system")
+    }
 
     ELF_DATA_NONE = 0
     ELF_DATA_2LSB = 1
@@ -153,8 +158,8 @@ class ELFData:
                          "e_shnum": 0,
                          "e_shstrndx": 0}
 
-    tables_hendler_records = []
-    section_hendler_records = []
+    tables_header_records = []
+    section_header_records = []
 
     def __str__(self) -> str:
         str_f = f"\n" \

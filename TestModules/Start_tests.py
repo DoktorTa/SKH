@@ -8,10 +8,11 @@ from TestModules.FS.test_read_FAT3216 import TestReadFAT3216
 from TestModules.FS.test_FAT3216_command_sys import TestComSysFAT3216
 
 from TestModules.ExecutableFiles.test_elf_read import TestELFReader
+from TestModules.ExecutableFiles.test_elf_work import TestELFWork
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.CRITICAL)
     type_w, mode = arguments()
 
     test_group_fs = unittest.TestSuite()
@@ -33,11 +34,13 @@ def main():
 
     if ("a" in type_w) or ("e" in type_w):
         test_group_fs.addTest(TestELFReader('test_e_load_init'))
-        test_group_fs.addTest(TestELFReader('test_program_hendler_table_init'))
+        test_group_fs.addTest(TestELFReader('test_program_header_table_init'))
 
         if mode[0] == 1:
-            test_group_fs.addTest(TestELFReader('test_program_hendler_table_read'))
-            test_group_fs.addTest(TestELFReader('test_program_hendler_section_read'))
+            test_group_fs.addTest(TestELFReader('test_program_header_table_read'))
+            test_group_fs.addTest(TestELFReader('test_program_header_section_read'))
+            test_group_fs.addTest(TestELFReader('test_load_header_read'))
+            test_group_fs.addTest(TestELFWork('test_get_header'))
 
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(test_group_fs)
