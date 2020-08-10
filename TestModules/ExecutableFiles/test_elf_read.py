@@ -18,15 +18,19 @@ class TestELFReader(unittest.TestCase):
             e_ident_b = self.e_load
             elf._e_load_init(e_ident_b)
             elf.program_hendler_section_read()
+            elf.create_name_all_section()
 
-            section_hendler_records_answer = []
+            section_hendler_records_answer = [
+                {'sh_name': '.shstrtab\x00', 'sh_type': 0, 'sh_flags': 0, 'sh_addr': 0, 'sh_offset': 0, 'sh_size': 0, 'sh_link': 0, 'sh_info': 0, 'sh_addralign': 0, 'sh_entsize': 0},
+                {'sh_name': 'interp\x00', 'sh_type': 1, 'sh_flags': 2, 'sh_addr': 680, 'sh_offset': 680, 'sh_size': 28, 'sh_link': 0, 'sh_info': 0, 'sh_addralign': 1, 'sh_entsize': 0},
+                {'sh_name': 'note.gnu.build-id\x00', 'sh_type': 7, 'sh_flags': 2, 'sh_addr': 708, 'sh_offset': 708, 'sh_size': 36, 'sh_link': 0, 'sh_info': 0, 'sh_addralign': 4, 'sh_entsize': 0},
+                {'sh_name': 'note.ABI-tag\x00', 'sh_type': 7, 'sh_flags': 2, 'sh_addr': 744, 'sh_offset': 744, 'sh_size': 32, 'sh_link': 0, 'sh_info': 0, 'sh_addralign': 4, 'sh_entsize': 0},
+                {'sh_name': 'gnu.hash\x00', 'sh_type': 1879048182, 'sh_flags': 2, 'sh_addr': 776, 'sh_offset': 776, 'sh_size': 172, 'sh_link': 5, 'sh_info': 0, 'sh_addralign': 8, 'sh_entsize': 0}
+            ]
 
-            # for inc in range(5):
-            #     tables_hendler = str(data.section_hendler_records[inc])
-            #     self.assertEqual(tables_hendler, str(section_hendler_records_answer[inc]))
-
-    def test_name_section_read(self):
-        pass
+            for inc in range(5):
+                tables_hendler = str(data.section_hendler_records[inc])
+                self.assertEqual(tables_hendler, str(section_hendler_records_answer[inc]))
 
     def test_program_hendler_table_read(self):
         data = ELFData()

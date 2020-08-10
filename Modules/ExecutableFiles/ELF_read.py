@@ -1,5 +1,6 @@
 import logging
 import struct
+import copy
 
 from Modules.ExecutableFiles.ELF_data import ELFData, ELFTableHendler, ELFHendlerSection
 
@@ -10,6 +11,34 @@ class ELFReader:
     def __init__(self, data: ELFData, file):
         self.data = data
         self.file = file
+
+    def create_name_all_section(self):
+        buf = []
+        name = ""
+        sumbol = "."
+        count_section = len(self.data.section_hendler_records) - 1
+
+        section_name_data = self.__name_segment_get()
+
+        for inc in range(count_section):
+            section = self.data.section_hendler_records.pop(0)
+            sh_name = section.program_hendler_section_fileds.get("sh_name") + 1
+
+            while ord(sumbol) != 0:
+                sumbol = section_name_data[sh_name]
+                sumbol = chr(sumbol)
+                name += sumbol
+                sh_name += 1
+
+            section.program_hendler_section_fileds.update({"sh_name": name})
+            buf.append(section)
+
+            name = ""
+            sumbol = "."
+
+            logging.debug(f"{str(section)}")
+
+        self.data.section_hendler_records = copy.deepcopy(buf)
 
     def program_hendler_section_read(self):
         section_table_seek = self.data.e_end_load_record.get("e_shoff")
@@ -46,11 +75,18 @@ class ELFReader:
         for inc in range(len(struct_section)):
             section.program_hendler_section_fileds.update({section_keys[inc]: struct_section[inc]})
 
-        logging.debug(f"{str(section)}")
+        # logging.debug(f"{str(section)}")
         return section
 
-    def __name_segment_get(self):
-        pass
+    def __name_segment_get(self) -> bytes:
+        last_segment = self.data.section_hendler_records.pop()
+        last_segment_seek = last_segment.program_hendler_section_fileds.get("sh_offset")
+        last_segment_size = last_segment.program_hendler_section_fileds.get("sh_size")
+
+        self.file.seek(last_segment_seek)
+        last_segment_data = self.file.read(last_segment_size)
+
+        return last_segment_data
 
     def program_header_table_read(self):
         table_hendler_seek = self.data.e_end_load_record.get("e_phoff")
