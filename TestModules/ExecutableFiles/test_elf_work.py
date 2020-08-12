@@ -16,7 +16,7 @@ class TestELFWork(unittest.TestCase):
                       "border": "<",
                       "bitclass": "64",
                       "amachine": ("EM_X86_64", "x86-64")}
-            self.assertEqual(elf.get_hendler(), answer)
+            self.assertEqual(elf.get_header(), answer)
 
     def test_get_table_hendler(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\ExecutableFiles\ls.elf", "rb") as file:
@@ -30,7 +30,7 @@ class TestELFWork(unittest.TestCase):
             {'p_type': 1, 'p_flags': 5, 'p_offset': 16384, 'p_vaddr': 16384, 'p_paddr': 16384, 'p_filesz': 76873, 'p_memsz': 76873, 'p_align': 4096}
         ]
 
-        table_heanders = elf.get_table_hendler()
+        table_heanders = elf.get_table_header()
         for inc in range(4):
             self.assertEqual(table_heanders[inc], answer[inc])
 

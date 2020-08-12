@@ -18,7 +18,7 @@ class ELFWork(IExecutableFile):
         self.__elf.program_header_section_read()
         self.__elf.create_name_all_section()
 
-    def get_hendler(self) -> dict:
+    def get_header(self) -> dict:
         if self.__elf.data.e_ident.get("ei_mag0") == ("ELF_SIGNATURE", ""):
             extension = "7fELF"
         else:
@@ -43,7 +43,7 @@ class ELFWork(IExecutableFile):
 
         return section_header
 
-    def get_table_hendler(self) -> list:
+    def get_table_header(self) -> list:
         table_headers = []
 
         table_headers_records = self.__elf.data.tables_header_records
