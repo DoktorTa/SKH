@@ -39,6 +39,10 @@ class ELFHeaderSection:
         str_f = f"{self.program_header_section_fileds}"
         return str_f
 
+    @property
+    def get_section(self) -> dict:
+        return self.program_header_section_fileds
+
 
 class ELFTableHeader:
     p_type_value = {
@@ -78,59 +82,67 @@ class ELFTableHeader:
         str_f = f"{self.program_header_fields}"
         return str_f
 
+    @property
+    def get_header(self) -> dict:
+        return self.program_header_fields
+
 
 class ELFData:
-    ELF_SIGNATURE = b'\x7fELF'
+    elf_signature = {b'\x7fELF': ("ELF_SIGNATURE", "")}
 
     elf_class_value = {
-        0: ("ELF_CLASS_NONE", ""),
+        0: ("ELF_CLASS_NONE", "Unknown bit system"),
         1: ("ELF_CLASS_32", "32 bit system"),
         2: ("ELF_CLASS_64", "64 bit system")
     }
 
-    ELF_DATA_NONE = 0
-    ELF_DATA_2LSB = 1
-    ELF_DATA_2MSB = 2
-    ELF_DATA_name = ["None type", "Little endian", "Big endian"]
+    elf_data_value = {
+        0: ("ELF_DATA_NONE", "Unknown endian"),
+        1: ("ELF_DATA_2LSB", "Little endian"),
+        2: ("ELF_DATA_2MSB", "Big endian")
+    }
 
-    EV_NONE = 0
-    EV_CURRENT = 1
+    ev_version_value = {
+        0: ("EV_NONE", ""),
+        1: ("EV_CURRENT", "")
+    }
 
-    ELF_OS_ABI_NONE = 0
-    ELF_OS_ABI_HPUX = 1
-    ELF_OS_ABI_NETBSD = 2
-    ELF_OS_ABI_GNU = 3
-    ELF_OS_ABI_SOLARIS = 6
-    ELF_OS_ABI_AIX = 7
-    ELF_OS_ABI_IRIX = 8
-    ELF_OS_ABI_FREEBSD = 9
-    ELF_OS_ABI_TRU64 = 10
-    ELF_OS_ABI_MODESTO = 11
-    ELF_OS_ABI_OPENBSD = 12
-    ELF_OS_ABI_OPENVMS = 13
-    ELF_OS_ABI_NSK = 14
-    ELF_OS_ABI_AROS = 15
-    ELF_OS_ABI_FENIXOS = 16
-    ELF_OS_ABI_CLOUDABI = 17
-    ELF_OS_ABI_OPENVOS = 18
-    ELF_OS_ABI_name = ["UNIX System V ABI", "HP-UX", "NetBSD",
-                       "Файл использует расширения GNU ELF (GNU/Linux)",
-                       "Solaris", "AIX", "IRIX", "FreeBSD", "Tru64 UNIX", "Modesto",
-                       "OpenBSD", "OpenVMS", "Non-Stop Kernel", "Amiga Research OS",
-                       "FenixOS", "CloudABI", "OpenVOS"]
+    elf_os_abi_value = {
+        0: ("ELF_OS_ABI_NONE", ""),
+        1: ("ELF_OS_ABI_HPUX", ""),
+        2: ("ELF_OS_ABI_NETBSD", ""),
+        3: ("ELF_OS_ABI_GNU", ""),
+        6: ("ELF_OS_ABI_SOLARIS", ""),
+        7: ("ELF_OS_ABI_AIX", ""),
+        8: ("ELF_OS_ABI_IRIX", ""),
+        9: ("ELF_OS_ABI_FREEBSD", ""),
+        10: ("ELF_OS_ABI_TRU64", ""),
+        11: ("ELF_OS_ABI_MODESTO", ""),
+        12: ("ELF_OS_ABI_OPENBSD", ""),
+        13: ("ELF_OS_ABI_OPENVMS", ""),
+        14: ("ELF_OS_ABI_NSK", ""),
+        15: ("ELF_OS_ABI_AROS", ""),
+        16: ("ELF_OS_ABI_FENIXOS", ""),
+        17: ("ELF_OS_ABI_CLOUDABI", ""),
+        18: ("ELF_OS_ABI_OPENVOS", "")
+    }
 
-    ET_NONE = 0
-    ET_REL = 1
-    ET_EXEC = 2
-    ET_DYN = 3
-    ET_CORE = 4
-    ET_name = ["Неопределённый", "Перемещаемый файл", "Исполняемый файл", "Разделяемый объектный файл", "Core file"]
+    et_value = {
+        0: ("ET_NONE", "Неопределённый"),
+        1: ("ET_REL", "Перемещаемый файл"),
+        2: ("ET_EXEC", "Исполняемый файл"),
+        3: ("ET_DYN", "Разделяемый объектный файл"),
+        4: ("ET_CORE", "Core file")
+    }
 
-    EM_NONE = 0  # Неопределено
-    EM_386 = 3  # Intel 80386
-    EM_PPC = 20  # PowerPC
-    EM_PPC64 = 21  # 64-bit PowerPC
-    EM_X86_64 = 62  # x86-64
+    em_value = {
+        0: ("EM_NONE", "Неопределено"),
+        3: ("EM_386", "Intel 80386"),
+        20: ("EM_PPC", "PowerPC"),
+        21: ("EM_PPC64", "64-bit PowerPC"),
+        62: ("EM_X86_64", "x86-64"),
+
+    }
 
     byte_order = None
     bit_class = None

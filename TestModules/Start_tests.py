@@ -13,6 +13,7 @@ from TestModules.ExecutableFiles.test_elf_work import TestELFWork
 
 def main():
     logging.basicConfig(level=logging.CRITICAL)
+    # logging.basicConfig(level=logging.DEBUG)
     type_w, mode = arguments()
 
     test_group_fs = unittest.TestSuite()
@@ -41,6 +42,8 @@ def main():
             test_group_fs.addTest(TestELFReader('test_program_header_section_read'))
             test_group_fs.addTest(TestELFReader('test_load_header_read'))
             test_group_fs.addTest(TestELFWork('test_get_header'))
+            test_group_fs.addTest(TestELFWork('test_get_table_hendler'))
+            test_group_fs.addTest(TestELFWork('test_get_section_table'))
 
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(test_group_fs)

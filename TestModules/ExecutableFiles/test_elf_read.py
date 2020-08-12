@@ -77,12 +77,13 @@ class TestELFReader(unittest.TestCase):
         elf._e_load_init(e_ident_b)
 
         keys = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi"]
-        true_value = [data.ELF_SIGNATURE, data.elf_class_value.get("ELF_CLASS_64"), data.ELF_DATA_2LSB, data.EV_CURRENT, data.ELF_OS_ABI_NONE]
+        true_value = [data.elf_signature.get(b'\x7fELF'), data.elf_class_value.get(2),
+                      data.elf_data_value.get(1), data.ev_version_value.get(1), data.elf_os_abi_value.get(0)]
         for inc in range(5):
             self.assertEqual(data.e_ident.get(keys[inc]), true_value[inc])
 
         keys = ["e_type", "e_machine", "e_version"]
-        true_value = [data.ET_DYN, data.EM_X86_64, data.EV_CURRENT]
+        true_value = [data.et_value.get(3), data.em_value.get(62), data.ev_version_value.get(1)]
         for inc in range(3):
             self.assertEqual(data.e_middle_load_record.get(keys[inc]), true_value[inc])
 
@@ -99,12 +100,13 @@ class TestELFReader(unittest.TestCase):
             elf.load_header_read()
 
         keys = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi"]
-        true_value = [data.ELF_SIGNATURE, data.elf_class_value.get("ELF_CLASS_64"), data.ELF_DATA_2LSB, data.EV_CURRENT, data.ELF_OS_ABI_NONE]
+        true_value = [data.elf_signature.get(b'\x7fELF'), data.elf_class_value.get(2),
+                      data.elf_data_value.get(1), data.ev_version_value.get(1), data.elf_os_abi_value.get(0)]
         for inc in range(5):
             self.assertEqual(data.e_ident.get(keys[inc]), true_value[inc])
 
         keys = ["e_type", "e_machine", "e_version"]
-        true_value = [data.ET_DYN, data.EM_X86_64, data.EV_CURRENT]
+        true_value = [data.et_value.get(3), data.em_value.get(62), data.ev_version_value.get(1)]
         for inc in range(3):
             self.assertEqual(data.e_middle_load_record.get(keys[inc]), true_value[inc])
 

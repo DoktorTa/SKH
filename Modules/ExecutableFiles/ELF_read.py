@@ -135,28 +135,23 @@ class ELFReader:
 
     def _e_load_init(self, e_load: bytes):
 
-        elf_e_ident = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi", "ei_abiversion",
-                       "ei_pad0", "ei_pad1", "ei_pad2", "ei_pad3", "ei_pad4", "ei_pad5", "ei_pad6"]
-
-        e_ident = e_load[:16]
-        e_ident_format = "4s12b"
-        struct_elf = struct.unpack(e_ident_format, e_ident)
-        for inc in range(len(elf_e_ident)):
-            self.data.e_ident.update({elf_e_ident[inc]: struct_elf[inc]})
-
-        if self.data.e_ident.get("ei_data") == self.data.ELF_DATA_2LSB:
-            self.data.byte_order = "<"
-        else:  # self.data.e_ident.get("ei_data") == self.data.ELF_DATA_2MSB
-            self.data.byte_order = ">"
+        self.__e_ident_init(e_load)
 
         e_midel = e_load[16:24]
         e_midel_format = self.data.byte_order + "2hi"
         struct_elf = struct.unpack(e_midel_format, e_midel)
         elf_e_midle = ["e_type", "e_machine", "e_version"]
+        elf_e_midle_value = [self.data.et_value, self.data.em_value, self.data.ev_version_value]
         for inc in range(3):
-            self.data.e_middle_load_record.update({elf_e_midle[inc]: struct_elf[inc]})
+            try:
+                value_group = elf_e_midle_value[inc]
+                self.data.e_middle_load_record.update({elf_e_midle[inc]: value_group.get(struct_elf[inc])})
+            except KeyError:
+                value_group = elf_e_midle_value[inc]
+                value_group.update({struct_elf[inc]: ("", "")})
+                self.data.e_middle_load_record.update({elf_e_midle[inc]: value_group.get(struct_elf[inc])})
 
-        if self.data.e_ident.get("ei_class") == self.data.elf_class_value.get("ELF_CLASS_32"):
+        if self.data.e_ident.get("ei_class") == self.data.elf_class_value.get(1):
             e_end_format = "4i6h"
             last_point = 28
             self.data.bit_class = 32
@@ -173,3 +168,27 @@ class ELFReader:
             self.data.e_end_load_record.update({elf_e_end[inc]: struct_elf[inc]})
 
         logging.debug(str(self.data))
+
+    def __e_ident_init(self, e_load: bytes):
+        elf_e_ident = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi", "ei_abiversion",
+                       "ei_pad0", "ei_pad1", "ei_pad2", "ei_pad3", "ei_pad4", "ei_pad5", "ei_pad6"]
+
+        elf_e_ident_value = [self.data.elf_signature, self.data.elf_class_value, self.data.elf_data_value,
+                             self.data.ev_version_value, self.data.elf_os_abi_value]
+
+        e_ident = e_load[:16]
+        e_ident_format = "4s12b"
+        struct_elf = struct.unpack(e_ident_format, e_ident)
+        for inc in range(5):
+            try:
+                value_group = elf_e_ident_value[inc]
+                self.data.e_ident.update({elf_e_ident[inc]: value_group.get(struct_elf[inc])})
+            except KeyError:
+                value_group = elf_e_ident_value[inc]
+                value_group.update({struct_elf[inc]: ("", "")})
+                self.data.e_ident.update({e_ident[inc]: value_group.get(struct_elf[inc])})
+
+        if self.data.e_ident.get("ei_data") == self.data.elf_data_value.get(1):
+            self.data.byte_order = "<"
+        else:  # self.data.e_ident.get("ei_data") == self.data.ELF_DATA_2MSB
+            self.data.byte_order = ">"
