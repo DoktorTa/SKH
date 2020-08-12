@@ -10,6 +10,7 @@ from PyQt5.QtGui import QIcon, QFont
 from Interface.Hex_Wiget import HexWidget
 from Interface.Hex_Tab import HexTab
 
+
 # Creating tab widgets
 class MyTabWidget(QWidget):
     def __init__(self, parent):

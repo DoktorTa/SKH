@@ -2,6 +2,7 @@ import copy
 
 from Modules.ExecutableFiles.ELF_read import ELFReader
 from Modules.ExecutableFiles.Interface_Executable_File import IExecutableFile
+from Modules.ExecutableFiles.ELF_data import ELFData
 
 
 class ELFWork(IExecutableFile):
@@ -11,7 +12,10 @@ class ELFWork(IExecutableFile):
     """
     __elf: ELFReader
 
-    def __init__(self, data, file):
+    def __init__(self, file):
+        data = ELFData()
+        # TODO: Я совершенно не понимаю как сделать лучше, передовать этот ^^^ обьект в конструктор или создавать прямо в нем,
+        #  в первом случае сформируется зависимость которой хотелось бы избежать, во втором непонятно можно ли так делать.
         self.__elf = ELFReader(data, file)
         self.__elf.load_header_read()
         self.__elf.program_header_table_read()
