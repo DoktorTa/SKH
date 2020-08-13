@@ -3,17 +3,26 @@ class HexPresentor:
     def __init__(self):
         pass
 
-    def presentor(self, data: bytes) -> list:
+    def hex_presentor(self, data: bytes, step: int) -> list:
         hex_list = []
         hex_row = []
-        
+
         data = data.hex()
-        for inc in data:
-            hex_row.append()
-            hex_list.append(hex_row)
+        for i in range(len(data) // 2):
+            hex_row.append(data[i * 2:i * 2 + 2])
+
+        for i in range(len(data) // step):
+            hex_list.append(hex_row[i * step: i * step + step])
 
         return hex_list
 
-    def row_creator(self, len_row: int):
-        self.row = self.row + len_row
-        return f'{self.row:08d}'
+    def ascii_creator(self):
+        pass
+
+    def row_creator(self, len_row: int, step: int, pos: int) -> list:
+        rows = []
+        row = pos * step - step
+        for inc in range(len_row):
+            row = row + step
+            rows.append(f'{row:08d}')
+        return rows

@@ -10,6 +10,8 @@ from TestModules.FS.test_FAT3216_command_sys import TestComSysFAT3216
 from TestModules.ExecutableFiles.test_elf_read import TestELFReader
 from TestModules.ExecutableFiles.test_elf_work import TestELFWork
 
+from TestModules.HexEditor.test_hex_editor import TestHexPresentor
+
 
 def main():
     logging.basicConfig(level=logging.CRITICAL)
@@ -18,35 +20,58 @@ def main():
 
     test_group_fs = unittest.TestSuite()
     if ("a" in type_w) or ("f" in type_w):
-        test_group_fs.addTest(TestComSysEXT2('test_conversion'))
-        test_group_fs.addTest(TestReadEXT2('test_revers_block'))
-        test_group_fs.addTest(TestReadEXT2('test_superblock_check'))
-        test_group_fs.addTest(TestReadEXT2('test_read_straight_blocks'))
-
-        test_group_fs.addTest(TestReadFAT3216('test_mixing'))
-        if mode[0] == 1:
-            test_group_fs.addTest(TestComSysEXT2('test_cd'))
-            test_group_fs.addTest(TestComSysEXT2('test_read'))
-
-            test_group_fs.addTest(TestReadFAT3216('test_build_cls_sequence'))
-            test_group_fs.addTest(TestReadFAT3216('test_root_catalog_reader'))
-            test_group_fs.addTest(TestComSysFAT3216('test_cd'))
-            test_group_fs.addTest(TestComSysFAT3216('test_read'))
+        test_group_fs = test_fs_group(test_group_fs, mode)
 
     if ("a" in type_w) or ("e" in type_w):
-        test_group_fs.addTest(TestELFReader('test_e_load_init'))
-        test_group_fs.addTest(TestELFReader('test_program_header_table_init'))
+        test_group_fs = test_executable_file_group(test_group_fs, mode)
 
-        if mode[0] == 1:
-            test_group_fs.addTest(TestELFReader('test_program_header_table_read'))
-            test_group_fs.addTest(TestELFReader('test_program_header_section_read'))
-            test_group_fs.addTest(TestELFReader('test_load_header_read'))
-            test_group_fs.addTest(TestELFWork('test_get_header'))
-            test_group_fs.addTest(TestELFWork('test_get_table_hendler'))
-            test_group_fs.addTest(TestELFWork('test_get_section_table'))
+    if ("a" in type_w) or ("h" in type_w):
+        test_group_fs = test_hex_editor(test_group_fs, mode)
 
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(test_group_fs)
+
+
+def test_hex_editor(test_group_fs, mode):
+    test_group_fs.addTest(TestHexPresentor('test_row_creator'))
+    test_group_fs.addTest(TestHexPresentor('test_hex_presentor'))
+
+    return test_group_fs
+
+
+def test_executable_file_group(test_group_fs, mode):
+    test_group_fs.addTest(TestELFReader('test_e_load_init'))
+    test_group_fs.addTest(TestELFReader('test_program_header_table_init'))
+
+    if mode[0] == 1:
+        test_group_fs.addTest(TestELFReader('test_program_header_table_read'))
+        test_group_fs.addTest(TestELFReader('test_program_header_section_read'))
+        test_group_fs.addTest(TestELFReader('test_load_header_read'))
+        test_group_fs.addTest(TestELFWork('test_get_header'))
+        test_group_fs.addTest(TestELFWork('test_get_table_hendler'))
+        test_group_fs.addTest(TestELFWork('test_get_section_table'))
+
+    return test_group_fs
+
+
+def test_fs_group(test_group_fs, mode):
+    test_group_fs.addTest(TestComSysEXT2('test_conversion'))
+    test_group_fs.addTest(TestReadEXT2('test_revers_block'))
+    test_group_fs.addTest(TestReadEXT2('test_superblock_check'))
+    test_group_fs.addTest(TestReadEXT2('test_read_straight_blocks'))
+
+    test_group_fs.addTest(TestReadFAT3216('test_mixing'))
+
+    if mode[0] == 1:
+        test_group_fs.addTest(TestComSysEXT2('test_cd'))
+        test_group_fs.addTest(TestComSysEXT2('test_read'))
+
+        test_group_fs.addTest(TestReadFAT3216('test_build_cls_sequence'))
+        test_group_fs.addTest(TestReadFAT3216('test_root_catalog_reader'))
+        test_group_fs.addTest(TestComSysFAT3216('test_cd'))
+        test_group_fs.addTest(TestComSysFAT3216('test_read'))
+
+    return test_group_fs
 
 
 def arguments() -> (str, int):

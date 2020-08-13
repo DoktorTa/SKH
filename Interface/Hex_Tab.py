@@ -84,7 +84,6 @@ class HexTab(QWidget):
             change_str += f"{key[0]} | {key[1:]} | {value[0:2]} | {value[2:4]}\n"
         self.history_list.setText(change_str)
 
-
     # TODO: добавить возможность удалять определенное кол-во изменений
     def history_del_last(self):
         self.hex_wid.history_del()

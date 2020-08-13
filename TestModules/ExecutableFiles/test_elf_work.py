@@ -10,7 +10,7 @@ class TestELFWork(unittest.TestCase):
     def test_get_header(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\ExecutableFiles\ls.elf", "rb") as file:
             data = ELFData()
-            elf = ELFWork(data, file)
+            elf = ELFWork(file)
 
             answer = {"extension": "7fELF",
                       "border": "<",
@@ -21,7 +21,7 @@ class TestELFWork(unittest.TestCase):
     def test_get_table_hendler(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\ExecutableFiles\ls.elf", "rb") as file:
             data = ELFData()
-            elf = ELFWork(data, file)
+            elf = ELFWork(file)
 
         answer = [
             {'p_type': 6, 'p_flags': 4, 'p_offset': 64, 'p_vaddr': 64, 'p_paddr': 64, 'p_filesz': 616, 'p_memsz': 616, 'p_align': 8},
@@ -37,7 +37,7 @@ class TestELFWork(unittest.TestCase):
     def test_get_section_table(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\ExecutableFiles\ls.elf", "rb") as file:
             data = ELFData()
-            elf = ELFWork(data, file)
+            elf = ELFWork(file)
 
         answer = [
             {'sh_name': '.shstrtab\x00', 'sh_type': 0, 'sh_flags': 0, 'sh_addr': 0, 'sh_offset': 0, 'sh_size': 0, 'sh_link': 0, 'sh_info': 0, 'sh_addralign': 0, 'sh_entsize': 0},
