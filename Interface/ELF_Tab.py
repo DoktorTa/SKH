@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
 from PyQt5.QtGui import QIcon, QFont, QColor
 from PyQt5.QtCore import Qt
 
-
 from Modules.ExecutableFiles.ELF_work import ELFWork
 
 

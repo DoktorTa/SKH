@@ -12,6 +12,7 @@ from Interface.Hex_Wiget import HexWidget
 
 
 class HexTab(QWidget):
+    row = ""
 
     def __init__(self):
         super().__init__()
@@ -82,6 +83,7 @@ class HexTab(QWidget):
             value = change_form.get(key)
             change_str += f"{key[0]} | {key[1:]} | {value[0:2]} | {value[2:4]}\n"
         self.history_list.setText(change_str)
+
 
     # TODO: добавить возможность удалять определенное кол-во изменений
     def history_del_last(self):

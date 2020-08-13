@@ -2,7 +2,7 @@ import sys
 import webbrowser
 
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QTabWidget
+    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QTabWidget, QMenuBar
 from PyQt5.QtGui import QIcon, QFont
 
 from Interface.MyTab import MyTabWidget
@@ -64,11 +64,29 @@ class Hex_view(QMainWindow):
         help_action.setStatusTip('Open git this progect')
         help_action.triggered.connect(lambda: webbrowser.open('https://github.com/DoktorTa/SKH'))
 
+        fs_fat_open_action = QAction('&FAT', self)
+        fs_fat_open_action.setShortcut('Ctrl+F2')
+        fs_fat_open_action.setStatusTip("Open file like FS FAT32 or FAT16")
+
+        fs_ext_open_action = QAction('&ext', self)
+        fs_ext_open_action.setShortcut('Ctrl+F3')
+        fs_ext_open_action.setStatusTip('Open file like FS ext2')
+
+        ef_elf_open_action = QAction('&elf', self)
+        ef_elf_open_action.setShortcut('Ctrl+F4')
+        ef_elf_open_action.setStatusTip('Parse file like executable file elf type')
+
         menu_bar = self.menuBar()
 
         file_menu = menu_bar.addMenu('&File')
         file_menu.addAction(open_file_action)
         file_menu.addAction(exit_action)
+
+        edit_menu = menu_bar.addMenu('&Edit')
+        edit_menu.addAction(fs_fat_open_action)
+        edit_menu.addAction(fs_ext_open_action)
+        edit_menu.addSeparator()
+        edit_menu.addAction(ef_elf_open_action)
 
         help_menu = menu_bar.addMenu('&Help')
         help_menu.addAction(help_action)
