@@ -35,6 +35,7 @@ def main():
 def test_hex_editor(test_group_fs, mode):
     test_group_fs.addTest(TestHexPresentor('test_row_creator'))
     test_group_fs.addTest(TestHexPresentor('test_hex_presentor'))
+    test_group_fs.addTest(TestHexPresentor('test_ascii_creator'))
 
     return test_group_fs
 
