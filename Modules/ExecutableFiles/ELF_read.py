@@ -224,6 +224,7 @@ class ELFReader:
         e_ident = e_load[:16]
         e_ident_format = "4s12b"
         struct_elf = struct.unpack(e_ident_format, e_ident)
+
         for inc in range(5):
             try:
                 value_group = elf_e_ident_value[inc]

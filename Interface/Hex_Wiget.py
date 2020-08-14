@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt
 class HexDelegate(QItemDelegate):
     def createEditor(self, parent, option, index, read_only=False):
         line = QLineEdit(parent)
-        if read_only is  False:
+        if read_only is False:
             line.setReadOnly(True)
         line.setInputMask("HH")
         return line

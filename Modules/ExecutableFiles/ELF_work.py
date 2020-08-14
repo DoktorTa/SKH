@@ -5,6 +5,10 @@ from Modules.ExecutableFiles.Interface_Executable_File import IExecutableFile
 from Modules.ExecutableFiles.ELF_data import ELFData
 
 
+class InvalidFileTypeException(Exception):
+   pass
+
+
 class ELFWork(IExecutableFile):
     """
         Класс выполняет роль контроллера доступа, интерфейс не является обязательным,
@@ -16,6 +20,8 @@ class ELFWork(IExecutableFile):
         data = ELFData()
         # TODO: Я совершенно не понимаю как сделать лучше, передовать этот ^^^ обьект в конструктор или создавать прямо в нем,
         #  в первом случае сформируется зависимость которой хотелось бы избежать, во втором непонятно можно ли так делать.
+        if file.read(4) != b'\x7fELF':
+            raise InvalidFileTypeException
         self.__elf = ELFReader(data, file)
         self.__elf.load_header_read()
         self.__elf.program_header_table_read()

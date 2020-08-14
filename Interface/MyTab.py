@@ -23,16 +23,14 @@ class MyTabWidget(QWidget):
         self.tabs = QTabWidget()
         self.tab1 = QWidget()
         self.tab2 = QWidget()
-        self.tab3 = QWidget()
+
         self.tabs.resize(300, 200)
 
         # Add tabs
         self.tabs.addTab(self.tab1, "Hex")
         self.tabs.addTab(self.tab2, "Total com")
-        self.tabs.addTab(self.tab3, "ELF")
 
         self.tab_hex()
-        self.tab_elf()
         self.tab_total_com()
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
@@ -46,14 +44,19 @@ class MyTabWidget(QWidget):
         self.tab2.layout.addWidget(self.total_com)
         self.tab2.setLayout(self.tab2.layout)
 
+    def tab_elf(self, file_path: str):
+        self.tab3 = QWidget()
 
-    def tab_elf(self):
-        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\ExecutableFiles\ls.elf", "rb") as file:
+        with open(file_path, "rb") as file:
             self.elf = ELFTab(file)
 
         self.tab3.layout = QHBoxLayout()
         self.tab3.layout.addWidget(self.elf)
         self.tab3.setLayout(self.tab3.layout)
+
+        self.tabs.addTab(self.tab3, "ELF")
+        self.layout.addWidget(self.tabs)
+        self.setLayout(self.layout)
 
     def tab_hex(self):
         self.hex_wid = HexTab()

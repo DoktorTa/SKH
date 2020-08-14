@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
 from PyQt5.QtGui import QIcon, QFont, QColor
 from PyQt5.QtCore import Qt
 
-from Modules.ExecutableFiles.ELF_work import ELFWork
+from Modules.ExecutableFiles.ELF_work import ELFWork, InvalidFileTypeException
 
 
 class ELFTab(QWidget):
@@ -23,7 +23,12 @@ class ELFTab(QWidget):
         self.header_widget(header)
         self.table_headers_widget(table_headers)
         self.section_table_wiget(section_table)
+        self.headers()
         self.location_on_widget()
+
+    def headers(self):
+        self.section_table_header = QLabel('Section table:')
+        self.table_headers_header = QLabel('Headers table:')
 
     def section_table_wiget(self, section_table):
         heading_w = ["Name", "Type", "Flags", "Virtual adress", "Offset", "Segment size in file", "Associated section index",
@@ -95,7 +100,11 @@ class ELFTab(QWidget):
         return table_headers
 
     def _elf_header(self, file) -> dict:
-        self.__elf = ELFWork(file)
+        try:
+            self.__elf = ELFWork(file)
+        except InvalidFileTypeException:
+            raise InvalidFileTypeException
+
         header = self.__elf.get_header()
         return header
 
@@ -107,8 +116,10 @@ class ELFTab(QWidget):
         # self.layout.setColumnStretch(1, 0)
 
         self.layout.addWidget(self.header_layout_w, 1, 0)
-        self.layout.addWidget(self.table_headers_w, 2, 0)
-        self.layout.addWidget(self.section_table_w, 3, 0)
+        self.layout.addWidget(self.table_headers_header, 2, 0)
+        self.layout.addWidget(self.table_headers_w, 3, 0)
+        self.layout.addWidget(self.section_table_header, 4, 0)
+        self.layout.addWidget(self.section_table_w, 5, 0)
         self.setLayout(self.layout)
 
 

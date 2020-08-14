@@ -9,6 +9,7 @@ from Interface.MyTab import MyTabWidget
 
 
 class Hex_view(QMainWindow):
+    __file_path = ""
 
     def __init__(self):
         super().__init__()
@@ -45,7 +46,13 @@ class Hex_view(QMainWindow):
 
     def file_serch(self):
         file_name = QFileDialog.getOpenFileName(self, "Open files", "/home/jana")
+        self.__file_path = file_name[0]
         # Функция открытия файла необходимо сообственно открытие файла.
+
+    def open_elf(self):
+        if self.__file_path != "":
+            print(self.__file_path)
+            self.tab_widget.tab_elf(self.__file_path)
 
     # Любые события должны быть созданы и зарегестрированны в меню бар.
     def menu_bar_init(self):
@@ -75,6 +82,7 @@ class Hex_view(QMainWindow):
         ef_elf_open_action = QAction('&elf', self)
         ef_elf_open_action.setShortcut('Ctrl+F4')
         ef_elf_open_action.setStatusTip('Parse file like executable file elf type')
+        ef_elf_open_action.triggered.connect(self.open_elf)
 
         menu_bar = self.menuBar()
 
