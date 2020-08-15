@@ -7,8 +7,7 @@ class TestComSysFAT3216(unittest.TestCase):
 
     def test_cd(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\test16.img", "rb") as file:
-            data = FATData()
-            c = CommandFAT3216(file, data)
+            c = CommandFAT3216(file)
 
             answer_0 = [['.          ', '10', '5072', 0, 3, ''],
                         ['..         ', '10', '5072', 0, 0, ''],
@@ -27,8 +26,7 @@ class TestComSysFAT3216(unittest.TestCase):
 
     def test_read(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\test16.img", "rb") as file:
-            data = FATData()
-            c = CommandFAT3216(file, data)
+            c = CommandFAT3216(file)
 
             file.seek(122880)
             answer = file.read(2048)

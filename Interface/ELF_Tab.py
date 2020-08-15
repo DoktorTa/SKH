@@ -17,7 +17,11 @@ class ELFTab(QWidget):
 
     def __init__(self, file):
         super().__init__()
-        header = self._elf_header(file)
+        try:
+            self.__elf = ELFWork(file)
+        except InvalidFileTypeException:
+            raise InvalidFileTypeException
+        header = self._elf_header()
         table_headers = self._getting_table_headers()
         section_table = self._getting_section_table()
         self.header_widget(header)
@@ -99,12 +103,7 @@ class ELFTab(QWidget):
         table_headers = self.__elf.get_table_header()
         return table_headers
 
-    def _elf_header(self, file) -> dict:
-        try:
-            self.__elf = ELFWork(file)
-        except InvalidFileTypeException:
-            raise InvalidFileTypeException
-
+    def _elf_header(self) -> dict:
         header = self.__elf.get_header()
         return header
 

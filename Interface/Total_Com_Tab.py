@@ -9,17 +9,25 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
 from PyQt5.QtGui import QIcon, QFont, QColor
 
 from Interface.Hex_Wiget import HexWidget
+from Modules.FS.FAT_comand_sys import CommandFAT3216
 
 
 class TotalTab(QWidget):
+    work_catalog = []
     __catalog = []
     __pos_y = 0
+    __fs = 0
 
     def __init__(self):
         super().__init__()
         self.total_left_win()
         self.total_right_win()
         self.grid_widget()
+
+    def fat_load(self, file):
+        self.__fs = CommandFAT3216(file)
+        self.generator_catalog(self.__fs.root)
+        self.catalog_printer()
 
     def grid_widget(self):
         self.layout = QGridLayout()
@@ -46,30 +54,12 @@ class TotalTab(QWidget):
         self.hex_view.repaint_page()
         self.hex_view.setReadOnly(True)
 
-
     def total_left_win(self):
         self.catalog_meneger = QTextEdit()
         self.catalog_meneger.setReadOnly(True)
         self.catalog_meneger.setFont(QFont('Courier New', 10))
         self.catalog_meneger.setMinimumSize(600, 400)
         self.catalog_meneger.setMaximumSize(600, 1000)
-
-        catalog =[['.          ', '10', '5077', 0, 6, ''],
-                  ['..         ', '10', '5077', 0, 0, ''],
-                  ['4D         ', '10', '5077', 0, 10, ''],
-                  ['5D         ', '10', '5077', 0, 12, ''],
-                  ['6D         ', '10', '5077', 0, 13, ''],
-                  ['2F      TXT', '20', '5077', 66, 14, ''],
-                  ['3F      TXT', '20', '5077', 43, 15, ''],
-                  ['4F      TXT', '20', '5077', 512, 16, ''],
-                  ['5F      TXT', '20', '5077', 6, 17, ''],
-                  ['6F      TXT', '20', '5077', 11, 18, ''],
-                  ['7F      TXT', '20', '5077', 40, 19, ''],
-                  ['8F      TXT', '20', '5077', 10, 20, ''],
-                  ['9F      TXT', '20', '5077', 32, 21, ''],
-                  ['10F     TXT', '20', '5077', 768, 22, '']]
-        self.generator_catalog(catalog)
-        self.catalog_printer()
 
     @staticmethod
     def convert_data(element_data: str) -> str:
@@ -89,6 +79,9 @@ class TotalTab(QWidget):
             [Имя, Аттрибут, Дата последней записи, Размер в байтах,
                  Номер первого кластера элемента, Длинное имя]
         """
+        self.work_catalog = catalog
+        self.__catalog = []
+
         for item in catalog:
             data = self.convert_data(item[2])
             terminator_line = "_" * (72 - len(str(item[0])) - len(data) - len(str(item[3])) - 1)
@@ -97,14 +90,19 @@ class TotalTab(QWidget):
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
-        print(key)
         if key == 16777235 and not eventQKeyEvent.isAutoRepeat():
             self.__pos_y = self.nav(-1, self.__pos_y, len(self.__catalog))
             self.catalog_printer()
-            print('released_up', self.__pos_y)
         elif key == 16777237 and not eventQKeyEvent.isAutoRepeat():
             self.__pos_y = self.nav(1, self.__pos_y, len(self.__catalog))
-            print('released_down', self.__pos_y)
+            self.catalog_printer()
+        elif key == 16777220 and not eventQKeyEvent.isAutoRepeat():
+            self.next_dir()
+
+    def next_dir(self):
+        next_dir, error = self.__fs.cd(self.work_catalog, self.__pos_y)
+        if error == 0:
+            self.generator_catalog(next_dir)
             self.catalog_printer()
 
     def catalog_printer(self):

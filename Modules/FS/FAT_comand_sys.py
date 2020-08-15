@@ -39,7 +39,8 @@ class CommandFAT3216(IFSWork):
     root = []
     _reader = object
 
-    def __init__(self, mount, data: FATData):
+    def __init__(self, mount):
+        data = FATData()
         self._reader = FATReader(data, mount)
         root, error = self._reader.root_catalog_read()
         self.root = root
