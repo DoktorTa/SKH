@@ -102,6 +102,7 @@ class TotalTab(QWidget):
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
+        # print(key)
         if key == 16777235 and not eventQKeyEvent.isAutoRepeat():
             self.__pos_y = self.nav(-1, self.__pos_y, len(self.__catalog))
             self.catalog_printer()
@@ -110,6 +111,14 @@ class TotalTab(QWidget):
             self.catalog_printer()
         elif key == 16777220 and not eventQKeyEvent.isAutoRepeat():
             self.next_dir()
+        elif key == 16777266 and not eventQKeyEvent.isAutoRepeat():
+            self.read_file()
+
+    def read_file(self):
+        pos = 0
+        all_byte_elements, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, pos)
+        # if error == 0:
+        #     self.hex_view.set_page()
 
     def next_dir(self):
         next_dir, error = self.__fs.cd(self.work_catalog, self.__pos_y)

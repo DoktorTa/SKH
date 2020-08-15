@@ -1,5 +1,6 @@
 import sys
 import webbrowser
+import os
 
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
     QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QTabWidget, QMenuBar
@@ -65,6 +66,8 @@ class Hex_view(QMainWindow):
 
     # Любые события должны быть созданы и зарегестрированны в меню бар.
     def menu_bar_init(self):
+        path = os.path.dirname(os.path.abspath(__file__))
+
         exit_action = QAction('&Exit', self)
         exit_action.setShortcut('Ctrl+Q')
         exit_action.setStatusTip('Exit application')
@@ -73,6 +76,7 @@ class Hex_view(QMainWindow):
         open_file_action = QAction('&Open', self)
         open_file_action.setShortcut('Ctrl+O')
         open_file_action.setStatusTip('Open new file')
+        open_file_action.setIcon(QIcon(path + r"\icon\open.png"))
         open_file_action.triggered.connect(self.file_serch)
         # self.statusBar()
         help_action = QAction('&Git progect', self)

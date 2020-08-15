@@ -91,7 +91,7 @@ class TestComSysEXT2(unittest.TestCase):
                 # data = EXT2Data()
                 # p = EXT2Reader(data, file)
                 com = CommandEXT2(file)
-              root = com.get_root()
+                root = com.get_root()
                 dir, b = com.cd(root, 3)
                 # print(dir)
 
