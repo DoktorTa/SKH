@@ -47,9 +47,9 @@ class TestComSysEXT2(unittest.TestCase):
 
     def test_cd(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as file:
-            data = EXT2Data()
-            p = EXT2Reader(data, file)
-            com = CommandEXT2(p)
+            # data = EXT2Data()
+            # p = EXT2Reader(data, file)
+            com = CommandEXT2(file)
             root = com.get_root()
 
             root_dir = [['.', 'D', 0, 0, '00000002', 0],
@@ -88,10 +88,10 @@ class TestComSysEXT2(unittest.TestCase):
     def test_read(self):
         with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as file:
             with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\Test_blocks_ext2.txt", "r") as file_blocks:
-                data = EXT2Data()
-                p = EXT2Reader(data, file)
-                com = CommandEXT2(p)
-                root = com.get_root()
+                # data = EXT2Data()
+                # p = EXT2Reader(data, file)
+                com = CommandEXT2(file)
+              root = com.get_root()
                 dir, b = com.cd(root, 3)
                 # print(dir)
 
