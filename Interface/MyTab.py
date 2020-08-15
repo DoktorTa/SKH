@@ -36,9 +36,13 @@ class MyTabWidget(QWidget):
 
         #self.l.setText("This is the first tab")
 
-    def tab_total_com(self, file):
+    def tab_total_com(self, file, fs: str):
         self.total_com = TotalTab()
-        self.total_com.fat_load(file)
+
+        if fs == "FAT":
+            self.total_com.fat_load(file)
+        elif fs == "EXT":
+            self.total_com.ext_load(file)
 
         self.tab2 = QWidget()
 

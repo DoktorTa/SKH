@@ -10,6 +10,7 @@ from PyQt5.QtGui import QIcon, QFont, QColor
 
 from Interface.Hex_Wiget import HexWidget
 from Modules.FS.FAT_comand_sys import CommandFAT3216
+from Modules.FS.EXT2_command_sys import CommandEXT2
 
 
 class TotalTab(QWidget):
@@ -26,14 +27,19 @@ class TotalTab(QWidget):
 
     def fat_load(self, file):
         self.__fs = CommandFAT3216(file)
-        self.generator_catalog(self.__fs.root)
+        self.generator_catalog(self.__fs.get_root())
+        self.catalog_printer()
+
+    def ext_load(self, file):
+        self.__fs = CommandEXT2(file)
+        self.generator_catalog(self.__fs.get_root())
         self.catalog_printer()
 
     def grid_widget(self):
         self.layout = QGridLayout()
 
-        self.layout.addWidget(self.catalog_meneger, 0, 0)
-        self.layout.addWidget(self.hex_view, 0, 1)
+        self.layout.addWidget(self.catalog_meneger, 1, 1)
+        self.layout.addWidget(self.hex_view, 1, 2)
 
         self.setLayout(self.layout)
 
@@ -61,16 +67,22 @@ class TotalTab(QWidget):
         self.catalog_meneger.setMinimumSize(600, 400)
         self.catalog_meneger.setMaximumSize(600, 1000)
 
+        # self.catalog_meneger.setStyleSheet('down-button { left: 20px }')
+        # self.catalog_meneger.setStyleSheet('border-style: solid; border-width: 10px; border-color: white;')
+
     @staticmethod
     def convert_data(element_data: str) -> str:
-        start_new_era = 1980
+        try:
+            start_new_era = 1980
 
-        element_data = int(element_data, 16)
-        year = element_data >> 9
-        month = (element_data - (year << 9)) >> 5
-        day = element_data - ((element_data >> 5) << 5)
-        year += start_new_era
-        data = str(f'{day:02d}') + "." + str(f'{month:02d}') + "." + str(f'{year:04d}')
+            element_data = int(element_data, 16)
+            year = element_data >> 9
+            month = (element_data - (year << 9)) >> 5
+            day = element_data - ((element_data >> 5) << 5)
+            year += start_new_era
+            data = str(f'{day:02d}') + "." + str(f'{month:02d}') + "." + str(f'{year:04d}')
+        except BaseException:
+            data = "01.01.1980"
 
         return data
 

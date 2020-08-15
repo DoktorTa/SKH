@@ -19,8 +19,9 @@ class CommandEXT2(IFSWork):
     __root = []
     __pwd = ""
 
-    def __init__(self, ext2_fs: EXT2Reader):
-        self.__ext2_fs = ext2_fs
+    def __init__(self, file):
+        data = EXT2Data()
+        self.__ext2_fs = EXT2Reader(data, file)
         self.__root = self.__ext2_fs.root_catalog_read()
         self.__root = self._conversion(self.__root)
 

@@ -56,7 +56,12 @@ class Hex_view(QMainWindow):
     def open_fat(self):
         if self.__file_path != "":
             file = open(self.__file_path, "rb")
-            self.tab_widget.tab_total_com(file)
+            self.tab_widget.tab_total_com(file, "FAT")
+
+    def open_ext(self):
+        if self.__file_path != "":
+            file = open(self.__file_path, "rb")
+            self.tab_widget.tab_total_com(file, "EXT")
 
     # Любые события должны быть созданы и зарегестрированны в меню бар.
     def menu_bar_init(self):
@@ -83,6 +88,7 @@ class Hex_view(QMainWindow):
         fs_ext_open_action = QAction('&ext', self)
         fs_ext_open_action.setShortcut('Ctrl+F3')
         fs_ext_open_action.setStatusTip('Open file like FS ext2')
+        fs_ext_open_action.triggered.connect(self.open_ext)
 
         ef_elf_open_action = QAction('&elf', self)
         ef_elf_open_action.setShortcut('Ctrl+F4')
