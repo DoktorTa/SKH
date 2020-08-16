@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QWidget, QTextEdit, QTableWidget, QTableWidgetItem, 
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
+from Modules.HexEditor.Hex_presentor import HexPresentor
+
 
 class HexDelegate(QItemDelegate):
     def createEditor(self, parent, option, index, read_only=False):
@@ -46,6 +48,7 @@ class HexWidget(QWidget):
     # Инициализировать поля и задать местоположение
     def __init__(self, block_row_size=16):
         super().__init__()
+        self.hex_presentor = HexPresentor()
         self.__ascii_matrix = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
         self.__hex_matrix = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
         self.__draw_wiget(block_row_size)
@@ -172,3 +175,8 @@ class HexWidget(QWidget):
                 self.txt.setItem(inc_j, inc_i, item_in_cell)
                 inc_i += 1
         self.txt.resizeRowsToContents()
+
+    def data_to_format(self, data, pos, step=16):
+        rows, hex_rows, ascii_rows, row = self.hex_presentor.present(data, step, pos)
+        self.set_page(rows, hex_rows, ascii_rows)
+        self.repaint()

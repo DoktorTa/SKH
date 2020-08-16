@@ -1,13 +1,27 @@
 class HexPresentor:
+    """
+        Класс предоставляет метод для конвертации данных в хекс формат.
+        Не меняйте длинну строки для уже сформированных данных.
+    """
 
     def __init__(self):
         pass
 
-    def present(self, data: bytes, step: int, pos: int) -> (list, list, list):
+    def present(self, data: bytes, step: int, pos: int) -> (list, list, list, int):
+        """
+            Аргумент 1: данные для конвертации,
+            Аргумент 2: длинна одной строки,
+            Аргумент 3: строка с котрой начнется счет
+
+            Возврат 1: лист строк,
+            Возврат 2: лист листов байтов,
+            Возврат 3: лист листов аски символов,
+            Возврат 4: позиция ????
+        """
         hex_rows = self._hex_creator(data, step)
         ascii_rows = self._ascii_creator(data, step)
-        rows = self._row_creator(len(hex_rows), step, pos)
-        return rows, hex_rows, ascii_rows
+        rows, pos = self._row_creator(len(hex_rows), step, pos)
+        return rows, hex_rows, ascii_rows, pos
 
     @staticmethod
     def _hex_creator(data: bytes, step: int) -> list:
@@ -53,10 +67,11 @@ class HexPresentor:
         return hex_list
 
     @staticmethod
-    def _row_creator(len_row: int, step: int, pos: int) -> list:
+    def _row_creator(len_row: int, step: int, pos: int) -> (list, int):
         rows = []
         row = pos * step - step
         for inc in range(len_row):
             row = row + step
             rows.append(f'{row:08d}')
-        return rows
+        pos += len_row
+        return rows, pos

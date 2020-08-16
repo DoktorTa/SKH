@@ -117,8 +117,8 @@ class TotalTab(QWidget):
     def read_file(self):
         pos = 0
         all_byte_elements, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, pos)
-        # if error == 0:
-        #     self.hex_view.set_page()
+        if error == 0:
+            self.hex_view.data_to_format(all_byte_elements, pos)
 
     def next_dir(self):
         next_dir, error = self.__fs.cd(self.work_catalog, self.__pos_y)
