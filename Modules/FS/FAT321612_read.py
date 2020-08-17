@@ -124,7 +124,7 @@ class FATReader:
         pos = 0
 
         while len(claster_sequence) != pos:
-            claster = self.read_claster(claster_sequence, pos)
+            claster = self.read_claster(claster_sequence, pos).hex()
             claster = self.parser_directory(claster)
             catalog += claster
             pos += 1
@@ -174,7 +174,7 @@ class FATReader:
         return elements_on_dir
 
     # Читает любой элемент как строку байт.
-    def read_claster(self, claster_sequence: list, pos: int) -> [int, list]:
+    def read_claster(self, claster_sequence: list, pos: int) -> bytes:
         element_claster = claster_sequence[pos]
         # element_claster = claster_sequence.pop(0)
         first_sector = self.root_dir_seek_b // self.data.bpb_byte_in_sector
@@ -191,7 +191,7 @@ class FATReader:
 
         self.mount_file_sys.seek(claster_seek + self.__seek_fs)
         claster = self.mount_file_sys.read(self.data.bpb_byte_in_sector * self.data.bpb_sector_in_claster)
-        claster = claster.hex()
+        # claster = claster.hex()
 
         return claster
 

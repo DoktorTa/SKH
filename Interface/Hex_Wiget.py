@@ -178,5 +178,6 @@ class HexWidget(QWidget):
 
     def data_to_format(self, data, pos, step=16):
         rows, hex_rows, ascii_rows, row = self.hex_presentor.present(data, step, pos)
+        print(rows, hex_rows, ascii_rows)
         self.set_page(rows, hex_rows, ascii_rows)
         self.repaint()

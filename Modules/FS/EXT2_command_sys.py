@@ -79,10 +79,10 @@ class CommandEXT2(IFSWork):
 
         return catalog, error
 
-    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> (str, int, int):
+    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> (bytes, int, int):
         # TODO: !!!НЕОБХОДИМО!!! Буфферы для листов блоков.
         error = 0
-        blocks = ""
+        blocks = b""
         count_s = 0
 
         try:
@@ -91,7 +91,7 @@ class CommandEXT2(IFSWork):
         except LookupError:
             error = -1
             logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
-            return "", 0, error
+            return b"", 0, error
 
         elements_list = self.__ext2_fs.inode(inode_num)
         if count < 0:
@@ -107,7 +107,7 @@ class CommandEXT2(IFSWork):
                 error = -1
                 logging.error(f"No reading is possible. All blocks: {len(elements_list)}, required item: {pointer}")
                 break
-            block_hex = self.__ext2_fs.read_block(block).hex()
+            block_hex = self.__ext2_fs.read_block(block)
             blocks += block_hex
 
         if count_s < 0:

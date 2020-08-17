@@ -14,7 +14,7 @@ class IFSWork(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def read(self, dir_now: str, num_in_dir: int, count: int, pointer: int) -> (str, int, int):
+    def read(self, dir_now: str, num_in_dir: int, count: int, pointer: int) -> (bytes, int, int):
         """
             Прочесть данный блок||кластер файловой системы.
             Первый аргумент: лист элементов.

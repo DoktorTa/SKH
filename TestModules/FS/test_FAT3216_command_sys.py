@@ -30,11 +30,11 @@ class TestComSysFAT3216(unittest.TestCase):
 
             file.seek(122880)
             answer = file.read(2048)
-            answer = answer.hex()
+            # answer = answer.hex()
             claster_sq = [3]
             error = 0
             self.assertEqual(c.read(c.root, 0, 1, 0), (answer, 1, error))
-            self.assertEqual(c.read(c.root, 10, 1, 0), ("", 0, -1))
+            self.assertEqual(c.read(c.root, 10, 1, 0), (b"", 0, -1))
 
 
 if __name__ == '__main__':
