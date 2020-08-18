@@ -85,6 +85,9 @@ class CommandEXT2(IFSWork):
         blocks = b""
         count_s = 0
 
+        if pointer < 0:
+            raise IndexError
+
         try:
             element_dir = dir_now[num_in_dir]
             inode_num = int(element_dir[4], 16)

@@ -7,11 +7,12 @@ class HexPresentor:
     def __init__(self):
         pass
 
-    def present(self, data: bytes, step: int, pos: int) -> (list, list, list, int):
+    def present(self, data: bytes, step: int, pos: int, early=False) -> (list, list, list, int):
         """
             Аргумент 1: данные для конвертации,
             Аргумент 2: длинна одной строки,
             Аргумент 3: строка с котрой начнется счет
+            Аргумент 4: данные для предыдушей страницы
 
             Возврат 1: лист строк,
             Возврат 2: лист листов байтов,
@@ -20,7 +21,7 @@ class HexPresentor:
         """
         hex_rows = self._hex_creator(data, step)
         ascii_rows = self._ascii_creator(data, step)
-        rows = self._row_creator(len(hex_rows), step, pos)
+        rows = self._row_creator(len(hex_rows), step, pos, early)
         return rows, hex_rows, ascii_rows
 
     @staticmethod
@@ -67,10 +68,17 @@ class HexPresentor:
         return hex_list
 
     @staticmethod
-    def _row_creator(len_row: int, step: int, pos: int) -> (list, int):
+    def _row_creator(len_row: int, step: int, pos: int, early=False) -> (list, int):
+
         rows = []
-        row = pos * (step - 1)
+        row = pos * step - step
+
+        if early is True:
+            pos -= len_row * 2
+            row = pos * step - step
+
         for inc in range(len_row):
             row = row + step
             rows.append(f'{row:08d}')
+
         return rows

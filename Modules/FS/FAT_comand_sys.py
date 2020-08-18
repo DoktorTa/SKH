@@ -85,6 +85,9 @@ class CommandFAT3216(IFSWork):
         all_byte_elements = b""
         count_s = 0
 
+        if pointer < 0:
+            raise IndexError
+
         try:
             element = dir_now[num_in_dir]
             num_first_claster = element[4]

@@ -178,9 +178,8 @@ class HexWidget(QWidget):
                 inc_i += 1
         self.txt.resizeRowsToContents()
 
-    def data_to_format(self, data, step=16):
-        rows, hex_rows, ascii_rows = self.hex_presentor.present(data, step, self.__last_row_num)
+    def data_to_format(self, data, step=16, early=False):
+        rows, hex_rows, ascii_rows = self.hex_presentor.present(data, step, self.__last_row_num, early)
         self.__last_row_num = (int(rows[len(rows) - 1]) // step) + 1
-        print(self.__last_row_num)
         self.set_page(rows, hex_rows, ascii_rows)
         self.repaint_page()

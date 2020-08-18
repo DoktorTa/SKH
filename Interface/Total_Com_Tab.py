@@ -1,11 +1,11 @@
 import sys
 import webbrowser
-import copy
+import logging
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer, QSize
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout
+    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout, QDialog, QDialogButtonBox, QVBoxLayout
 from PyQt5.QtGui import QIcon, QFont, QColor
 
 from Interface.Hex_Wiget import HexWidget
@@ -48,14 +48,41 @@ class TotalTab(QWidget):
         self.setLayout(self.layout)
 
     def next_page(self):
-        self.__pos_page += 1
-        data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
-        self.hex_view.data_to_format(data)
+        try:
+            self.__pos_page += 1
+            data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
+            self.hex_view.data_to_format(data)
+        except IndexError:
+            self.__pos_page -= 1
+            self.dialog_file_end("File is end.")
 
     def early_page(self):
-        self.__pos_page -= 1
-        data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
-        self.hex_view.data_to_format(data)
+        try:
+            self.__pos_page -= 1
+            print(self.__pos_page)
+            data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
+            self.hex_view.data_to_format(data, early=True)
+        except IndexError:
+            self.__pos_page += 1
+            self.dialog_file_end("File is end.")
+
+    def dialog_file_end(self, msg: str):
+        dialog = QDialog(self)
+        dialog.setModal(True)
+        dialog.setMinimumSize(250, 100)
+        dialog.setWindowTitle("Error")
+
+        dialog.buttonBox = QPushButton("OK")
+        dialog.buttonBox.clicked.connect(dialog.accept)
+
+        dialog.error_msg = QLabel(msg)
+
+        dialog.layout = QGridLayout()
+        dialog.layout.addWidget(dialog.error_msg, 0, 0, 1, 3)
+        dialog.layout.addWidget(dialog.buttonBox, 1, 1)
+        dialog.setLayout(dialog.layout)
+
+        dialog.exec_()
 
     def button_page(self):
         self.next_page_button = QPushButton("Next")
@@ -130,9 +157,12 @@ class TotalTab(QWidget):
 
     def read_file(self):
         pos = 0
-        all_byte_elements, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, pos)
-        if error == 0:
-            self.hex_view.data_to_format(all_byte_elements)
+        try:
+            all_byte_elements, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, pos)
+            if error == 0:
+                self.hex_view.data_to_format(all_byte_elements)
+        except IndexError:
+            logging.error(f"Ощибка при чтении файла {self.work_catalog[self.__pos_y]}")
 
     def next_dir(self):
         next_dir, error = self.__fs.cd(self.work_catalog, self.__pos_y)
