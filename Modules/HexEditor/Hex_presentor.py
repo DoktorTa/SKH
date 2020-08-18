@@ -20,8 +20,8 @@ class HexPresentor:
         """
         hex_rows = self._hex_creator(data, step)
         ascii_rows = self._ascii_creator(data, step)
-        rows, pos = self._row_creator(len(hex_rows), step, pos)
-        return rows, hex_rows, ascii_rows, pos
+        rows = self._row_creator(len(hex_rows), step, pos)
+        return rows, hex_rows, ascii_rows
 
     @staticmethod
     def _hex_creator(data: bytes, step: int) -> list:
@@ -69,9 +69,8 @@ class HexPresentor:
     @staticmethod
     def _row_creator(len_row: int, step: int, pos: int) -> (list, int):
         rows = []
-        row = pos * step - step
+        row = pos * (step - 1)
         for inc in range(len_row):
             row = row + step
             rows.append(f'{row:08d}')
-        pos += len_row
-        return rows, pos
+        return rows

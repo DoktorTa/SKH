@@ -45,6 +45,7 @@ class HexWidget(QWidget):
 
     change_list = {}
 
+    __last_row_num = 0
     # Инициализировать поля и задать местоположение
     def __init__(self, block_row_size=16):
         super().__init__()
@@ -70,6 +71,7 @@ class HexWidget(QWidget):
         """
             Функция обновления таблиц
         """
+        self.txt.setRowCount(len(self.__row_num))
         self.txt.setVerticalHeaderLabels(self.__row_num)
         self.hex_matrix_loop()
         self.ascii_matrix_loop()
@@ -176,8 +178,9 @@ class HexWidget(QWidget):
                 inc_i += 1
         self.txt.resizeRowsToContents()
 
-    def data_to_format(self, data, pos, step=16):
-        rows, hex_rows, ascii_rows, row = self.hex_presentor.present(data, step, pos)
-        print(rows, hex_rows, ascii_rows)
+    def data_to_format(self, data, step=16):
+        rows, hex_rows, ascii_rows = self.hex_presentor.present(data, step, self.__last_row_num)
+        self.__last_row_num = (int(rows[len(rows) - 1]) // step) + 1
+        print(self.__last_row_num)
         self.set_page(rows, hex_rows, ascii_rows)
-        self.repaint()
+        self.repaint_page()

@@ -17,12 +17,14 @@ class TotalTab(QWidget):
     work_catalog = []
     __catalog = []
     __pos_y = 0
+    __pos_page = 0
     __fs = 0
 
     def __init__(self):
         super().__init__()
         self.total_left_win()
         self.total_right_win()
+        self.button_page()
         self.grid_widget()
 
     def fat_load(self, file):
@@ -38,22 +40,34 @@ class TotalTab(QWidget):
     def grid_widget(self):
         self.layout = QGridLayout()
 
-        self.layout.addWidget(self.catalog_meneger, 1, 1)
-        self.layout.addWidget(self.hex_view, 1, 2)
+        self.layout.addWidget(self.catalog_meneger, 1, 1, 2, 1)
+        self.layout.addWidget(self.hex_view, 1, 2, 1, 2)
+        self.layout.addWidget(self.next_page_button, 2, 3)
+        self.layout.addWidget(self.early_page_button, 2, 2)
 
         self.setLayout(self.layout)
 
+    def next_page(self):
+        self.__pos_page += 1
+        data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
+        self.hex_view.data_to_format(data)
+
+    def early_page(self):
+        self.__pos_page -= 1
+        data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
+        self.hex_view.data_to_format(data)
+
+    def button_page(self):
+        self.next_page_button = QPushButton("Next")
+        self.next_page_button.clicked.connect(self.next_page)
+
+        self.early_page_button = QPushButton('Early')
+        self.early_page_button.clicked.connect(self.early_page)
+
     def total_right_win(self):
-        hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f'],
-                        ['10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '1a', '1b', '1c', '1d', '1e', '1f'],
-                        ['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '2a', '2b', '2c', '2d', '2e', '2f']]
-        hex_row_label = ['00000000', '00000010', '00000020', '00000030',
-                         '00000040', '00000050', '00000060', '00000070',
-                         '00000080', '00000090', '000000a0', '000000b0',
-                         '000000c0', '000000d0', '000000e0', '000000f0']
-        ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'],
-                          ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'],
-                          ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
+        hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
+        hex_row_label = ['00000000']
+        ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
 
         self.hex_view = HexWidget()
         self.hex_view.set_page(hex_row_label, hex_row_line, ascii_row_line)
@@ -118,7 +132,7 @@ class TotalTab(QWidget):
         pos = 0
         all_byte_elements, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, pos)
         if error == 0:
-            self.hex_view.data_to_format(all_byte_elements, pos)
+            self.hex_view.data_to_format(all_byte_elements)
 
     def next_dir(self):
         next_dir, error = self.__fs.cd(self.work_catalog, self.__pos_y)
