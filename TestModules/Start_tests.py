@@ -11,7 +11,7 @@ from TestModules.ExecutableFiles.test_elf_read import TestELFReader
 from TestModules.ExecutableFiles.test_elf_work import TestELFWork
 
 from TestModules.HexEditor.test_hex_editor import TestHexPresentor
-from TestModules.HexEditor.test_read_file import TestOpenFile
+from TestModules.HexEditor.test_Read_file import TestOpenFile
 
 
 def main():
@@ -40,6 +40,7 @@ def test_hex_editor(test_group_fs, mode):
 
     if mode[0] == 1:
         test_group_fs.addTest(TestOpenFile('test_get_page'))
+        test_group_fs.addTest(TestOpenFile('test_get_data'))
 
     return test_group_fs
 
