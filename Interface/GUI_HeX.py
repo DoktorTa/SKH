@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessa
 from PyQt5.QtGui import QIcon, QFont
 
 from Interface.MyTab import MyTabWidget
+from Interface.New_progect_win import NewProgectWin
 
 
 class Hex_view(QMainWindow):
@@ -64,6 +65,29 @@ class Hex_view(QMainWindow):
             file = open(self.__file_path, "rb")
             self.tab_widget.tab_total_com(file, "EXT")
 
+    def __progect_open(self):
+        self.new_progect = NewProgectWin()
+        self.n
+        self.__file_path = self.new_progect.get_file_path
+        self.__start_project(self.new_progect.get_mode)
+
+    def __start_project(self, mode: int):
+        """
+            Функция звпускает проект с выбраным модом
+
+            На самом деле хотелось бы изменить систему выбора,
+             возможно стоит передовать лист с модами изначально или вытаскивать его,
+             пока подумаю над зависимостями.
+        """
+        if mode == 1:
+            self.open_hex()
+        elif mode == 2:
+            self.open_fat()
+        elif mode == 3:
+            self.open_ext()
+        elif mode == 4:
+            self.open_elf()
+
     # Любые события должны быть созданы и зарегестрированны в меню бар.
     def menu_bar_init(self):
         path = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +101,7 @@ class Hex_view(QMainWindow):
         open_file_action.setShortcut('Ctrl+O')
         open_file_action.setStatusTip('Open new file')
         open_file_action.setIcon(QIcon(path + r"\icon\open.png"))
-        open_file_action.triggered.connect(self.file_serch)
+        open_file_action.triggered.connect(self.__progect_open)
         # self.statusBar()
         help_action = QAction('&Git progect', self)
         help_action.setShortcut('Ctrl+H')
