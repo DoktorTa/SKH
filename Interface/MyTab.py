@@ -21,16 +21,13 @@ class MyTabWidget(QWidget):
 
         # Initialize tab screen
         self.tabs = QTabWidget()
-        self.tab1 = QWidget()
 
         self.tabs.setTabsClosable(True)
 
         self.tabs.resize(300, 200)
 
         # Add tabs
-        self.tabs.addTab(self.tab1, "Hex")
 
-        self.tab_hex()
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
 
@@ -73,10 +70,16 @@ class MyTabWidget(QWidget):
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
 
-    def tab_hex(self):
-        self.hex_wid = HexTab()
+    def tab_hex(self, file):
+        self.hex_wid = HexTab(file)
+
+        self.tab1 = QWidget()
 
         self.tab1.layout = QHBoxLayout()
         self.tab1.layout.addWidget(self.hex_wid)
         self.tab1.setLayout(self.tab1.layout)
+
+        self.tabs.addTab(self.tab1, "Hex")
+        self.layout.addWidget(self.tabs)
+        self.setLayout(self.layout)
 

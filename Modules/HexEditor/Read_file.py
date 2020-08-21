@@ -6,9 +6,11 @@ import os
 class HexOpen:
     __file = 0
     __len_block = 1024
+    __size_file = 0
 
     def __init__(self, file, len_block=1024):
         self.__file = file
+        self.__size_file = os.path.getsize(self.__file.name)
         self.__len_block = len_block
 
     @property
@@ -20,9 +22,8 @@ class HexOpen:
         error = 0
 
         if count < 0:
-            size_file = os.path.getsize(self.__file.name)
             back_to_file = -self.__len_block * int(math.fabs(count))
-            if (back_to_file < -size_file) or (self.__file.tell() > back_to_file):
+            if (back_to_file < -self.__size_file) or (self.__file.tell() > back_to_file):
                 self.__file.seek(0)
             else:
                 self.__file.seek(back_to_file, 1)

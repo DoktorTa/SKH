@@ -51,6 +51,11 @@ class Hex_view(QMainWindow):
         self.__file_path = file_name[0]
         # Функция открытия файла необходимо сообственно открытие файла.
 
+    def open_hex(self):
+        if self.__file_path != "":
+            file = open(self.__file_path, "rb")
+            self.tab_widget.tab_hex(file)
+
     def open_elf(self):
         if self.__file_path != "":
             self.tab_widget.tab_elf(self.__file_path)
@@ -67,9 +72,11 @@ class Hex_view(QMainWindow):
 
     def __progect_open(self):
         self.new_progect = NewProgectWin()
-        self.n
-        self.__file_path = self.new_progect.get_file_path
-        self.__start_project(self.new_progect.get_mode)
+        if self.new_progect.exec_():
+            self.__file_path = self.new_progect.get_file_path
+            self.__start_project(self.new_progect.get_mode)
+        else:
+            pass
 
     def __start_project(self, mode: int):
         """

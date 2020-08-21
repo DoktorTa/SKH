@@ -59,7 +59,6 @@ class TotalTab(QWidget):
     def early_page(self):
         try:
             self.__pos_page -= 1
-            print(self.__pos_page)
             data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
             self.hex_view.data_to_format(data, early=True)
         except IndexError:

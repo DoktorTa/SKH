@@ -180,6 +180,11 @@ class HexWidget(QWidget):
 
     def data_to_format(self, data, step=16, early=False):
         rows, hex_rows, ascii_rows = self.hex_presentor.present(data, step, self.__last_row_num, early)
+        try:
+            if int(rows[0]) < 0:
+                raise ValueError
+        except IndexError:
+            raise ValueError
         self.__last_row_num = (int(rows[len(rows) - 1]) // step) + 1
         self.set_page(rows, hex_rows, ascii_rows)
         self.repaint_page()

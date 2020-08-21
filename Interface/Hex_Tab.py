@@ -5,19 +5,61 @@ import copy
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout
+    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout, QDialog
 from PyQt5.QtGui import QIcon, QFont
 
 from Interface.Hex_Wiget import HexWidget
+from Modules.HexEditor.Read_file import HexOpen
 
 
 class HexTab(QWidget):
     row = ""
 
-    def __init__(self):
+    def __init__(self, file):
         super().__init__()
         self.tab_hex()
+        self.create_next_page_but()
+        self.create_early_page_but()
+
         self.location_on_widget()
+
+        self.read_first_block(file)
+
+    def read_first_block(self, file):
+        self.hex_reader = HexOpen(file)
+        self.reader_data_file(1)
+
+    def reader_data_file(self, count: int, early=False):
+        data, error = self.hex_reader.get_data(count)
+        if error == 0:
+            try:
+                self.hex_wid.data_to_format(data, early=early)
+            except ValueError:
+                self.dialog_file_end("File is end.")
+
+    def dialog_file_end(self, msg: str):
+        dialog = QDialog(self)
+        dialog.setModal(True)
+        dialog.setMinimumSize(250, 100)
+        dialog.setWindowTitle("Error")
+
+        dialog.buttonBox = QPushButton("OK")
+        dialog.buttonBox.clicked.connect(dialog.accept)
+
+        dialog.error_msg = QLabel(msg)
+
+        dialog.layout = QGridLayout()
+        dialog.layout.addWidget(dialog.error_msg, 0, 0, 1, 3)
+        dialog.layout.addWidget(dialog.buttonBox, 1, 1)
+        dialog.setLayout(dialog.layout)
+
+        dialog.exec_()
+
+    def move_next_page(self):
+        self.reader_data_file(1)
+
+    def move_early_page(self):
+        self.reader_data_file(-1, True)
 
     def tab_hex(self):
         hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
@@ -32,11 +74,6 @@ class HexTab(QWidget):
         self.timer.timeout.connect(self.history_update)
         self.timer.start(1000)
 
-        self.btn_next_page = QPushButton("Next page")
-        self.btn_next_page.clicked.connect(self.hex_wid.repaint_page)
-
-        self.btn_early_page = QPushButton("Early page")
-
         self.btn_delete_last = QPushButton("Cansel last")
         self.btn_delete_last.clicked.connect(self.history_del_last)
 
@@ -46,6 +83,14 @@ class HexTab(QWidget):
         self.history_list = QTextEdit()
         self.history_list.setReadOnly(True)
         self.history_list.setMaximumSize(128, 400)
+
+    def create_early_page_but(self):
+        self.btn_early_page = QPushButton("Early page")
+        self.btn_early_page.clicked.connect(self.move_early_page)
+
+    def create_next_page_but(self):
+        self.btn_next_page = QPushButton("Next page")
+        self.btn_next_page.clicked.connect(self.move_next_page)
 
     def location_on_widget(self):
         self.layout = QGridLayout()
