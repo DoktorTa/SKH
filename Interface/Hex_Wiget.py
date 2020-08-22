@@ -46,6 +46,7 @@ class HexWidget(QWidget):
     change_list = {}
 
     __last_row_num = 0
+
     # Инициализировать поля и задать местоположение
     def __init__(self, block_row_size=16):
         super().__init__()
@@ -109,7 +110,6 @@ class HexWidget(QWidget):
             # self.up.widget_update.emit()
 
         self.txt.editItem(items[0])
-        print(self.change_list)
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
