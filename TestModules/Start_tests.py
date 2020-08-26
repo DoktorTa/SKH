@@ -12,6 +12,7 @@ from TestModules.ExecutableFiles.test_elf_work import TestELFWork
 
 from TestModules.HexEditor.test_hex_editor import TestHexPresentor
 from TestModules.HexEditor.test_Read_file import TestOpenFile
+from TestModules.HexEditor.test_Hex_save import TestHexSave
 
 
 def main():
@@ -37,6 +38,8 @@ def test_hex_editor(test_group_fs, mode):
     test_group_fs.addTest(TestHexPresentor('test_row_creator'))
     test_group_fs.addTest(TestHexPresentor('test_hex_presentor'))
     test_group_fs.addTest(TestHexPresentor('test_ascii_creator'))
+    test_group_fs.addTest(TestHexSave('test_create_list'))
+    test_group_fs.addTest(TestHexSave('test_write_on_file'))
 
     if mode[0] == 1:
         test_group_fs.addTest(TestOpenFile('test_get_page'))

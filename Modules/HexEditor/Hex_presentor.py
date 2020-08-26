@@ -36,7 +36,6 @@ class HexPresentor:
                 hex_list.append(hex_row)
                 hex_row = []
         else:
-            print(len(data), step)
             residue = len(data) % (step * 2)
             if residue != 0:
                 for j in range(step - residue):

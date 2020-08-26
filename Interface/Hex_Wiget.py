@@ -9,9 +9,15 @@ from Modules.HexEditor.Hex_presentor import HexPresentor
 
 
 class HexDelegate(QItemDelegate):
-    def createEditor(self, parent, option, index, read_only=False):
+    __read_only = False
+
+    def __init__(self, read_mode=False):
+        super().__init__()
+        self.__read_only = read_mode
+
+    def createEditor(self, parent, option, index):
         line = QLineEdit(parent)
-        if read_only is False:
+        if self.__read_only is True:
             line.setReadOnly(True)
         line.setInputMask("HH")
         return line
@@ -58,6 +64,7 @@ class HexWidget(QWidget):
 
     def setReadOnly(self, read: bool):
         self.__read_only = read
+        self.txt.setItemDelegate(HexDelegate(self.__read_only))
 
     def set_page(self, row_num: list, hex_list: list, ascii_list: list):
         """
@@ -92,6 +99,7 @@ class HexWidget(QWidget):
         self.setLayout(layout)
 
     def history_del(self):
+        print(self.change_list)
         if len(self.change_list) is not 0:
             history_last_point = self.change_list.popitem()
             key,  value = history_last_point
@@ -142,7 +150,7 @@ class HexWidget(QWidget):
         self.txt.setHorizontalHeaderLabels(colonum_hend)
         self.txt.setFont(QFont('Courier New', 10))
 
-        self.txt.setItemDelegate(HexDelegate())
+        self.txt.setItemDelegate(HexDelegate(self.__read_only))
 
         self.hex_matrix_loop()
 

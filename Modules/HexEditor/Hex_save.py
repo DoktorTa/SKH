@@ -1,42 +1,56 @@
 import os
+from bitstring import BitArray
 
 
 class HexSave:
-    def __init__(self, file_path: str, history: dict, block_len=1024, step=16):
-        inc = 0
+    def __init__(self, file_path: str, history: dict, step=16):
+        seek_in_file_last = 0
 
         history, key_list = self.__create_list(history, step)
+        with open(file_path, "rb") as file:
+            with open(file_path + "cp", "wb") as file_new:
 
-        with open(file_path, "rb") as file_org:
-            file_org_size = os.path.getsize(file_org.name)
-            blocks = int(file_org_size // block_len)
-            with open(file_path + "cp", "w") as file_cp:
+                while len(key_list) != 0:
+                    seek_in_file = key_list.pop(0)
+                    byte_old_new = history.get(seek_in_file)
 
-                while blocks == inc:
-                    num_byte = key_list.pop(0)
-                    num_block = num_byte // block_len
-                    if num_block == inc:
+                    if seek_in_file_last == 1:
+                        seek_in_file_last = 2
 
-                    # index = str(hex(column)[2:]) + str(self.__row_num[row]): byte
+                    file.seek(seek_in_file_last)
+                    byte_no_change = file.read(seek_in_file - seek_in_file_last)
+                    file_new.write(byte_no_change)
+                    change_byte = file.read(1)
 
-    def __edit_block(self, block: bytes, num_byte: int, old_new_bytes: str, block_len=1024) -> bytes:
-        num_byte_in_block = num_byte % block_len
-        old_byte = "\x" + old_new_bytes[:2]
-        if block[num_byte_in_block] == old_byte:
-            block[num_byte_in_block] = new_byte
-        return
+                    if change_byte == BitArray(hex=byte_old_new[:2]):
+                        change_byte = BitArray(hex=byte_old_new[-2:]).bytes
+                        file_new.write(change_byte)
 
-    def __create_list(self, history: dict, step=16) -> (dict, list):
+                    seek_in_file_last = seek_in_file + 1
+                else:
+                    file_size = os.path.getsize(file.name)
+                    byte_no_change = file.read(file_size - seek_in_file_last)
+                    file_new.write(byte_no_change)
+
+        self.__end_save(file_path)
+
+    @staticmethod
+    def __end_save(file_path: str):
+        os.remove(file_path)
+        os.rename(file_path + "cp", file_path)
+
+    @staticmethod
+    def __create_list(history: dict, step=16) -> (dict, list):
         history_sort = {}
 
         for key in history:
             value = history.get(key)
-            print(key[0])
-            column = 1
-            num = int((int(key[1:]) * step) + int(column))
-            history_sort.update({num: key})
+            column = int(key[0:1], step)
+            num = int((int(key[1:])) + int(column))
+            history_sort.update({num: value})
 
         key_list = list(history_sort.keys())
         key_list.sort()
 
         return history_sort, key_list
+
