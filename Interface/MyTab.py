@@ -23,6 +23,7 @@ class MyTabWidget(QWidget):
         self.tabs = QTabWidget()
 
         self.tabs.setTabsClosable(True)
+        self.tabs.tabCloseRequested.connect(self.__close_tab)
 
         self.tabs.resize(300, 200)
 
@@ -32,6 +33,11 @@ class MyTabWidget(QWidget):
         self.setLayout(self.layout)
 
         #self.l.setText("This is the first tab")
+
+    def __close_tab(self, currentIndex):
+        currentQWidget = self.tabs.widget(currentIndex)
+        currentQWidget.deleteLater()
+        self.tabs.removeTab(currentIndex)
 
     def tab_total_com(self, file, fs: str):
         self.total_com = TotalTab()
