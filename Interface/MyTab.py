@@ -32,22 +32,35 @@ class MyTabWidget(QWidget):
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
 
-        #self.l.setText("This is the first tab")
+        # self.l.setText("This is the first tab")
 
-    def __close_tab(self, currentIndex):
-        currentQWidget = self.tabs.widget(currentIndex)
-        currentQWidget.deleteLater()
-        self.tabs.removeTab(currentIndex)
+    @staticmethod
+    def __create_property_file(tab, file_path: str):
+        tab.file = open(file_path, 'rb')
+        return tab
 
-    def tab_total_com(self, file, fs: str):
+    @staticmethod
+    def __delete_property_file(tab):
+        tab.file.close()
+        return tab
+
+    def __close_tab(self, current_index):
+        current_widget = self.tabs.widget(current_index)
+        print(type(current_widget))
+        self.__delete_property_file(current_widget)
+        current_widget.deleteLater()
+        self.tabs.removeTab(current_index)
+
+    def tab_total_com(self, file_path, fs: str):
         self.total_com = TotalTab()
 
-        if fs == "FAT":
-            self.total_com.fat_load(file)
-        elif fs == "EXT":
-            self.total_com.ext_load(file)
-
         self.tab2 = QWidget()
+        self.tab2 = self.__create_property_file(self.tab2, file_path)
+
+        if fs == "FAT":
+            self.total_com.fat_load(self.tab2.file)
+        elif fs == "EXT":
+            self.total_com.ext_load(self.tab2.file)
 
         self.tabs.addTab(self.tab2, "Total com")
 

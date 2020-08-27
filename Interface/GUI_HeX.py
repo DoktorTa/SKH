@@ -62,13 +62,11 @@ class Hex_view(QMainWindow):
 
     def open_fat(self):
         if self.__file_path != "":
-            file = open(self.__file_path, "rb")
-            self.tab_widget.tab_total_com(file, "FAT")
+            self.tab_widget.tab_total_com(self.__file_path, "FAT")
 
     def open_ext(self):
         if self.__file_path != "":
-            file = open(self.__file_path, "rb")
-            self.tab_widget.tab_total_com(file, "EXT")
+            self.tab_widget.tab_total_com(self.__file_path, "EXT")
 
     def __progect_open(self):
         self.new_progect = NewProgectWin()
