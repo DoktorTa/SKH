@@ -22,7 +22,7 @@ class HexSave:
                     file_new.write(byte_no_change)
                     change_byte = file.read(1)
 
-                    if change_byte == BitArray(hex=byte_old_new[:2]):
+                    if change_byte == BitArray(hex=byte_old_new[:2]).bytes:
                         change_byte = BitArray(hex=byte_old_new[-2:]).bytes
                         file_new.write(change_byte)
 

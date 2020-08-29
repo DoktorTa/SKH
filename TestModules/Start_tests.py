@@ -39,7 +39,7 @@ def test_hex_editor(test_group_fs, mode):
     test_group_fs.addTest(TestHexPresentor('test_hex_presentor'))
     test_group_fs.addTest(TestHexPresentor('test_ascii_creator'))
     test_group_fs.addTest(TestHexSave('test_create_list'))
-    test_group_fs.addTest(TestHexSave('test_write_on_file'))
+    # test_group_fs.addTest(TestHexSave('test_write_on_file'))
 
     if mode[0] == 1:
         test_group_fs.addTest(TestOpenFile('test_get_page'))

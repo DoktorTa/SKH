@@ -112,6 +112,8 @@ class TabWidgetManager(QWidget):
         self.tab_hex_ed = self.__create_property_file(self.tab_hex_ed, file_path)
         self.hex_wid = HexTab(self.tab_hex_ed.file)
 
+        self.hex_wid.set_file_path(file_path)
+
         self.tab_hex_ed.layout = QHBoxLayout()
         self.tab_hex_ed.layout.addWidget(self.hex_wid)
         self.tab_hex_ed.setLayout(self.tab_hex_ed.layout)
