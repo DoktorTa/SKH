@@ -1,10 +1,4 @@
-import sys
-import webbrowser
-import os
-
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QTabWidget, QMenuBar, QComboBox, QDialog, QLineEdit, QGridLayout
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QPushButton, QFileDialog, QComboBox, QDialog, QLineEdit, QGridLayout
 
 
 class NewProgectWin(QDialog):

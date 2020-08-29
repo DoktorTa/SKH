@@ -1,78 +1,52 @@
-import sys
 import webbrowser
 import os
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QVBoxLayout, QTabWidget, QMenuBar
+from PyQt5.QtWidgets import QToolTip, QMessageBox, QDesktopWidget, QAction, QMainWindow, QFileDialog
 from PyQt5.QtGui import QIcon, QFont
 
-from Interface.MyTab import MyTabWidget
+from Interface.Tab_manager import TabWidgetManager
 from Interface.New_progect_win import NewProgectWin
 
 
-class Hex_view(QMainWindow):
+class GUIMasterWin(QMainWindow):
+    """
+        Класс управляющий основным окном иинтерфейса.
+    """
     __file_path = ""
 
     def __init__(self):
         super().__init__()
-        self.initUI()
+        self.__init_ui()
 
-    def initUI(self):
-        # Этот статический метод устанавливает шрифт, используемый для показа всплывающих подсказок.
-        # Мы используем шрифт 10px SansSerif.
+    def __init_ui(self):
         QToolTip.setFont(QFont('SansSerif', 10))
+        self.setToolTip('This is ЭКРАН')
 
-        # Чтобы создать подсказку, мы вызываем метод setTooltip(). Мы можем использовать HTML форматирование текста.
-        self.setToolTip('This is a <b>QWidget</b> widget')
-
-        # Мы создаём виджет кнопки и устанавливаем всплывающую подсказку для неё.
-        #btn = QPushButton('Button', self)
-        #btn.setToolTip('This is a <b>QPushButton</b> widget')
-        # Меняем размер у кнопки, перемещаем её в окно. Метод sizeHint() даёт рекомендуемый размер для кнопки.
-        #btn.resize(btn.sizeHint())
-        #btn.move(70, 70)
-        # self.widget_on_win()
-
-        self.test()
-
+        self.__start_tabs()
         self.menu_bar_init()
 
         self.resize(1080, 720)
-        self.center()
-        self.setWindowTitle('Tooltips')
+        self._center()
+        self.setWindowTitle('SectionKHex')
         self.show()
 
-    def test(self):
-        self.tab_widget = MyTabWidget(self)
+    def __start_tabs(self):
+        self.tab_widget = TabWidgetManager(self)
         self.setCentralWidget(self.tab_widget)
 
-    def file_serch(self):
+    def _file_serch(self):
+        """
+            Функция получает путь до файла.
+        """
         file_name = QFileDialog.getOpenFileName(self, "Open files", "/home/jana")
         self.__file_path = file_name[0]
-        # Функция открытия файла необходимо сообственно открытие файла.
 
-    def open_hex(self):
-        if self.__file_path != "":
-            file = open(self.__file_path, "rb")
-            self.tab_widget.tab_hex(file)
+    def __project_open(self):
+        self.new_project = NewProgectWin()
 
-    def open_elf(self):
-        if self.__file_path != "":
-            self.tab_widget.tab_elf(self.__file_path)
-
-    def open_fat(self):
-        if self.__file_path != "":
-            self.tab_widget.tab_total_com(self.__file_path, "FAT")
-
-    def open_ext(self):
-        if self.__file_path != "":
-            self.tab_widget.tab_total_com(self.__file_path, "EXT")
-
-    def __progect_open(self):
-        self.new_progect = NewProgectWin()
-        if self.new_progect.exec_():
-            self.__file_path = self.new_progect.get_file_path
-            self.__start_project(self.new_progect.get_mode)
+        if self.new_project.exec_():
+            self.__file_path = self.new_project.get_file_path
+            self.__start_project(self.new_project.get_mode)
         else:
             pass
 
@@ -85,60 +59,58 @@ class Hex_view(QMainWindow):
              пока подумаю над зависимостями.
         """
         if mode == 1:
-            self.open_hex()
+            self._open_hex()
         elif mode == 2:
-            self.open_fat()
+            self._open_fat()
         elif mode == 3:
-            self.open_ext()
+            self._open_ext()
         elif mode == 4:
-            self.open_elf()
+            self._open_elf()
+
+    def _open_hex(self):
+        if self.__file_path != "":
+            self.tab_widget.tab_hex(self.__file_path)
+
+    def _open_elf(self):
+        if self.__file_path != "":
+            self.tab_widget.tab_elf(self.__file_path)
+
+    def _open_fat(self):
+        if self.__file_path != "":
+            self.tab_widget.tab_total_com(self.__file_path, "FAT")
+
+    def _open_ext(self):
+        if self.__file_path != "":
+            self.tab_widget.tab_total_com(self.__file_path, "EXT")
 
     # Любые события должны быть созданы и зарегестрированны в меню бар.
     def menu_bar_init(self):
         path = os.path.dirname(os.path.abspath(__file__))
+        self.setWindowIcon(QIcon(path + r"\icon\logo.png"))
 
         exit_action = QAction('&Exit', self)
         exit_action.setShortcut('Ctrl+Q')
         exit_action.setStatusTip('Exit application')
+        exit_action.setIcon(QIcon(path + r"\icon\exit.png"))
         exit_action.triggered.connect(self.close)
 
         open_file_action = QAction('&Open', self)
         open_file_action.setShortcut('Ctrl+O')
         open_file_action.setStatusTip('Open new file')
         open_file_action.setIcon(QIcon(path + r"\icon\open.png"))
-        open_file_action.triggered.connect(self.__progect_open)
+        open_file_action.triggered.connect(self.__project_open)
         # self.statusBar()
         help_action = QAction('&Git progect', self)
         help_action.setShortcut('Ctrl+H')
         help_action.setStatusTip('Open git this progect')
+        help_action.setIcon(QIcon(path + r'\icon\help.png'))
         help_action.triggered.connect(lambda: webbrowser.open('https://github.com/DoktorTa/SKH'))
-
-        fs_fat_open_action = QAction('&FAT', self)
-        fs_fat_open_action.setShortcut('Ctrl+F2')
-        fs_fat_open_action.setStatusTip("Open file like FS FAT32 or FAT16")
-        fs_fat_open_action.triggered.connect(self.open_fat)
-
-        fs_ext_open_action = QAction('&ext', self)
-        fs_ext_open_action.setShortcut('Ctrl+F3')
-        fs_ext_open_action.setStatusTip('Open file like FS ext2')
-        fs_ext_open_action.triggered.connect(self.open_ext)
-
-        ef_elf_open_action = QAction('&elf', self)
-        ef_elf_open_action.setShortcut('Ctrl+F4')
-        ef_elf_open_action.setStatusTip('Parse file like executable file elf type')
-        ef_elf_open_action.triggered.connect(self.open_elf)
 
         menu_bar = self.menuBar()
 
         file_menu = menu_bar.addMenu('&File')
         file_menu.addAction(open_file_action)
         file_menu.addAction(exit_action)
-
-        edit_menu = menu_bar.addMenu('&Edit')
-        edit_menu.addAction(fs_fat_open_action)
-        edit_menu.addAction(fs_ext_open_action)
-        edit_menu.addSeparator()
-        edit_menu.addAction(ef_elf_open_action)
 
         help_menu = menu_bar.addMenu('&Help')
         help_menu.addAction(help_action)
@@ -153,14 +125,8 @@ class Hex_view(QMainWindow):
             event.ignore()
 
     # Центрирование окна приложения, стоит убрать, ибо зачем?
-    def center(self):
+    def _center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = Hex_view()
-    sys.exit(app.exec_())

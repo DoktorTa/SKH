@@ -1,26 +1,26 @@
-import sys
-import webbrowser
-import copy
+import logging
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject, pyqtSignal, QTimer, QSize
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout, QTableView, QTableWidget,\
-    QTableWidgetItem, QAbstractItemView
-from PyQt5.QtGui import QIcon, QFont, QColor
+from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QTableWidget, QTableWidgetItem, QAbstractItemView
+from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
 from Modules.ExecutableFiles.ELF_work import ELFWork, InvalidFileTypeException
 
 
 class ELFTab(QWidget):
+    """
+        Виджет возврашает предстовление елф файла как таблицы его заголовков и секций.
+    """
 
     def __init__(self, file):
         super().__init__()
+
         try:
             self.__elf = ELFWork(file)
         except InvalidFileTypeException:
+            logging.error(f"This file is not elf type.")
             raise InvalidFileTypeException
+
         header = self._elf_header()
         table_headers = self._getting_table_headers()
         section_table = self._getting_section_table()
@@ -28,13 +28,16 @@ class ELFTab(QWidget):
         self.table_headers_widget(table_headers)
         self.section_table_wiget(section_table)
         self.headers()
-        self.location_on_widget()
+        self.__location_on_widget()
 
     def headers(self):
         self.section_table_header = QLabel('Section table:')
         self.table_headers_header = QLabel('Headers table:')
 
-    def section_table_wiget(self, section_table):
+    def section_table_wiget(self, section_table: list):
+        """
+            Метод генерирует таблицу секций программы.
+        """
         heading_w = ["Name", "Type", "Flags", "Virtual adress", "Offset", "Segment size in file", "Associated section index",
                      "Additional section information", "Required section alignment", "Size in bytes of each record"]
 
@@ -44,7 +47,6 @@ class ELFTab(QWidget):
         self.section_table_w.setMinimumSize(300, 100)
         self.section_table_w.setHorizontalHeaderLabels(heading_w)
         self.section_table_w.setFont(QFont('Courier New', 10))
-
         self.section_table_w.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         inc_i = 0
@@ -60,6 +62,9 @@ class ELFTab(QWidget):
                 inc_j += 1
 
     def header_widget(self, header: dict):
+        """
+            Генерирует список основных параметров елф файла.
+        """
         head = f""
 
         self.header_layout_w = QLabel()
@@ -70,7 +75,10 @@ class ELFTab(QWidget):
 
         self.header_layout_w.setText(head)
 
-    def table_headers_widget(self, table_headers):
+    def table_headers_widget(self, table_headers: list):
+        """
+            Генерирует таблизу заголовков программы.
+        """
         heading_w = ["Type", "Flags", "Offset", "Virtual adress", "Physical adress", "Segment size in file",
                      "Segment size in memory", "Segment alignment"]
 
@@ -80,7 +88,6 @@ class ELFTab(QWidget):
         self.table_headers_w.setMinimumSize(300, 100)
         self.table_headers_w.setHorizontalHeaderLabels(heading_w)
         self.table_headers_w.setFont(QFont('Courier New', 10))
-
         self.table_headers_w.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         inc_i = 0
@@ -95,11 +102,11 @@ class ELFTab(QWidget):
                 self.table_headers_w.setItem(inc_i, inc_j, item_in_cell)
                 inc_j += 1
 
-    def _getting_section_table(self):
+    def _getting_section_table(self) -> list:
         section_table = self.__elf.get_section_table()
         return section_table
 
-    def _getting_table_headers(self):
+    def _getting_table_headers(self) -> list:
         table_headers = self.__elf.get_table_header()
         return table_headers
 
@@ -107,12 +114,8 @@ class ELFTab(QWidget):
         header = self.__elf.get_header()
         return header
 
-    def location_on_widget(self):
+    def __location_on_widget(self):
         self.layout = QGridLayout()
-        # self.layout = QHBoxLayout()
-
-        # self.layout.setColumnMinimumWidth(1, 10)
-        # self.layout.setColumnStretch(1, 0)
 
         self.layout.addWidget(self.header_layout_w, 1, 0)
         self.layout.addWidget(self.table_headers_header, 2, 0)
@@ -120,12 +123,3 @@ class ELFTab(QWidget):
         self.layout.addWidget(self.section_table_header, 4, 0)
         self.layout.addWidget(self.section_table_w, 5, 0)
         self.setLayout(self.layout)
-
-
-if __name__ == '__main__':
-    app = QtWidgets.QApplication([])
-    with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\ExecutableFiles\ls.elf", "rb") as file:
-        application = ELFTab(file)
-        application.show()
-
-        sys.exit(app.exec())

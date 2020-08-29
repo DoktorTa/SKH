@@ -1,12 +1,11 @@
-import re
-
-from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QTextEdit, QTableWidget, QTableWidgetItem, QLineEdit, QItemDelegate, QGridLayout
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
 from Modules.HexEditor.Hex_presentor import HexPresentor
 
+
+# Некоторые не snake_case ввиду унификации с pyqt5 используюший CamelCase.
 
 class HexDelegate(QItemDelegate):
     __read_only = False
@@ -77,12 +76,12 @@ class HexWidget(QWidget):
 
     def repaint_page(self):
         """
-            Функция обновления таблиц
+            Функция обновления таблиц по вшитому с помощью set_page представлению.
         """
         self.txt.setRowCount(len(self.__row_num))
         self.txt.setVerticalHeaderLabels(self.__row_num)
-        self.hex_matrix_loop()
-        self.ascii_matrix_loop()
+        self._hex_matrix_loop()
+        self._ascii_matrix_loop()
 
     # Ресует первичный виджет
     def __draw_wiget(self, block_row_size: int):
@@ -99,11 +98,10 @@ class HexWidget(QWidget):
         self.setLayout(layout)
 
     def history_del(self):
-        print(self.change_list)
         if len(self.change_list) is not 0:
             history_last_point = self.change_list.popitem()
             key,  value = history_last_point
-            self.txt.setItem(int(int(key[1:]) / 10), int(key[0]), QTableWidgetItem(value[0:2]))
+            # self.txt.setItem(int(int(key[1:]) / 10), int(key[0]), QTableWidgetItem(value[0:2]))
 
     # Функция которая формирует лог изменений, лог расширяем
     def __edit_item(self):
@@ -115,14 +113,12 @@ class HexWidget(QWidget):
         if str(self.__hex_matrix[row][column]) != str(items[0].text()):
             byte = str(self.__hex_matrix[row][column]) + str(items[0].text())
             self.change_list.update({index: byte})
-            # self.up.widget_update.emit()
-
         self.txt.editItem(items[0])
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
-        # Enter
-        if key == 16777220 and not eventQKeyEvent.isAutoRepeat():
+        enter_key = 16777220
+        if key == enter_key and not eventQKeyEvent.isAutoRepeat():
             self.__edit_item()
 
     # Инициализация аски матрицы
@@ -134,7 +130,7 @@ class HexWidget(QWidget):
         self.asc.setMinimumSize(8 * 16, 250)
         self.asc.setMaximumSize(8 * 16, 1000)
 
-        self.ascii_matrix_loop()
+        self._ascii_matrix_loop()
 
     # Инициализыция
     def __hex_matrix_table(self, block_row_size: int):
@@ -152,9 +148,9 @@ class HexWidget(QWidget):
 
         self.txt.setItemDelegate(HexDelegate(self.__read_only))
 
-        self.hex_matrix_loop()
+        self._hex_matrix_loop()
 
-    def ascii_matrix_loop(self):
+    def _ascii_matrix_loop(self):
         """
             Метод обновляет аски матрицу виджета в соответствии с ascii_matrix
         """
@@ -168,7 +164,7 @@ class HexWidget(QWidget):
                 self.asc.insertPlainText(sumbol)
             self.asc.insertPlainText("\n")
 
-    def hex_matrix_loop(self):
+    def _hex_matrix_loop(self):
         """
             Метод обновляет хекс матрицу виджета в соответствии с hex_matrix
         """
@@ -186,7 +182,12 @@ class HexWidget(QWidget):
                 inc_i += 1
         self.txt.resizeRowsToContents()
 
-    def data_to_format(self, data, step=16, early=False):
+    def data_to_format(self, data: bytes, step=16, early=False):
+        """
+            Форматирует байтовое представление в пердстовление шеснадцатирчного редактора.
+            А так же задает и перерисовывает страницу.
+            Вызываете этот метод если вам необходимо перерисовать виджет под новые данные.
+        """
         rows, hex_rows, ascii_rows = self.hex_presentor.present(data, step, self.__last_row_num, early)
         try:
             if int(rows[0]) < 0:

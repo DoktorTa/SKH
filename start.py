@@ -2,8 +2,8 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 
-from Interface.GUI_HeX import Hex_view
+from Interface.GUI_HeX import GUIMasterWin
 
 app = QApplication(sys.argv)
-ex = Hex_view()
+ex = GUIMasterWin()
 sys.exit(app.exec_())

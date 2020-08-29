@@ -21,7 +21,10 @@ class TestHexSave(unittest.TestCase):
             with open(r'A:\Programming languages\In developing\Python\SKH\TestModules\HexEditor\numbe.txt', 'rb') as file_test:
                 test_data = file_test.read()
                 answer_data = file_answer.read()
+                print(test_data, '\n', answer_data)
                 self.assertEqual(test_data, answer_data)
+        with open(r'A:\Programming languages\In developing\Python\SKH\TestModules\HexEditor\numbe.txt', 'w') as file:
+            file.write('1' * 1024 + '2' * 1024)
 
 
 if __name__ == '__main__':
