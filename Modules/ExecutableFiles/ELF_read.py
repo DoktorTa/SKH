@@ -2,7 +2,8 @@ import logging
 import struct
 import copy
 
-from Modules.ExecutableFiles.ELF_data import ELFData, ELFTableHeader, ELFHeaderSection
+from Modules.ExecutableFiles.ELF_data import ELFData, ELFTableHeader,\
+    ELFHeaderSection
 
 
 class ELFReader:
@@ -21,12 +22,15 @@ class ELFReader:
         """
             Формирует имя каждой секции.
 
-            Берет самую последнюю секцию файла в которой содержатся имена остальных секций,
-            По указателям каждой секции находится начало имени каждой секции после чего имя читается до нулевого байта.
+            Берет самую последнюю секцию файла
+             в которой содержатся имена остальных секций,
+            По указателям каждой секции находится начало имени каждой секции
+             после чего имя читается до нулевого байта.
         """
         section_table_seek = self.data.e_end_load_record.get("e_shoff")
         if section_table_seek == 0:
-            logging.info(f"Смешение таблицы секций равно 0, она не существует.")
+            logging.info(f"Смешение таблицы секций равно 0,"
+                         f" она не существует.")
             return
 
         buf = []
@@ -63,7 +67,8 @@ class ELFReader:
         section_table_seek = self.data.e_end_load_record.get("e_shoff")
 
         if section_table_seek == 0:
-            logging.info(f"Смешение таблицы секций равно 0, она не существует.")
+            logging.info(f"Смешение таблицы секций равно 0,"
+                         f" она не существует.")
         else:
             count_records = self.data.e_end_load_record.get("e_shnum")
 
@@ -81,23 +86,30 @@ class ELFReader:
                 section = self._program_header_section_init(element_b, section)
                 self.data.section_header_records.append(section)
 
-    def _program_header_section_init(self, element_b: bytes, section: ELFHeaderSection) -> ELFHeaderSection:
+    def _program_header_section_init(self,
+                                     element_b: bytes,
+                                     section: ELFHeaderSection)\
+            -> ELFHeaderSection:
         """
             Метод формирует лист секции на основе байтовой строки этой секции.
         """
 
         if self.data.bit_class == 32:
             section_format = "10i"
-            section_keys = ["sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset",
-                            "sh_size", "sh_link", "sh_info", "sh_addralign", "sh_entsize"]
+            section_keys = ["sh_name", "sh_type", "sh_flags", "sh_addr",
+                            "sh_offset", "sh_size", "sh_link", "sh_info",
+                            "sh_addralign", "sh_entsize"]
         else:  # self.data.bit_class == 64
             section_format = "2i4q2i2q"
-            section_keys = ["sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset",
-                            "sh_size", "sh_link", "sh_info", "sh_addralign", "sh_entsize"]
+            section_keys = ["sh_name", "sh_type", "sh_flags", "sh_addr",
+                            "sh_offset", "sh_size", "sh_link", "sh_info",
+                            "sh_addralign", "sh_entsize"]
 
-        struct_section = struct.unpack(self.data.byte_order + section_format, element_b)
+        struct_section = struct.unpack(self.data.byte_order + section_format,
+                                       element_b)
         for inc in range(len(struct_section)):
-            section.program_header_section_fileds.update({section_keys[inc]: struct_section[inc]})
+            section.program_header_section_fileds.update(
+                {section_keys[inc]: struct_section[inc]})
 
         # logging.debug(f"{str(section)}")
         return section
@@ -107,8 +119,10 @@ class ELFReader:
             Метод читает последний сегмент файла с именами остальных сегментов.
         """
         last_segment = self.data.section_header_records.pop()
-        last_segment_seek = last_segment.program_header_section_fileds.get("sh_offset")
-        last_segment_size = last_segment.program_header_section_fileds.get("sh_size")
+        last_segment_seek = last_segment\
+            .program_header_section_fileds.get("sh_offset")
+        last_segment_size = last_segment\
+            .program_header_section_fileds.get("sh_size")
 
         self.file.seek(last_segment_seek)
         last_segment_data = self.file.read(last_segment_size)
@@ -122,7 +136,8 @@ class ELFReader:
 
         table_header_seek = self.data.e_end_load_record.get("e_phoff")
         if table_header_seek == 0:
-            logging.info(f"Смешение таблицы заголовков равно 0, она не существует")
+            logging.info(f"Смешение таблицы заголовков равно 0,"
+                         f" она не существует")
         else:
             count_records = self.data.e_end_load_record.get("e_phnum")
 
@@ -137,24 +152,33 @@ class ELFReader:
                 self.file.seek(table_header_seek + (inc * element_table_size))
                 element_table = self.file.read(element_table_size)
 
-                table_header = self._program_header_table_init(element_table, table_header)
+                table_header = self._program_header_table_init(element_table,
+                                                               table_header)
                 self.data.tables_header_records.append(table_header)
 
-    def _program_header_table_init(self, element_table: bytes, table_header: ELFTableHeader) -> ELFTableHeader:
+    def _program_header_table_init(self,
+                                   element_table: bytes,
+                                   table_header: ELFTableHeader)\
+            -> ELFTableHeader:
         """
-             Метод формирует лист заголовка на основе байтовой строки этого заголовка.
+             Метод формирует лист заголовка на основе байтовой строки этого
+              заголовка.
         """
 
         if self.data.bit_class == 32:
             header_format = "l7i"
-            header_keys = ["p_type", "p_offset", "p_vaddr", "p_paddr", "p_filesz", "p_memsz", "p_flags", "p_align"]
+            header_keys = ["p_type", "p_offset", "p_vaddr", "p_paddr",
+                           "p_filesz", "p_memsz", "p_flags", "p_align"]
         else:  # self.data.bit_class == 64
             header_format = "li6q"
-            header_keys = ["p_type", "p_flags", "p_offset", "p_vaddr", "p_paddr", "p_filesz", "p_memsz", "p_align"]
+            header_keys = ["p_type", "p_flags", "p_offset", "p_vaddr",
+                           "p_paddr", "p_filesz", "p_memsz", "p_align"]
 
-        struct_header = struct.unpack(self.data.byte_order + header_format, element_table)
+        struct_header = struct.unpack(self.data.byte_order + header_format,
+                                      element_table)
         for inc in range(len(struct_header)):
-            table_header.program_header_fields.update({header_keys[inc]: struct_header[inc]})
+            table_header.program_header_fields.update(
+                {header_keys[inc]: struct_header[inc]})
 
         logging.debug(str(table_header))
         return table_header
@@ -183,17 +207,22 @@ class ELFReader:
         e_midel_format = self.data.byte_order + "2hi"
         struct_elf = struct.unpack(e_midel_format, e_midel)
         elf_e_midle = ["e_type", "e_machine", "e_version"]
-        elf_e_midle_value = [self.data.et_value, self.data.em_value, self.data.ev_version_value]
+        elf_e_midle_value = [self.data.et_value,
+                             self.data.em_value,
+                             self.data.ev_version_value]
         for inc in range(3):
             try:
                 value_group = elf_e_midle_value[inc]
-                self.data.e_middle_load_record.update({elf_e_midle[inc]: value_group.get(struct_elf[inc])})
+                self.data.e_middle_load_record.update(
+                    {elf_e_midle[inc]: value_group.get(struct_elf[inc])})
             except KeyError:
                 value_group = elf_e_midle_value[inc]
                 value_group.update({struct_elf[inc]: ("", "")})
-                self.data.e_middle_load_record.update({elf_e_midle[inc]: value_group.get(struct_elf[inc])})
+                self.data.e_middle_load_record.update(
+                    {elf_e_midle[inc]: value_group.get(struct_elf[inc])})
 
-        if self.data.e_ident.get("ei_class") == self.data.elf_class_value.get(1):
+        if self.data.e_ident.get("ei_class") == \
+                self.data.elf_class_value.get(1):
             e_end_format = "4i6h"
             last_point = 28
             self.data.bit_class = 32
@@ -205,9 +234,11 @@ class ELFReader:
         e_end = e_load[24:24 + last_point]
         struct_elf = struct.unpack(e_end_format, e_end)
         elf_e_end = ["e_entry", "e_phoff", "e_shoff", "e_flags", "e_ehsize",
-                     "e_phentsize", "e_phnum", "e_shentsize", "e_shnum", "e_shstrndx"]
+                     "e_phentsize", "e_phnum", "e_shentsize", "e_shnum",
+                     "e_shstrndx"]
         for inc in range(10):
-            self.data.e_end_load_record.update({elf_e_end[inc]: struct_elf[inc]})
+            self.data.e_end_load_record.update(
+                {elf_e_end[inc]: struct_elf[inc]})
 
         logging.debug(str(self.data))
 
@@ -215,11 +246,15 @@ class ELFReader:
         """
             Заполняет e_ident массив главного заголовка всего файла.
         """
-        elf_e_ident = ["ei_mag0", "ei_class", "ei_data", "ei_version", "ei_osabi", "ei_abiversion",
-                       "ei_pad0", "ei_pad1", "ei_pad2", "ei_pad3", "ei_pad4", "ei_pad5", "ei_pad6"]
+        elf_e_ident = ["ei_mag0", "ei_class", "ei_data", "ei_version",
+                       "ei_osabi", "ei_abiversion", "ei_pad0", "ei_pad1",
+                       "ei_pad2", "ei_pad3", "ei_pad4", "ei_pad5", "ei_pad6"]
 
-        elf_e_ident_value = [self.data.elf_signature, self.data.elf_class_value, self.data.elf_data_value,
-                             self.data.ev_version_value, self.data.elf_os_abi_value]
+        elf_e_ident_value = [self.data.elf_signature,
+                             self.data.elf_class_value,
+                             self.data.elf_data_value,
+                             self.data.ev_version_value,
+                             self.data.elf_os_abi_value]
 
         e_ident = e_load[:16]
         e_ident_format = "4s12b"
@@ -228,11 +263,13 @@ class ELFReader:
         for inc in range(5):
             try:
                 value_group = elf_e_ident_value[inc]
-                self.data.e_ident.update({elf_e_ident[inc]: value_group.get(struct_elf[inc])})
+                self.data.e_ident.update(
+                    {elf_e_ident[inc]: value_group.get(struct_elf[inc])})
             except KeyError:
                 value_group = elf_e_ident_value[inc]
                 value_group.update({struct_elf[inc]: ("", "")})
-                self.data.e_ident.update({e_ident[inc]: value_group.get(struct_elf[inc])})
+                self.data.e_ident.update(
+                    {e_ident[inc]: value_group.get(struct_elf[inc])})
 
         if self.data.e_ident.get("ei_data") == self.data.elf_data_value.get(1):
             self.data.byte_order = "<"

@@ -1,14 +1,13 @@
 import unittest
+import os
 
 from Modules.HexEditor.Read_file import HexOpen
 
 
 class TestOpenFile(unittest.TestCase):
     def test_get_page(self):
-        with open(r'A:\Programming languages\In developing\Python\SKH\TestModules\HexEditor\num.txt', r"rb") as file:
-            answer = file.read(1024)
-            file.seek(0)
-
+        path = os.path.dirname(os.path.abspath(__file__))
+        with open(path + r'\num.txt', r"rb") as file:
             error = 0
 
             h_open = HexOpen(file)
@@ -22,7 +21,8 @@ class TestOpenFile(unittest.TestCase):
         self.assertEqual(h_open._get_page(), (b'', -1))
 
     def test_get_data(self):
-        with open(r'A:\Programming languages\In developing\Python\SKH\TestModules\HexEditor\num.txt', r"rb") as file:
+        path = os.path.dirname(os.path.abspath(__file__))
+        with open(path + r'\num.txt', r"rb") as file:
             answer = file.read()
             error = 0
 

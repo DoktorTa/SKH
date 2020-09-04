@@ -54,7 +54,9 @@ class CommandFAT3216(IFSWork):
             element_attr = element[1]
         except LookupError:
             error = -1
-            logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
+            logging.error(f"No mixing is possible. "
+                          f"Element on dir: {len(dir_now)},"
+                          f" required item: {num_in_dir}")
             return dir_now, error
 
         if element_attr == "20":
@@ -66,12 +68,14 @@ class CommandFAT3216(IFSWork):
             if num_first_claster == root_claster:
                 return copy.deepcopy(self.root), error
             else:
-                claster_sequence, error = self._reader.build_cls_sequence(num_first_claster)
+                claster_sequence, error = self._reader.build_cls_sequence(
+                    num_first_claster)
 
             if error == 0:
                 error = 0
                 self.pwd = element[0]
-                elements_on_dir = self._reader.reder_directory(claster_sequence)
+                elements_on_dir = self._reader.reder_directory(
+                    claster_sequence)
                 return elements_on_dir, error
             else:
                 error = 1
@@ -81,7 +85,8 @@ class CommandFAT3216(IFSWork):
             error = 2
             return dir_now, error
 
-    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> [bytes, list, str]:
+    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) \
+            -> [bytes, list, str]:
         all_byte_elements = b""
         count_s = 0
 
@@ -93,10 +98,13 @@ class CommandFAT3216(IFSWork):
             num_first_claster = element[4]
         except LookupError:
             error = -1
-            logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
+            logging.error(f"No mixing is possible."
+                          f" Element on dir: {len(dir_now)},"
+                          f" required item: {num_in_dir}")
             return b"", 0, error
 
-        claster_sequence, error = self._reader.build_cls_sequence(num_first_claster)
+        claster_sequence, error = self._reader.build_cls_sequence(
+            num_first_claster)
         if count < 0:
             count_s = copy.deepcopy(count)
             pointer += count_s
@@ -104,7 +112,8 @@ class CommandFAT3216(IFSWork):
 
         if error == 0:
             for i in range(count):
-                element_byte = self._reader.read_claster(claster_sequence, pointer)
+                element_byte = self._reader.read_claster(
+                    claster_sequence, pointer)
                 all_byte_elements += element_byte
                 pointer += 1
             if count_s < 0:

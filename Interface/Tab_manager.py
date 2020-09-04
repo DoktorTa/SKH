@@ -9,7 +9,8 @@ from Interface.Total_Com_Tab import TotalTab
 
 class TabWidgetManager(QWidget):
     """
-        Класс который отвечает за открытие фкладок с модулями и предоставление им файлов.
+        Класс который отвечает за открытие фкладок с модулями и
+         предоставление им файлов.
     """
 
     def __init__(self, parent):
@@ -30,7 +31,8 @@ class TabWidgetManager(QWidget):
     @staticmethod
     def __create_property_file(tab, file_path: str):
         """
-            Метод открывает файл в режиме "rb" добовляя его обьект во вкладку модуля.
+            Метод открывает файл в режиме "rb"
+             добовляя его обьект во вкладку модуля.
             Нужен для модулей которым требуется постоянно открытый файл.
         """
         tab.file = open(file_path, 'rb')
@@ -68,11 +70,12 @@ class TabWidgetManager(QWidget):
         """
         self.total_com = TotalTab()
         self.tab_fs_com_sys = QWidget()
-        self.tab_fs_com_sys = self.__create_property_file(self.tab_fs_com_sys, file_path)
+        self.tab_fs_com_sys = self.__create_property_file(self.tab_fs_com_sys,
+                                                          file_path)
 
         self.__choice_fs(fs)
 
-        self.tabs.addTab(self.tab_fs_com_sys, f"{fs}")
+        self.tabs.addTab(self.tab_fs_com_sys, fs)
 
         self.tab_fs_com_sys.layout = QHBoxLayout()
         self.tab_fs_com_sys.layout.addWidget(self.total_com)
@@ -109,7 +112,8 @@ class TabWidgetManager(QWidget):
         """
 
         self.tab_hex_ed = QWidget()
-        self.tab_hex_ed = self.__create_property_file(self.tab_hex_ed, file_path)
+        self.tab_hex_ed = self.__create_property_file(self.tab_hex_ed,
+                                                      file_path)
         self.hex_wid = HexTab(self.tab_hex_ed.file)
 
         self.hex_wid.set_file_path(file_path)
@@ -121,4 +125,3 @@ class TabWidgetManager(QWidget):
         self.tabs.addTab(self.tab_hex_ed, "Hex")
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
-

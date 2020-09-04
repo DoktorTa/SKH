@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QPushButton, QFileDialog, QComboBox, QDialog, QLineEdit, QGridLayout
+from PyQt5.QtWidgets import QPushButton, QFileDialog, QComboBox, QDialog,\
+    QLineEdit, QGridLayout
 
 
-class NewProgectWin(QDialog):
+class NewProjectWin(QDialog):
     __file_path = ""
     __mode = 0
     _mode_list = {"Hex": 1,
@@ -14,7 +15,7 @@ class NewProgectWin(QDialog):
 
         self.setModal(True)
         self.setMinimumSize(350, 100)
-        self.setWindowTitle("Open Progect")
+        self.setWindowTitle("Open Project")
 
         self.__create_file_line()
         self.__create_file_but()
@@ -33,13 +34,13 @@ class NewProgectWin(QDialog):
         self.__file_path = file_path
         self.file_path.setText(file_path)
 
-    def __serch_file(self):
-        file_name = QFileDialog.getOpenFileName(self, "Open files", "/home/jana")
+    def __search_file(self):
+        file_name = QFileDialog.getOpenFileName(self, "Open files", "/home/t")
         self.__set_file_path(file_name[0])
 
     def __create_file_but(self):
         self.open_file_button = QPushButton('Open file')
-        self.open_file_button.clicked.connect(self.__serch_file)
+        self.open_file_button.clicked.connect(self.__search_file)
 
     def __set_mode(self, text: str):
         self.__mode = self._mode_list.get(text)

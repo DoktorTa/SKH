@@ -139,7 +139,8 @@ class FATReader:
         # attr_system = "04"  # Системный
         # attr_volume_id = "08"  # Том диска
         attr_long_name = "0f"  # Длинное имя
-        attr_file = "20"  # В документации такой штуки нет, но опытным путем это файл
+        # В документации такой штуки нет, но опытным путем это файл
+        attr_file = "20"
         attr_info = "16"
 
         ord_is_defect = "e5"
@@ -160,7 +161,9 @@ class FATReader:
                 lond_name = FATLongName()
                 self.element_long_name(element, lond_name)
                 name_full += lond_name.l_element_name
-            elif element_attr == attr_dir or element_attr == attr_file or element_attr == attr_info:
+            elif element_attr == attr_dir\
+                    or element_attr == attr_file\
+                    or element_attr == attr_info:
                 directory = FATDirectory()
                 element_d = self.dir_element(element, directory)
                 element_d.append(name_full)
@@ -182,28 +185,36 @@ class FATReader:
         claster_seek = 0
 
         if self.data.FAT_version == "FAT32":
-            claster_seek = ((element_claster - 2) * self.data.bpb_sector_in_claster) + first_sector
+            claster_seek = ((element_claster - 2)
+                            * self.data.bpb_sector_in_claster) + first_sector
         elif self.data.FAT_version == "FAT16":
-            root_end_sector = (self.data.bpb_root_ent_cnt * 32 // self.data.bpb_byte_in_sector) + first_sector
-            claster_seek = ((element_claster - 2) * self.data.bpb_sector_in_claster) + root_end_sector
+            root_end_sector = (self.data.bpb_root_ent_cnt * 32
+                               // self.data.bpb_byte_in_sector) + first_sector
+            claster_seek = ((element_claster - 2)
+                            * self.data.bpb_sector_in_claster) \
+                           + root_end_sector
 
         claster_seek = claster_seek * self.data.bpb_byte_in_sector
 
         self.mount_file_sys.seek(claster_seek + self.__seek_fs)
-        claster = self.mount_file_sys.read(self.data.bpb_byte_in_sector * self.data.bpb_sector_in_claster)
+        claster = self.mount_file_sys.read(self.data.bpb_byte_in_sector
+                                           * self.data.bpb_sector_in_claster)
         # claster = claster.hex()
 
         return claster
 
     # Определяет формат метки EOF
     def _eof_point(self, len_fat_record: int) -> int:
-        self.mount_file_sys.seek(self.fat_seek_b + len_fat_record + self.__seek_fs)
+        self.mount_file_sys.seek(self.fat_seek_b
+                                 + len_fat_record
+                                 + self.__seek_fs)
 
         record_last = self.mount_file_sys.read(len_fat_record)
         record_last = record_last.hex()
         record_last = self.reversed_byte_ararry(record_last)
         record_last = int(str(record_last), 16)
-        record_last = record_last & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
+        record_last = record_last \
+                      & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
 
         return record_last
 
@@ -230,18 +241,26 @@ class FATReader:
         record_last = self._eof_point(len_fat_record)
 
         element_claster = int(str(element_claster), 10)
-        element_claster = element_claster & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
+        element_claster = element_claster \
+                          & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
         claster_sequence.append(element_claster)
 
         while True:
-            self.mount_file_sys.seek(self.fat_seek_b + (element_claster * len_fat_record) + self.__seek_fs)
+            self.mount_file_sys.seek(self.fat_seek_b
+                                     + (element_claster * len_fat_record)
+                                     + self.__seek_fs)
             element_claster = self.mount_file_sys.read(len_fat_record)
             element_claster = str(element_claster.hex())
             element_claster = self.reversed_byte_ararry(element_claster)
             element_claster = int(str(element_claster), 16)
-            element_claster = element_claster & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
+            element_claster = element_claster \
+                              & ~(1 << 28) \
+                              & ~(1 << 29) \
+                              & ~(1 << 30) \
+                              & ~(1 << 31)
 
-            if element_claster == record_last or element_claster == record_empty:
+            if element_claster == record_last \
+                    or element_claster == record_empty:
                 break
             elif element_claster == record_error:
                 error = 1  # Файл поврежден
@@ -274,13 +293,16 @@ class FATReader:
             # not_bpb_root_claster = 0
 
         if self.data.FAT_version == "FAT32":
-            root_dir_seek = self.data.bpb_reversed_sector + all_fat_size + root_dir_sector
+            root_dir_seek = self.data.bpb_reversed_sector\
+                            + all_fat_size\
+                            + root_dir_sector
         elif self.data.FAT_version == "FAT16":
-            root_dir_seek = self.data.bpb_reversed_sector + all_fat_size
+            root_dir_seek = self.data.bpb_reversed_sector\
+                            + all_fat_size
 
         self.root_dir_seek_b = root_dir_seek * self.data.bpb_byte_in_sector
-        self.fat_seek_b = self.data.bpb_reversed_sector * self.data.bpb_byte_in_sector
-        # next_fat_seek_b = (bpb_reversed_sector + fat_size) * self.bpb_byte_in_sector
+        self.fat_seek_b = self.data.bpb_reversed_sector\
+                          * self.data.bpb_byte_in_sector
 
     # Разворот необходим для байт строк состояших из более чем 1 байта
     # Разворачивает шеснадцатиричную строку байтов для верной интерпритации
@@ -326,41 +348,61 @@ class FATReader:
         long_name.l_element_name_2 = element_h[28:52]
         long_name.l_element_name_3 = element_h[56:64]
 
-        long_name.l_element_name = str(long_name.l_element_name_1 + long_name.l_element_name_2 + long_name.l_element_name_3)
+        long_name.l_element_name = str(long_name.l_element_name_1
+                                       + long_name.l_element_name_2
+                                       + long_name.l_element_name_3)
         long_name.l_element_name = self.name_to_ascii(long_name.l_element_name)
 
     # Разбирает обычный элемент каталога
     def dir_element(self, element_h: str, directory: FATDirectory) -> list:
         directory.element_name = self.name_to_ascii(element_h[0:22])
         directory.element_attr = element_h[22:24]
-        directory.element_ctr_data = self.reversed_byte_ararry(element_h[32:36])
-        directory.element_fst_claster_hi = self.reversed_byte_ararry(element_h[40:44])
-        directory.element_fst_claster_lo = self.reversed_byte_ararry(element_h[52:56])
-        directory.element_size = int(str(self.reversed_byte_ararry(element_h[56:64])), 16)
+        directory.element_ctr_data = self.reversed_byte_ararry(
+            element_h[32:36])
+        directory.element_fst_claster_hi = self.reversed_byte_ararry(
+            element_h[40:44])
+        directory.element_fst_claster_lo = self.reversed_byte_ararry(
+            element_h[52:56])
+        directory.element_size = int(str(self.reversed_byte_ararry(
+            element_h[56:64])), 16)
 
-        directory.element_fst_claster = int(str(directory.element_fst_claster_hi) + str(directory.element_fst_claster_lo), 16)
+        directory.element_fst_claster = \
+            int(str(directory.element_fst_claster_hi)
+                + str(directory.element_fst_claster_lo), 16)
 
-        element = [directory.element_name, directory.element_attr, directory.element_ctr_data, directory.element_size, directory.element_fst_claster]
+        element = [directory.element_name,
+                   directory.element_attr,
+                   directory.element_ctr_data,
+                   directory.element_size,
+                   directory.element_fst_claster]
         return element
 
     # Разбирает загрузочный сектор ФС
     def load_sector(self, load_sector_h: str):
-        self.data.bpb_byte_in_sector = int(str(self.reversed_byte_ararry(load_sector_h[22:26])), 16)
+        self.data.bpb_byte_in_sector = int(str(self.reversed_byte_ararry(
+            load_sector_h[22:26])), 16)
         self.data.bpb_sector_in_claster = int(str(load_sector_h[26:28]), 16)
-        self.data.bpb_reversed_sector = int(str(self.reversed_byte_ararry(load_sector_h[28:32])), 16)
+        self.data.bpb_reversed_sector = int(str(self.reversed_byte_ararry(
+            load_sector_h[28:32])), 16)
         self.data.bpb_num_fat = int(str(load_sector_h[32:34]), 16)
-        self.data.bpb_root_ent_cnt = int(str(self.reversed_byte_ararry(load_sector_h[34:38])), 16)
-        self.data.bpb_total_sector_16_12 = int(str(self.reversed_byte_ararry(load_sector_h[38:42])), 16)
-        self.data.bpb_fat_size_16_12 = int(str(self.reversed_byte_ararry(load_sector_h[44:48])), 16)
-        self.data.bpb_total_sector_32 = int(str(self.reversed_byte_ararry(load_sector_h[64:72])), 16)
-        self.data.bpb_fat_size_32 = int(str(self.reversed_byte_ararry(load_sector_h[72:80])), 16)
+        self.data.bpb_root_ent_cnt = int(str(self.reversed_byte_ararry(
+            load_sector_h[34:38])), 16)
+        self.data.bpb_total_sector_16_12 = int(str(self.reversed_byte_ararry(
+            load_sector_h[38:42])), 16)
+        self.data.bpb_fat_size_16_12 = int(str(self.reversed_byte_ararry(
+            load_sector_h[44:48])), 16)
+        self.data.bpb_total_sector_32 = int(str(self.reversed_byte_ararry(
+            load_sector_h[64:72])), 16)
+        self.data.bpb_fat_size_32 = int(str(self.reversed_byte_ararry(
+            load_sector_h[72:80])), 16)
         # bpb_sector_in_claster = 2 ** bpb_sector_in_claster
 
     def loaded_fat16(self, load_sector_h: str):
         pass
 
     def loaded_fat32(self, load_sector_h: str):
-        self.data.bpb_root_claster = int(str(self.reversed_byte_ararry(load_sector_h[88:96])), 16)  # Было 10 а не 16
+        self.data.bpb_root_claster = int(str(self.reversed_byte_ararry(
+            load_sector_h[88:96])), 16)  # Было 10 а не 16
 
     # Вычисляет версию file system FAT, и размер всех фат таблиц.
     def file_sistem_check(self) -> [int, int]:
@@ -368,7 +410,9 @@ class FATReader:
         count_of_clusters_fat_12 = 4085
         count_of_clusters_fat_16 = 65525
 
-        root_dir_sector = (((self.data.bpb_root_ent_cnt * 32) + (self.data.bpb_byte_in_sector - 1)) // self.data.bpb_byte_in_sector)
+        root_dir_sector = (((self.data.bpb_root_ent_cnt * 32)
+                            + (self.data.bpb_byte_in_sector - 1))
+                           // self.data.bpb_byte_in_sector)
 
         if self.data.bpb_fat_size_16_12 != 0:
             fat_size = self.data.bpb_fat_size_16_12
@@ -381,7 +425,9 @@ class FATReader:
             total_sector = self.data.bpb_total_sector_32
 
         all_fat_size = self.data.bpb_num_fat * fat_size
-        data_sector = total_sector - (self.data.bpb_reversed_sector + all_fat_size + root_dir_sector)
+        data_sector = total_sector - (self.data.bpb_reversed_sector
+                                      + all_fat_size
+                                      + root_dir_sector)
         count_of_clusters = data_sector // self.data.bpb_sector_in_claster
 
         if count_of_clusters < count_of_clusters_fat_12:

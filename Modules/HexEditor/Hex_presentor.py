@@ -7,7 +7,8 @@ class HexPresentor:
     def __init__(self):
         pass
 
-    def present(self, data: bytes, step: int, pos: int, early=False) -> (list, list, list, int):
+    def present(self, data: bytes, step: int, pos: int, early=False)\
+            -> (list, list, list, int):
         """
             Аргумент 1: данные для конвертации,
             Аргумент 2: длинна одной строки,
@@ -68,7 +69,8 @@ class HexPresentor:
         return hex_list
 
     @staticmethod
-    def _row_creator(len_row: int, step: int, pos: int, early=False) -> (list, int):
+    def _row_creator(len_row: int, step: int, pos: int, early=False)\
+            -> (list, int):
 
         rows = []
         row = pos * step - step

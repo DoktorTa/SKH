@@ -1,11 +1,12 @@
 import webbrowser
 import os
 
-from PyQt5.QtWidgets import QToolTip, QMessageBox, QDesktopWidget, QAction, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QToolTip, QMessageBox, QDesktopWidget, QAction,\
+    QMainWindow
 from PyQt5.QtGui import QIcon, QFont
 
 from Interface.Tab_manager import TabWidgetManager
-from Interface.New_progect_win import NewProgectWin
+from Interface.New_progect_win import NewProjectWin
 
 
 class GUIMasterWin(QMainWindow):
@@ -34,29 +35,20 @@ class GUIMasterWin(QMainWindow):
         self.tab_widget = TabWidgetManager(self)
         self.setCentralWidget(self.tab_widget)
 
-    def _file_serch(self):
-        """
-            Функция получает путь до файла.
-        """
-        file_name = QFileDialog.getOpenFileName(self, "Open files", "/home/jana")
-        self.__file_path = file_name[0]
-
     def __project_open(self):
-        self.new_project = NewProgectWin()
+        self.new_project = NewProjectWin()
 
         if self.new_project.exec_():
             self.__file_path = self.new_project.get_file_path
             self.__start_project(self.new_project.get_mode)
-        else:
-            pass
 
     def __start_project(self, mode: int):
         """
             Функция звпускает проект с выбраным модом
 
             На самом деле хотелось бы изменить систему выбора,
-             возможно стоит передовать лист с модами изначально или вытаскивать его,
-             пока подумаю над зависимостями.
+             возможно стоит передовать лист с модами изначально
+              или вытаскивать его, пока подумаю над зависимостями.
         """
         if mode == 1:
             self._open_hex()
@@ -85,6 +77,7 @@ class GUIMasterWin(QMainWindow):
 
     # Любые события должны быть созданы и зарегестрированны в меню бар.
     def menu_bar_init(self):
+        help_url = r'https://github.com/DoktorTa/SKH'
         path = os.path.dirname(os.path.abspath(__file__))
         self.setWindowIcon(QIcon(path + r"\icon\logo.png"))
 
@@ -104,7 +97,7 @@ class GUIMasterWin(QMainWindow):
         help_action.setShortcut('Ctrl+H')
         help_action.setStatusTip('Open git this progect')
         help_action.setIcon(QIcon(path + r'\icon\help.png'))
-        help_action.triggered.connect(lambda: webbrowser.open('https://github.com/DoktorTa/SKH'))
+        help_action.triggered.connect(lambda: webbrowser.open(help_url))
 
         menu_bar = self.menuBar()
 
@@ -117,7 +110,9 @@ class GUIMasterWin(QMainWindow):
 
     # Диологовое окно перед выходом.
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Exit', "Are you sure to quit?", QMessageBox.Yes | QMessageBox.No,
+        reply = QMessageBox.question(self,
+                                     'Exit', "Are you sure to quit?",
+                                     QMessageBox.Yes | QMessageBox.No,
                                      QMessageBox.No)
         if reply == QMessageBox.Yes:
             event.accept()

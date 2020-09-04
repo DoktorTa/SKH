@@ -1,12 +1,8 @@
-import sys
-import webbrowser
 import copy
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject, pyqtSignal, QTimer
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QToolTip, QMessageBox, QDesktopWidget, QAction, qApp,\
-    QMainWindow, QTextEdit, QFileDialog, QLabel, QHBoxLayout, QTabWidget, QGridLayout, QDialog
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QWidget, QPushButton, QTextEdit, QLabel, \
+    QGridLayout, QDialog
 
 from Interface.Hex_Wiget import HexWidget
 from Modules.HexEditor.Read_file import HexOpen
@@ -80,10 +76,11 @@ class HexTab(QWidget):
         """
             Отвечает за виджет оттображения шеснадцтиричной матрицы на экране.
         """
-
-        hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
+        hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07',
+                         '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
         hex_row_label = ['00000000']
-        ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
+        ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7',
+                           '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
 
         self.hex_wid = HexWidget()
         self.hex_wid.set_page(hex_row_label, hex_row_line, ascii_row_line)
@@ -114,7 +111,8 @@ class HexTab(QWidget):
 
     def __save_change(self):
         if len(self.hex_wid.change_list) != 0:
-            saveder = HexSave(file_path=self.__file_path, history=self.hex_wid.change_list, step=16)
+            saveder = HexSave(file_path=self.__file_path,
+                              history=self.hex_wid.change_list, step=16)
 
     def _create_early_page_but(self):
         self.btn_early_page = QPushButton("Early page")
@@ -137,8 +135,8 @@ class HexTab(QWidget):
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
-        enter_key_code = 16777220
-        if key == enter_key_code and not eventQKeyEvent.isAutoRepeat():
+        ENTER_PRESSED = 16777220
+        if key == ENTER_PRESSED and not eventQKeyEvent.isAutoRepeat():
             self.history_update()
 
     def history_update(self):
@@ -149,10 +147,14 @@ class HexTab(QWidget):
         change_str = "column | row | old | new\n"
         for key in change_form:
             value = change_form.get(key)
-            change_str += f"{key[0]} | {key[1:]} | {value[0:2]} | {value[2:4]}\n"
+            change_str += f"{key[0]} |" \
+                          f" {key[1:]} |" \
+                          f" {value[0:2]} |" \
+                          f" {value[2:4]}\n"
         self.history_list.setText(change_str)
 
-    # TODO: добавить возможность удалять определенное кол-во изменений, унифицировать.
+    # TODO: добавить возможность удалять определенное кол-во изменений,
+    #  унифицировать.
     def history_del_last(self):
         """
             Удаляет последний элемент из истории.
@@ -163,4 +165,4 @@ class HexTab(QWidget):
         """
             Удаляет всю историю.
         """
-        self.hex_wid.change_list = {}
+        self.hex_wid.change_list.clear()

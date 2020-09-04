@@ -1,8 +1,7 @@
 import unittest
+import os
 
 from Modules.FS.EXT2_command_sys import CommandEXT2
-from Modules.FS.EXT2_data import EXT2Data
-from Modules.FS.EXT2_read import EXT2Reader
 
 
 class TestComSysEXT2(unittest.TestCase):
@@ -12,10 +11,14 @@ class TestComSysEXT2(unittest.TestCase):
         elements_ok = []
         elements_not_ok = []
 
-        test_1 = (['00000002', '000c', '01', '02', '.'], ['.', 'D', 0, 0, '00000002', 0])
-        test_2 = (['99999999', '000c', '02', '02', '..'], ['..', 'D', 0, 0, '99999999', 0])
-        test_3 = (['00000000', '000c', '0b', '02', 'NETTENANETA'], ['NETTENANETA', 'D', 0, 0, '00000000', 0])
-        test_4 = (['00000baa', '000c', '0', '03', ''], ['', 'F', 0, 0, '00000baa', 0])
+        test_1 = (['00000002', '000c', '01', '02', '.'],
+                  ['.', 'D', 0, 0, '00000002', 0])
+        test_2 = (['99999999', '000c', '02', '02', '..'],
+                  ['..', 'D', 0, 0, '99999999', 0])
+        test_3 = (['00000000', '000c', '0b', '02', 'NETTENANETA'],
+                  ['NETTENANETA', 'D', 0, 0, '00000000', 0])
+        test_4 = (['00000baa', '000c', '0', '03', ''],
+                  ['', 'F', 0, 0, '00000baa', 0])
         test_5 = (['00000000', '000c', '0', '03', ''], [])
 
         # ['', 'F', 0, 0, '00000000', 0]
@@ -25,17 +28,22 @@ class TestComSysEXT2(unittest.TestCase):
         elements_ok.append(([test_4[0]], [test_4[1]]))
         elements_ok.append(([test_5[0]], []))
 
-        elements_ok.append(([test_2[0], test_3[0], test_4[0]], [test_2[1], test_3[1], test_4[1]]))
+        elements_ok.append(([test_2[0], test_3[0], test_4[0]],
+                            [test_2[1], test_3[1], test_4[1]]))
 
-        elements_ok.append(([test_1[0], test_2[0], test_3[0], test_4[0]], [test_1[1], test_2[1], test_3[1], test_4[1]]))
+        elements_ok.append(([test_1[0], test_2[0], test_3[0], test_4[0]],
+                            [test_1[1], test_2[1], test_3[1], test_4[1]]))
 
         elements_not_ok.append(([test_1[0]], [test_1[0]]))
         elements_not_ok.append(([test_2[0]], [test_1[1]]))
 
-        elements_not_ok.append(([test_2[0], test_1[0]], [test_1[1], test_2[1]]))
-        elements_not_ok.append(([test_2[0], test_3[0]], [test_3[0], test_4[1]]))
+        elements_not_ok.append(([test_2[0], test_1[0]],
+                                [test_1[1], test_2[1]]))
+        elements_not_ok.append(([test_2[0], test_3[0]],
+                                [test_3[0], test_4[1]]))
 
-        elements_not_ok.append(([test_1[1], test_2[1], test_3[1], test_4[1]], [test_1[0], test_2[0], test_3[0], test_4[0]]))
+        elements_not_ok.append(([test_1[1], test_2[1], test_3[1], test_4[1]],
+                                [test_1[0], test_2[0], test_3[0], test_4[0]]))
 
         for element in elements_ok:
             element_old, element_new = element
@@ -46,9 +54,8 @@ class TestComSysEXT2(unittest.TestCase):
             self.assertNotEqual(com_sys._conversion(element_old), element_new)
 
     def test_cd(self):
-        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as file:
-            # data = EXT2Data()
-            # p = EXT2Reader(data, file)
+        path = os.path.dirname(os.path.abspath(__file__))
+        with open(path + r"\t_ext2.img", "rb") as file:
             com = CommandEXT2(file)
             root = com.get_root()
 
@@ -56,7 +63,8 @@ class TestComSysEXT2(unittest.TestCase):
                         ['..', 'D', 0, 0, '00000002', 0],
                         ['lost+found', 'D', 0, 0, '0000000b', 0],
                         ['ext2_test', 'D', 0, 0, '00002e51', 0]]
-            lost_found_dir = [['.', 'D', 0, 0, '0000000b', 0], ['..', 'D', 0, 0, '00000002', 0]]
+            lost_found_dir = [['.', 'D', 0, 0, '0000000b', 0],
+                              ['..', 'D', 0, 0, '00000002', 0]]
             ext2_test_dir = [['.', 'D', 0, 0, '00002e51', 0],
                              ['..', 'D', 0, 0, '00000002', 0],
                              ['fdd.img', 'F', 0, 0, '00002e52', 0],
@@ -86,8 +94,9 @@ class TestComSysEXT2(unittest.TestCase):
             self.assertEqual(com.cd(root_dir, 5), (root_dir, -1))
 
     def test_read(self):
-        with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as file:
-            with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\Test_blocks_ext2.txt", "r") as file_blocks:
+        path = os.path.dirname(os.path.abspath(__file__))
+        with open(path + r"\t_ext2.img", "rb") as file:
+            with open(path + r"\Test_blocks_ext2.txt", "r") as file_blocks:
                 # data = EXT2Data()
                 # p = EXT2Reader(data, file)
                 com = CommandEXT2(file)
@@ -100,10 +109,14 @@ class TestComSysEXT2(unittest.TestCase):
                 second_block = file_blocks.read(2048)
 
                 data, pointer, error = com.read(dir, 3, 1, 0)
-                self.assertEqual((data.hex(), pointer, error), (first_block, 1, 0))
+                self.assertEqual((data.hex(), pointer, error),
+                                 (first_block, 1, 0))
                 data, pointer, error = com.read(dir, 3, 2, 0)
-                self.assertEqual((data.hex(), pointer, error), (first_block + second_block, 2, 0))
+                self.assertEqual((data.hex(), pointer, error),
+                                 (first_block + second_block, 2, 0))
                 data, pointer, error = com.read(dir, 3, -1, 1)
-                self.assertEqual((data.hex(), pointer, error), (first_block, 0, 0))
+                self.assertEqual((data.hex(), pointer, error),
+                                 (first_block, 0, 0))
                 data, pointer, error = com.read(dir, 3, -2, 2)
-                self.assertEqual((data.hex(), pointer, error), (first_block + second_block, 0, 0))
+                self.assertEqual((data.hex(), pointer, error),
+                                 (first_block + second_block, 0, 0))

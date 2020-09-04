@@ -40,7 +40,8 @@ class EXT2Reader:
             file_type = block[14:16]
             name = block[16:16 + 2 * int(name_len, 16)]
             block = block[0 + 2 * int(rec_len, 16):]
-            element_block = [inode_num, rec_len, name_len, file_type, self.name_to_ascii(name)]
+            element_block = [inode_num, rec_len, name_len, file_type,
+                             self.name_to_ascii(name)]
             dir_entry.append(element_block)
         return dir_entry
 
@@ -59,14 +60,16 @@ class EXT2Reader:
 
     def _table_descriptor_block(self):
         """
-            Функция читает и преобразует таблицу дискрипторов блоков, добовляя ее в EXT2Data
+            Функция читает и преобразует таблицу дискрипторов блоков,
+             добовляя ее в EXT2Data
         """
         block_size = 32
         blocks_per_group = int(self.data.s_blocks_per_group, 16)
         first_data_block = int(self.data.s_first_data_block, 16)
 
         self.data.block_size = 1024 << int(self.data.s_log_block_size, 16)
-        self.data.group_count = math.ceil(int(self.data.s_blocks_count, 16) / blocks_per_group)
+        self.data.group_count = math.ceil(int(self.data.s_blocks_count, 16)
+                                          / blocks_per_group)
         seek_descriptor = (first_data_block + 1) * self.data.block_size
 
         for i in range(self.data.group_count):
@@ -82,14 +85,16 @@ class EXT2Reader:
 
     def inode(self, inodes_num: int) -> list:
         """
-            Функция обрабатывает инод с помошью его номера, и выдает лист его кластеров, или по другому блоков.
+            Функция обрабатывает инод с помошью его номера,
+             и выдает лист его кластеров, или по другому блоков.
         """
         inode_per_group = int(self.data.s_inodes_per_group, 16)
         inode_size = int(self.data.s_inode_size, 16)
 
-        # block_group = (inodes_num - 1) / int(self.data.s_inodes_per_group, 16)
+        # block_group =(inodes_num - 1) / int(self.data.s_inodes_per_group, 16)
         group_index = (inodes_num - 1) % inode_per_group
-        block_disc = self.data.group_description_table[(inodes_num - 1) // inode_per_group]
+        block_disc = self.data.group_description_table[(inodes_num - 1)
+                                                       // inode_per_group]
         offset = int(block_disc.bg_inode_table, 16) * self.data.block_size
         offset += group_index * inode_size
 
@@ -114,8 +119,10 @@ class EXT2Reader:
         """
         blocks = []
 
-        for i in range(int(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE)):
-            aggregate_element_block = int(self._reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
+        for i in range(int(self.data.block_size
+                           / self.data.SIZE_BLOCK_IN_BLOCK_TABLE)):
+            aggregate_element_block = int(self._reversed_byte_ararry(
+                block[0 + 8 * i:8 + 8 * i]), 16)
 
             if aggregate_element_block is 0:
                 return blocks
@@ -131,8 +138,10 @@ class EXT2Reader:
         """
         blocks = []
 
-        for i in range(int(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE)):
-            element_block = int(self._reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
+        for i in range(int(self.data.block_size
+                           / self.data.SIZE_BLOCK_IN_BLOCK_TABLE)):
+            element_block = int(self._reversed_byte_ararry(
+                block[0 + 8 * i:8 + 8 * i]), 16)
 
             if element_block is 0:
                 return blocks
@@ -167,9 +176,11 @@ class EXT2Reader:
             blocks += self._check_first_indirect_block(inode, blocks)
         return blocks
 
-    def _check_first_indirect_block(self, inode: EXT2Inode, blocks: list) -> list:
+    def _check_first_indirect_block(self, inode: EXT2Inode, blocks: list)\
+            -> list:
         """
-            Читает и разбирает первый блок ссылки, а так же проверяет второй блок ссылки.
+            Читает и разбирает первый блок ссылки, а так же проверяет второй
+             блок ссылки.
         """
         block_num = inode.i_block[inode.FIRST_SINGLE_INDIRECT_BLOCK - 1]
         i1b = self.read_block(block_num).hex()
@@ -179,14 +190,17 @@ class EXT2Reader:
             blocks += self._check_double_indirect_block(inode, blocks)
         return blocks
 
-    def _check_double_indirect_block(self, inode: EXT2Inode, blocks: list) -> list:
+    def _check_double_indirect_block(self, inode: EXT2Inode, blocks: list)\
+            -> list:
         """
-            Читает и разбирает второй блок ссылки, а так же проверяет третий блок ссылки.
+            Читает и разбирает второй блок ссылки, а так же проверяет третий
+             блок ссылки.
 
             Из документации EXT2.
-            14-я запись в массиве является номером блока первого дважды косвенного блока
-            который является блоком, содержащим массив идентификаторов косвенных блоков,
-            причем каждый из этих косвенных блоков содержит массив блоков, содержащих данные.
+            14-я запись в массиве является номером блока первого дважды
+            косвенного блока который является блоком, содержащим массив
+            идентификаторов косвенных блоков, причем каждый из этих косвенных
+             блоков содержит массив блоков, содержащих данные.
         """
         three_block = inode.i_block[inode.FIRST_DOUBLE_INDIRECT_BLOCK - 1]
         i2b = self.read_block(three_block).hex()
@@ -196,21 +210,25 @@ class EXT2Reader:
             blocks += self._check_triple_indirect_block(inode, blocks)
         return blocks
 
-    def _check_triple_indirect_block(self, inode: EXT2Inode, blocks: list) -> list:
+    def _check_triple_indirect_block(self, inode: EXT2Inode, blocks: list)\
+            -> list:
         """
             Читает и разбирает третий блок ссылки.
 
             Из документации EXT2.
-            15-я запись в массиве является номером блока с тройным непрямым блоком;
-            который является блоком, содержащим массив дважды косвенных идентификаторов блоков,
-            причем каждый из этих дважды косвенных блоков содержит массив косвенных блоков,
-            а каждый из этих косвенных блоков содержит массив прямых блоков.
+            15-я запись в массиве является номером блока с тройным непрямым
+            блоком который является блоком, содержащим массив дважды косвенных
+            идентификаторов блоков, причем каждый из этих дважды косвенных
+            блоков содержит массив косвенных блоков, а каждый из этих косвенных
+            блоков содержит массив прямых блоков.
             В файловой системе объемом 1 КБ это будет в общей сложности 16777216 блоков на блок с тройной непрямой связью.
         """
         i3b_num = inode.i_block[inode.FIRST_TRIPLE_INDIRECT_BLOCK - 1]
         block = self.read_block(i3b_num).hex()
-        for i in range(self.data.block_size / self.data.SIZE_BLOCK_IN_BLOCK_TABLE):
-            element_block = int(self._reversed_byte_ararry(block[0 + 8 * i:8 + 8 * i]), 16)
+        for i in range(self.data.block_size
+                       / self.data.SIZE_BLOCK_IN_BLOCK_TABLE):
+            element_block = int(self._reversed_byte_ararry(
+                block[0 + 8 * i:8 + 8 * i]), 16)
             if element_block is 0:
                 return blocks
             dib = self.read_block(element_block).hex()
@@ -219,13 +237,15 @@ class EXT2Reader:
 
     def _superblock_check(self):
         """
-            Выполняет проверку фс, магического числа, и возможность чтения модулем.
+            Выполняет проверку фс, магического числа, и возможность чтения
+            модулем.
         """
         incompact = int(str(self.data.s_feature_incompat), 16)
 
         if self.data.s_magic != "ef53":
             self.error = 1
-            logging.error(f"Файловая система не является EXT2, magic number: {self.data.s_magic}, default: ef53")
+            logging.error(f"Файловая система не является EXT2, magic number: "
+                          f"{self.data.s_magic}, default: ef53")
         elif incompact == self.data.EXT2_FEATURE_INCOMPAT_COMPRESSION \
                 or incompact == self.data.EXT2_FEATURE_INCOMPAT_FILETYPE \
                 or incompact == self.data.EXT3_FEATURE_INCOMPAT_RECOVER \
@@ -236,7 +256,8 @@ class EXT2Reader:
 
     def superblock_read(self):
         """
-            Чиатет суперблок, подготавливая его для работы, проверяет фс на возможность чтения данный модулем.
+            Чиатет суперблок, подготавливая его для работы, проверяет фс на
+            возможность чтения данный модулем.
         """
         load_block = 1024
         superblock_len = 1024
@@ -246,7 +267,9 @@ class EXT2Reader:
         self._superblock_init(superblock)
         self._superblock_check()
 
-        logging.debug(f"Magic: {self.data.s_magic}, State: {self.data.s_state}, Error: {self.data.s_errors}")
+        logging.debug(f"Magic: {self.data.s_magic},"
+                      f" State: {self.data.s_state},"
+                      f" Error: {self.data.s_errors}")
 
     def _inode_init(self, inode: EXT2Inode, inode_byte: str) -> EXT2Inode:
         """
@@ -254,45 +277,64 @@ class EXT2Reader:
         """
         inode.i_mode = self._reversed_byte_ararry(inode_byte[0:4])  # 0	    2
         inode.i_uid = self._reversed_byte_ararry(inode_byte[4:8])  # 2	    2
-        inode.i_size = self._reversed_byte_ararry(inode_byte[8:16])  # 4	    4
-        inode.i_gid = self._reversed_byte_ararry(inode_byte[48:52])  # 24	    2
-        inode.i_links_count = self._reversed_byte_ararry(inode_byte[52:56])  # 26	    2
-        inode.i_flags = self._reversed_byte_ararry(inode_byte[64:70])  # 32	    4
+        inode.i_size = self._reversed_byte_ararry(inode_byte[8:16])  # 4
+        inode.i_gid = self._reversed_byte_ararry(inode_byte[48:52])  # 24
+        inode.i_links_count = self._reversed_byte_ararry(inode_byte[52:56])
+        inode.i_flags = self._reversed_byte_ararry(inode_byte[64:70])
         for i in range(15):
-            inode.i_block.append(int(self._reversed_byte_ararry(inode_byte[80 + i * 8:88 + i * 8]), 16))  # 40	    15 х 4
+            inode.i_block.append(int(self._reversed_byte_ararry(
+                inode_byte[80 + i * 8:88 + i * 8]), 16))
         return inode
 
-    def _table_descriptor_block_init(self, descriptor_g: EXT2DescriptorGroup, table_descriptor: str):
+    def _table_descriptor_block_init(self, descriptor_g: EXT2DescriptorGroup,
+                                     table_descriptor: str):
         """
             Разбирает запись в таблице дискрипторов блоков.
         """
-        descriptor_g.bg_block_bitmap = self._reversed_byte_ararry(table_descriptor[0:8])  # 0   4
-        descriptor_g.bg_inode_bitmap = self._reversed_byte_ararry(table_descriptor[8:16])  # 4   4
-        descriptor_g.bg_inode_table = self._reversed_byte_ararry(table_descriptor[16:24])  # 8   4
+        descriptor_g.bg_block_bitmap = self._reversed_byte_ararry(
+            table_descriptor[0:8])  # 0   4
+        descriptor_g.bg_inode_bitmap = self._reversed_byte_ararry(
+            table_descriptor[8:16])  # 4   4
+        descriptor_g.bg_inode_table = self._reversed_byte_ararry(
+            table_descriptor[16:24])  # 8   4
 
     def _superblock_init(self, superblock: str):
         """
             Разбирает супер блок.
         """
-        #  Это значение должно быть меньше или равно (s_blocks_per_group * количество групп блоков)
-        self.data.s_inodes_count = self._reversed_byte_ararry(superblock[0:8])  # 0   4
-        self.data.s_blocks_count = self._reversed_byte_ararry(superblock[8:16])  # 4   4
+        #  Это значение должно быть меньше или равно
+        #  (s_blocks_per_group * количество групп блоков)
+        self.data.s_inodes_count = self._reversed_byte_ararry(superblock[0:8])
+        self.data.s_blocks_count = self._reversed_byte_ararry(superblock[8:16])
 
-        self.data.s_free_blocks_count = self._reversed_byte_ararry(superblock[24:32])  # 12  4
-        self.data.s_free_inodes_count = self._reversed_byte_ararry(superblock[32:40])  # 16  4
+        self.data.s_free_blocks_count = self._reversed_byte_ararry(
+            superblock[24:32])  # 12  4
+        self.data.s_free_inodes_count = self._reversed_byte_ararry(
+            superblock[32:40])  # 16  4
 
-        # Это значение всегда равно 0 для фс с размером блока более 1 КБ и всегда 1 для фс с размером блока 1 КБ.
-        self.data.s_first_data_block = self._reversed_byte_ararry(superblock[40:48])  # 20  4
+        # Это значение всегда равно 0 для фс с размером блока более 1 КБ и
+        # всегда 1 для фс с размером блока 1 КБ.
+        self.data.s_first_data_block = self._reversed_byte_ararry(
+            superblock[40:48])  # 20  4
 
-        self.data.s_log_block_size = self._reversed_byte_ararry(superblock[48:56])  # 24  4
-        self.data.s_blocks_per_group = self._reversed_byte_ararry(superblock[64:72])  # 32  4
-        self.data.s_inodes_per_group = self._reversed_byte_ararry(superblock[80:88])  # 40  4
-        self.data.s_magic = self._reversed_byte_ararry(superblock[112:116])  # 56  2
-        self.data.s_state = self._reversed_byte_ararry(superblock[116:120])  # 58  2
-        self.data.s_errors = self._reversed_byte_ararry(superblock[120:124])  # 60  2
-        self.data.s_first_ino = self._reversed_byte_ararry(superblock[168:176])  # 84  4
-        self.data.s_inode_size = self._reversed_byte_ararry(superblock[176:180])  # 88  2
-        self.data.s_feature_incompat = self._reversed_byte_ararry(superblock[192:200])  # 96  4
+        self.data.s_log_block_size = self._reversed_byte_ararry(
+            superblock[48:56])  # 24  4
+        self.data.s_blocks_per_group = self._reversed_byte_ararry(
+            superblock[64:72])  # 32  4
+        self.data.s_inodes_per_group = self._reversed_byte_ararry(
+            superblock[80:88])  # 40  4
+        self.data.s_magic = self._reversed_byte_ararry(
+            superblock[112:116])  # 56  2
+        self.data.s_state = self._reversed_byte_ararry(
+            superblock[116:120])  # 58  2
+        self.data.s_errors = self._reversed_byte_ararry(
+            superblock[120:124])  # 60  2
+        self.data.s_first_ino = self._reversed_byte_ararry(
+            superblock[168:176])  # 84  4
+        self.data.s_inode_size = self._reversed_byte_ararry(
+            superblock[176:180])  # 88  2
+        self.data.s_feature_incompat = self._reversed_byte_ararry(
+            superblock[192:200])  # 96  4
 
     # Это нужно уже заменить
     @staticmethod

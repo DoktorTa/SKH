@@ -29,11 +29,14 @@ class CommandEXT2(IFSWork):
     def _conversion(catalog_old: list) -> list:
         """
             Метод преобразует лист инода в стандартный для фс лист элемента.
-            [Номер инода, Длинна записи, длинна имени, Тип записи, Имя в аски кодировке]
+            [Номер инода, Длинна записи, длинна имени, Тип записи,
+             Имя в аски кодировке]
             ->
-            [Имя, Аттрибут, Дата последней записи, Размер в байтах, Номер первого кластера элемента, Длинное имя]
+            [Имя, Аттрибут, Дата последней записи, Размер в байтах,
+             Номер первого кластера элемента, Длинное имя]
         """
-        # TODO: Реализовать конвертацию по средством чтения инода для более полного заполнения листа элемента.
+        # TODO: Реализовать конвертацию по средством чтения инода для более
+        #  полного заполнения листа элемента.
         catalog_new = []
 
         for element_old in catalog_old:
@@ -63,23 +66,28 @@ class CommandEXT2(IFSWork):
             inode_num = int(element_dir[4], 16)
         except LookupError:
             error = -1
-            logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
+            logging.error(f"No mixing is possible. "
+                          f"Element on dir: {len(dir_now)}, "
+                          f"required item: {num_in_dir}")
             return dir_now, error
 
         elements_list = self.__ext2_fs.inode(inode_num)
         for block in elements_list:
-            # TODO: Можно добавить механизм выдачи больших каталогов, но я думаю памяти хватит и так.
+            # TODO: Можно добавить механизм выдачи больших каталогов,
+            #  но я думаю памяти хватит и так.
             if block == 0:
                 break
 
             part_catalog_hex = self.__ext2_fs.read_block(block).hex()
-            part_catalog = self.__ext2_fs.linked_directory_entry(part_catalog_hex)
+            part_catalog = self.__ext2_fs\
+                .linked_directory_entry(part_catalog_hex)
             part_catalog = self._conversion(part_catalog)
             catalog += part_catalog
 
         return catalog, error
 
-    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) -> (bytes, int, int):
+    def read(self, dir_now: list, num_in_dir: int, count: int, pointer: int) \
+            -> (bytes, int, int):
         # TODO: !!!НЕОБХОДИМО!!! Буфферы для листов блоков.
         error = 0
         blocks = b""
@@ -93,7 +101,9 @@ class CommandEXT2(IFSWork):
             inode_num = int(element_dir[4], 16)
         except LookupError:
             error = -1
-            logging.error(f"No mixing is possible. Element on dir: {len(dir_now)}, required item: {num_in_dir}")
+            logging.error(f"No mixing is possible."
+                          f" Element on dir: {len(dir_now)},"
+                          f" required item: {num_in_dir}")
             return b"", 0, error
 
         elements_list = self.__ext2_fs.inode(inode_num)
@@ -108,7 +118,9 @@ class CommandEXT2(IFSWork):
                 pointer += 1
             except LookupError:
                 error = -1
-                logging.error(f"No reading is possible. All blocks: {len(elements_list)}, required item: {pointer}")
+                logging.error(f"No reading is possible."
+                              f" All blocks: {len(elements_list)},"
+                              f" required item: {pointer}")
                 break
             block_hex = self.__ext2_fs.read_block(block)
             blocks += block_hex
@@ -124,12 +136,3 @@ class CommandEXT2(IFSWork):
 
     def get_root(self) -> list:
         return self.__root
-
-
-if __name__ == '__main__':
-    with open(r"A:\Programming languages\In developing\Python\SKH\TestModules\FS\t_ext2.img", "rb") as file:
-        logging.basicConfig(level=logging.DEBUG)
-        data = EXT2Data()
-        p = EXT2Reader(data, file)
-        com = CommandEXT2(p)
-        root = com.get_root()

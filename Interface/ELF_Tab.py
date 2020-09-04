@@ -1,6 +1,7 @@
 import logging
 
-from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QTableWidget, QTableWidgetItem, QAbstractItemView
+from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QTableWidget,\
+    QTableWidgetItem, QAbstractItemView
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
@@ -9,17 +10,21 @@ from Modules.ExecutableFiles.ELF_work import ELFWork, InvalidFileTypeException
 
 class ELFTab(QWidget):
     """
-        Виджет возврашает предстовление елф файла как таблицы его заголовков и секций.
+        Виджет возврашает предстовление елф файла как таблицы его заголовков
+         и секций.
     """
 
     def __init__(self, file):
         super().__init__()
+        self.uinit(file)
+
+    def uinit(self, file):
 
         try:
             self.__elf = ELFWork(file)
         except InvalidFileTypeException:
             logging.error(f"This file is not elf type.")
-            raise InvalidFileTypeException
+            raise
 
         header = self._elf_header()
         table_headers = self._getting_table_headers()
@@ -38,8 +43,11 @@ class ELFTab(QWidget):
         """
             Метод генерирует таблицу секций программы.
         """
-        heading_w = ["Name", "Type", "Flags", "Virtual adress", "Offset", "Segment size in file", "Associated section index",
-                     "Additional section information", "Required section alignment", "Size in bytes of each record"]
+        heading_w = ["Name", "Type", "Flags", "Virtual adress", "Offset",
+                     "Segment size in file", "Associated section index",
+                     "Additional section information",
+                     "Required section alignment",
+                     "Size in bytes of each record"]
 
         self.section_table_w = QTableWidget()
         self.section_table_w.setColumnCount(len(heading_w))
@@ -52,12 +60,11 @@ class ELFTab(QWidget):
         inc_i = 0
         inc_j = 0
         for header in section_table:
-            for key in header:
-                value = header.get(key)
-                # print(str(value), inc_i, inc_j)
+            for key, value in header.items():
                 item_in_cell = QTableWidgetItem(str(value))
                 item_in_cell.setFont(QFont('Courier New', 10))
-                item_in_cell.setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+                item_in_cell.setTextAlignment(
+                    Qt.AlignVCenter | Qt.AlignHCenter)
                 self.section_table_w.setItem(inc_i, inc_j, item_in_cell)
                 inc_j += 1
 
@@ -79,7 +86,8 @@ class ELFTab(QWidget):
         """
             Генерирует таблизу заголовков программы.
         """
-        heading_w = ["Type", "Flags", "Offset", "Virtual adress", "Physical adress", "Segment size in file",
+        heading_w = ["Type", "Flags", "Offset", "Virtual adress",
+                     "Physical adress", "Segment size in file",
                      "Segment size in memory", "Segment alignment"]
 
         self.table_headers_w = QTableWidget()
@@ -93,12 +101,11 @@ class ELFTab(QWidget):
         inc_i = 0
         inc_j = 0
         for header in table_headers:
-            for key in header:
-                value = header.get(key)
-                # print(str(value), inc_i, inc_j)
+            for key, value in header.items():
                 item_in_cell = QTableWidgetItem(str(value))
                 item_in_cell.setFont(QFont('Courier New', 10))
-                item_in_cell.setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+                item_in_cell.setTextAlignment(
+                    Qt.AlignVCenter | Qt.AlignHCenter)
                 self.table_headers_w.setItem(inc_i, inc_j, item_in_cell)
                 inc_j += 1
 

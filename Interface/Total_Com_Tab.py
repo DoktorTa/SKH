@@ -1,6 +1,7 @@
 import logging
 
-from PyQt5.QtWidgets import QWidget, QPushButton, QTextEdit, QLabel, QGridLayout, QDialog
+from PyQt5.QtWidgets import QWidget, QPushButton, QTextEdit, QLabel,\
+    QGridLayout, QDialog
 from PyQt5.QtGui import QFont, QColor
 
 from Interface.Hex_Wiget import HexWidget
@@ -44,7 +45,7 @@ class TotalTab(QWidget):
     def __grid_widget(self):
         self.layout = QGridLayout()
 
-        self.layout.addWidget(self.catalog_meneger, 1, 1, 2, 1)
+        self.layout.addWidget(self.catalog_manager, 1, 1, 2, 1)
         self.layout.addWidget(self.hex_view, 1, 2, 1, 2)
         self.layout.addWidget(self.next_page_button, 2, 3)
         self.layout.addWidget(self.early_page_button, 2, 2)
@@ -58,7 +59,10 @@ class TotalTab(QWidget):
 
         try:
             self.__pos_page += 1
-            data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
+            data, pointer, error = self.__fs.read(self.work_catalog,
+                                                  self.__pos_y,
+                                                  1,
+                                                  self.__pos_page)
             self.hex_view.data_to_format(data)
         except IndexError:
             self.__pos_page -= 1
@@ -71,7 +75,10 @@ class TotalTab(QWidget):
 
         try:
             self.__pos_page -= 1
-            data, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, self.__pos_page)
+            data, pointer, error = self.__fs.read(self.work_catalog,
+                                                  self.__pos_y,
+                                                  1,
+                                                  self.__pos_page)
             self.hex_view.data_to_format(data, early=True)
         except IndexError:
             self.__pos_page += 1
@@ -103,9 +110,11 @@ class TotalTab(QWidget):
         self.early_page_button.clicked.connect(self.early_page)
 
     def _total_right_win(self):
-        hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
+        hex_row_line = [['00', '01', '02', '03', '04', '05', '06', '07',
+                         '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
         hex_row_label = ['00000000']
-        ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
+        ascii_row_line = [['0', '1', '2', '3', '4', '5', '6', '7',
+                           '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
 
         self.hex_view = HexWidget()
         self.hex_view.set_page(hex_row_label, hex_row_line, ascii_row_line)
@@ -113,11 +122,11 @@ class TotalTab(QWidget):
         self.hex_view.setReadOnly(True)
 
     def _total_left_win(self):
-        self.catalog_meneger = QTextEdit()
-        self.catalog_meneger.setReadOnly(True)
-        self.catalog_meneger.setFont(QFont('Courier New', 10))
-        self.catalog_meneger.setMinimumSize(600, 400)
-        self.catalog_meneger.setMaximumSize(600, 1000)
+        self.catalog_manager = QTextEdit()
+        self.catalog_manager.setReadOnly(True)
+        self.catalog_manager.setFont(QFont('Courier New', 10))
+        self.catalog_manager.setMinimumSize(600, 400)
+        self.catalog_manager.setMaximumSize(600, 1000)
 
     @staticmethod
     def convert_data(element_data: str) -> str:
@@ -129,8 +138,11 @@ class TotalTab(QWidget):
             month = (element_data - (year << 9)) >> 5
             day = element_data - ((element_data >> 5) << 5)
             year += start_new_era
-            data = str(f'{day:02d}') + "." + str(f'{month:02d}') + "." + str(f'{year:04d}')
-        except BaseException:  # Вот это хуйня но это хуйня, хуйня нужно убрать и сделать нехуйня.
+            data = str(f'{day:02d}') + "."\
+                   + str(f'{month:02d}') + "."\
+                   + str(f'{year:04d}')
+        except BaseException:
+            # Вот это хуйня но это хуйня, хуйня нужно убрать и сделать нехуйня.
             data = "01.01.1980"
 
         return data
@@ -145,25 +157,32 @@ class TotalTab(QWidget):
 
         for item in catalog:
             data = self.convert_data(item[2])
-            terminator_line = "_" * (72 - len(str(item[0])) - len(data) - len(str(item[3])) - 1)
-            line_item = str(item[0]) + str(terminator_line) + str(item[3]) + "|" + str(data)
+            terminator_line = "_" * (72
+                                     - len(str(item[0]))
+                                     - len(data)
+                                     - len(str(item[3]))
+                                     - 1)
+            line_item = str(item[0])\
+                        + str(terminator_line)\
+                        + str(item[3]) + "|"\
+                        + str(data)
             self.__catalog.append(line_item)
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
-        up_key = 16777235
-        down_key = 16777237
-        f3_key = 16777266
-        enter_key = 16777220
-        if key == up_key and not eventQKeyEvent.isAutoRepeat():
+        UP_PRESSED = 16777235
+        DOWN_PRESSED = 16777237
+        F3_PRESSED = 16777266
+        ENTER_PRESSED = 16777220
+        if key == UP_PRESSED and not eventQKeyEvent.isAutoRepeat():
             self.__pos_y = self.__nav(-1, self.__pos_y, len(self.__catalog))
             self.__catalog_printer()
-        elif key == down_key and not eventQKeyEvent.isAutoRepeat():
+        elif key == DOWN_PRESSED and not eventQKeyEvent.isAutoRepeat():
             self.__pos_y = self.__nav(1, self.__pos_y, len(self.__catalog))
             self.__catalog_printer()
-        elif key == enter_key and not eventQKeyEvent.isAutoRepeat():
+        elif key == ENTER_PRESSED and not eventQKeyEvent.isAutoRepeat():
             self.next_dir()
-        elif key == f3_key and not eventQKeyEvent.isAutoRepeat():
+        elif key == F3_PRESSED and not eventQKeyEvent.isAutoRepeat():
             self.read_file()
 
     def read_file(self):
@@ -172,11 +191,13 @@ class TotalTab(QWidget):
         """
         pos = 0
         try:
-            all_byte_elements, pointer, error = self.__fs.read(self.work_catalog, self.__pos_y, 1, pos)
+            all_byte_elements, pointer, error = self.__fs.read(
+                self.work_catalog, self.__pos_y, 1, pos)
             if error == 0:
                 self.hex_view.data_to_format(all_byte_elements)
         except IndexError:
-            logging.error(f"Ощибка при чтении файла {self.work_catalog[self.__pos_y]}")
+            logging.error(f"Ощибка при чтении файла "
+                          f"{self.work_catalog[self.__pos_y]}")
 
     def next_dir(self):
         """
@@ -191,19 +212,20 @@ class TotalTab(QWidget):
         """
             Печатает лист директории.
         """
-        self.catalog_meneger.clear()
+        self.catalog_manager.clear()
         inc = 0
         for item in self.__catalog:
             if inc == self.__pos_y:
-                self.catalog_meneger.setTextBackgroundColor(QColor(0, 0, 0))
-                self.catalog_meneger.setTextColor(QColor(255, 255, 255))
-                self.catalog_meneger.insertPlainText(item)
-                self.catalog_meneger.setTextColor(QColor(0, 0, 0))
-                self.catalog_meneger.setTextBackgroundColor(QColor(255, 255, 255))
+                self.catalog_manager.setTextBackgroundColor(QColor(0, 0, 0))
+                self.catalog_manager.setTextColor(QColor(255, 255, 255))
+                self.catalog_manager.insertPlainText(item)
+                self.catalog_manager.setTextColor(QColor(0, 0, 0))
+                self.catalog_manager.setTextBackgroundColor(
+                    QColor(255, 255, 255))
             else:
-                self.catalog_meneger.insertPlainText(item)
+                self.catalog_manager.insertPlainText(item)
             inc += 1
-            self.catalog_meneger.insertPlainText("\n")
+            self.catalog_manager.insertPlainText("\n")
 
     @staticmethod
     def __nav(dest: int, position: int, scope: int) -> int:

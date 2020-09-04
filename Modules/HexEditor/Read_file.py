@@ -23,7 +23,8 @@ class HexOpen:
 
         if count < 0:
             back_to_file = -self.__len_block * int(math.fabs(count))
-            if (back_to_file < -self.__size_file) or (self.__file.tell() > back_to_file):
+            if (back_to_file < -self.__size_file)\
+                    or (self.__file.tell() > back_to_file):
                 self.__file.seek(0)
             else:
                 self.__file.seek(back_to_file, 1)
@@ -43,7 +44,8 @@ class HexOpen:
         try:
             data_page = self.__file.read(self.__len_block)
         except ValueError:
-            logging.error(f"Program can not read file: {self.__len_block, self.__file.name}")
+            logging.error(f"Program can not read file: "
+                          f"{self.__len_block, self.__file.name}")
             error = -1
 
         return data_page, error

@@ -18,7 +18,8 @@ class HexSave:
                         seek_in_file_last = 2
 
                     file.seek(seek_in_file_last)
-                    byte_no_change = file.read(seek_in_file - seek_in_file_last)
+                    byte_no_change = file.read(seek_in_file
+                                               - seek_in_file_last)
                     file_new.write(byte_no_change)
                     change_byte = file.read(1)
 

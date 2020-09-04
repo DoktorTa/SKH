@@ -54,7 +54,8 @@ def test_executable_file_group(test_group_fs, mode):
 
     if mode[0] == 1:
         test_group_fs.addTest(TestELFReader('test_program_header_table_read'))
-        test_group_fs.addTest(TestELFReader('test_program_header_section_read'))
+        test_group_fs.addTest(TestELFReader(
+            'test_program_header_section_read'))
         test_group_fs.addTest(TestELFReader('test_load_header_read'))
         test_group_fs.addTest(TestELFWork('test_get_header'))
         test_group_fs.addTest(TestELFWork('test_get_table_hendler'))
@@ -86,14 +87,18 @@ def test_fs_group(test_group_fs, mode):
 def arguments() -> (str, int):
     parser = argparse.ArgumentParser(description='Test module script')
 
-    parser.add_argument('-m', action="store", dest="mode", default=0, type=int, nargs=1,
-                        help="Если на вашем устройстве сущетсвуют тестовые образы поволяюшие провести полное тестирование,"
-                             "а так же вы хотите его провести установите в 1.")
-    parser.add_argument('-t', action="store", dest="type", default="a", type=str, nargs=1,
-                        help="Вы можете указать через запятую какие модули необходимо протестировать:\n"
-                             "a - все модули,\n"
-                             "f - модули файловой системы,\n"
-                             "e - модули исполняемых файлов\n")
+    parser.add_argument('-m', action="store", dest="mode", default=0, type=int,
+                        nargs=1, help="Если на вашем устройстве сущетсвуют "
+                                      "тестовые образы поволяюшие провести "
+                                      "полное тестирование, а так же вы хотите"
+                                      " его провести установите в 1.")
+    parser.add_argument('-t', action="store", dest="type", default="a",
+                        type=str, nargs=1, help="Вы можете указать через "
+                                                "запятую какие модули"
+                                                " необходимо протестировать:\n"
+                                                "a - все модули,\nf - модули"
+                                                " файловой системы,\ne - "
+                                                "модули исполняемых файлов\n")
 
     args = parser.parse_args()
     type_w = args.type

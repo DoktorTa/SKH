@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QTextEdit, QTableWidget, QTableWidgetItem, QLineEdit, QItemDelegate, QGridLayout
+from PyQt5.QtWidgets import QWidget, QTextEdit, QTableWidget,\
+    QTableWidgetItem, QLineEdit, QItemDelegate, QGridLayout
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
@@ -16,7 +17,7 @@ class HexDelegate(QItemDelegate):
 
     def createEditor(self, parent, option, index):
         line = QLineEdit(parent)
-        if self.__read_only is True:
+        if self.__read_only:
             line.setReadOnly(True)
         line.setInputMask("HH")
         return line
@@ -25,7 +26,8 @@ class HexDelegate(QItemDelegate):
 class HexWidget(QWidget):
     """
         Класс создает виджет хекс редактора и предостовляет редактирование.
-        Кормите данные через set_page, обновляйте данные на экране через repaint_page,
+        Кормите данные через set_page
+        , обновляйте данные на экране через repaint_page,
         для подтверждения изменений обязательно кликайте энтер.
 
         self.txt = QTableWidget
@@ -33,9 +35,11 @@ class HexWidget(QWidget):
 
         Атрибуты:
         ~~~~~~~~~~~~~~~~~~
-            **change_list**: dict - словарь с изменениями типа {'600000010': '1613'}
+            **change_list**: dict - словарь с изменениями типа
+             {'600000010': '1613'}
                 Первый символ ключа - номер колонны, остальные номер строкиб
-                Первые два символа значения - первоначальный байт, остальные текушее сохраненное состояние
+                Первые два символа значения - первоначальный байт,
+                 остальные текушее сохраненное состояние
     """
     __pos_x = 1
     __pos_y = 1
@@ -56,9 +60,11 @@ class HexWidget(QWidget):
     def __init__(self, block_row_size=16):
         super().__init__()
         self.hex_presentor = HexPresentor()
-        self.__ascii_matrix = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
-        self.__hex_matrix = [['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
-        self.__draw_wiget(block_row_size)
+        self.__ascii_matrix = [['0', '1', '2', '3', '4', '5', '6', '7',
+                                '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']]
+        self.__hex_matrix = [['00', '01', '02', '03', '04', '05', '06', '07',
+                              '08', '09', '0a', '0b', '0c', '0d', '0e', '0f']]
+        self.__draw_widget(block_row_size)
         self.show()
 
     def setReadOnly(self, read: bool):
@@ -67,7 +73,8 @@ class HexWidget(QWidget):
 
     def set_page(self, row_num: list, hex_list: list, ascii_list: list):
         """
-            Функция уставнавливает значения строк и хекс матриц для следующей перерисовки
+            Функция уставнавливает значения строк и
+             хекс матриц для следующей перерисовки.
         """
         # TODO: Проверки на размернось масивов
         self.__row_num = row_num
@@ -76,7 +83,8 @@ class HexWidget(QWidget):
 
     def repaint_page(self):
         """
-            Функция обновления таблиц по вшитому с помощью set_page представлению.
+            Функция обновления таблиц
+             по вшитому с помощью set_page представлению.
         """
         self.txt.setRowCount(len(self.__row_num))
         self.txt.setVerticalHeaderLabels(self.__row_num)
@@ -84,7 +92,7 @@ class HexWidget(QWidget):
         self._ascii_matrix_loop()
 
     # Ресует первичный виджет
-    def __draw_wiget(self, block_row_size: int):
+    def __draw_widget(self, block_row_size: int):
         self.__hex_matrix_table(block_row_size)
         self.__ascii_matrix_table()
 
@@ -100,8 +108,10 @@ class HexWidget(QWidget):
     def history_del(self):
         if len(self.change_list) is not 0:
             history_last_point = self.change_list.popitem()
-            key,  value = history_last_point
-            # self.txt.setItem(int(int(key[1:]) / 10), int(key[0]), QTableWidgetItem(value[0:2]))
+            # key,  value = history_last_point
+            # self.txt.setItem(int(int(key[1:]) / 10),
+            #                  int(key[0]),
+            #                  QTableWidgetItem(value[0:2]))
 
     # Функция которая формирует лог изменений, лог расширяем
     def __edit_item(self):
@@ -117,8 +127,8 @@ class HexWidget(QWidget):
 
     def keyReleaseEvent(self, eventQKeyEvent):
         key = eventQKeyEvent.key()
-        enter_key = 16777220
-        if key == enter_key and not eventQKeyEvent.isAutoRepeat():
+        ENTER_PRESSED = 16777220
+        if key == ENTER_PRESSED and not eventQKeyEvent.isAutoRepeat():
             self.__edit_item()
 
     # Инициализация аски матрицы
@@ -135,7 +145,8 @@ class HexWidget(QWidget):
     # Инициализыция
     def __hex_matrix_table(self, block_row_size: int):
         # Создает заголовки колон в hex формате с помошью длинны первой строки
-        colonum_hend = [hex(i)[2:] for i in range(0, len(self.__hex_matrix[0]))]
+        colonum_hend = [
+            hex(i)[2:] for i in range(0, len(self.__hex_matrix[0]))]
 
         self.txt = QTableWidget()
         self.txt.setColumnCount(16)
@@ -159,9 +170,9 @@ class HexWidget(QWidget):
         for line in self.__ascii_matrix:
             inc_j += 1
             inc_i = 0
-            for sumbol in line:
+            for symbol in line:
                 inc_i += 1
-                self.asc.insertPlainText(sumbol)
+                self.asc.insertPlainText(symbol)
             self.asc.insertPlainText("\n")
 
     def _hex_matrix_loop(self):
@@ -177,18 +188,22 @@ class HexWidget(QWidget):
                 self.txt.setColumnWidth(inc_i, 8)
                 item_in_cell = QTableWidgetItem(byte)
                 item_in_cell.setFont(QFont('Courier New', 10))
-                item_in_cell.setTextAlignment(Qt.AlignVCenter | Qt.AlignHCenter)
+                item_in_cell.setTextAlignment(
+                    Qt.AlignVCenter | Qt.AlignHCenter)
                 self.txt.setItem(inc_j, inc_i, item_in_cell)
                 inc_i += 1
         self.txt.resizeRowsToContents()
 
     def data_to_format(self, data: bytes, step=16, early=False):
         """
-            Форматирует байтовое представление в пердстовление шеснадцатирчного редактора.
+            Форматирует байтовое представление
+             в пердстовление шеснадцатирчного редактора.
             А так же задает и перерисовывает страницу.
-            Вызываете этот метод если вам необходимо перерисовать виджет под новые данные.
+            Вызываете этот метод если вам необходимо
+             перерисовать виджет под новые данные.
         """
-        rows, hex_rows, ascii_rows = self.hex_presentor.present(data, step, self.__last_row_num, early)
+        rows, hex_rows, ascii_rows = self.hex_presentor\
+            .present(data, step, self.__last_row_num, early)
         try:
             if int(rows[0]) < 0:
                 raise ValueError
