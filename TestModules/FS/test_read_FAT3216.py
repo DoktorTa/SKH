@@ -21,8 +21,8 @@ class TestReadFAT3216(unittest.TestCase):
             r1.set_seek_fs(4128768)
             root = ([['SYSTEM~1   ', '16', '5077', 0, 3,
                      ' \x00I\x00n\x00f\x00o\x00r\x00m\x00a\x00t\x00i\x00o\x00n'
-                     '\x00\x00\x00S\x00y\x00s\x00t\x00e\x00m\x00 \x00V\x00o'
-                     '\x00l\x00u\x00m\x00e\x00'],
+                      '\x00\x00\x00S\x00y\x00s\x00t\x00e\x00m\x00 \x00V\x00o'
+                      '\x00l\x00u\x00m\x00e\x00'],
                     ['1D         ', '10', '5077', 0, 6, ''],
                     ['2D         ', '10', '5077', 0, 7, ''],
                     ['3D         ', '10', '5077', 0, 8, ''],

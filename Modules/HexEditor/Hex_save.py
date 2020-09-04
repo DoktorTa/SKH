@@ -54,4 +54,3 @@ class HexSave:
         key_list.sort()
 
         return history_sort, key_list
-

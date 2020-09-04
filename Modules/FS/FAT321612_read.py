@@ -298,8 +298,8 @@ class FATReader:
                             + all_fat_size
 
         self.root_dir_seek_b = root_dir_seek * self.data.bpb_byte_in_sector
-        self.fat_seek_b = self.data.bpb_reversed_sector\
-                          * self.data.bpb_byte_in_sector
+        self.fat_seek_b = \
+            self.data.bpb_reversed_sector * self.data.bpb_byte_in_sector
 
     # Разворот необходим для байт строк состояших из более чем 1 байта
     # Разворачивает шеснадцатиричную строку байтов для верной интерпритации

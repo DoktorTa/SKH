@@ -6,7 +6,7 @@ from Modules.ExecutableFiles.ELF_data import ELFData
 
 
 class InvalidFileTypeException(Exception):
-   pass
+    pass
 
 
 class ELFWork(IExecutableFile):

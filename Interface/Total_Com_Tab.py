@@ -138,9 +138,10 @@ class TotalTab(QWidget):
             month = (element_data - (year << 9)) >> 5
             day = element_data - ((element_data >> 5) << 5)
             year += start_new_era
-            data = str(f'{day:02d}') + "."\
-                   + str(f'{month:02d}') + "."\
-                   + str(f'{year:04d}')
+            data = \
+                str(f'{day:02d}') + "."\
+                + str(f'{month:02d}') + "."\
+                + str(f'{year:04d}')
         except BaseException:
             # Вот это хуйня но это хуйня, хуйня нужно убрать и сделать нехуйня.
             data = "01.01.1980"
@@ -162,10 +163,11 @@ class TotalTab(QWidget):
                                      - len(data)
                                      - len(str(item[3]))
                                      - 1)
-            line_item = str(item[0])\
-                        + str(terminator_line)\
-                        + str(item[3]) + "|"\
-                        + str(data)
+            line_item = \
+                str(item[0]) \
+                + str(terminator_line) \
+                + str(item[3]) + "|" \
+                + str(data)
             self.__catalog.append(line_item)
 
     def keyReleaseEvent(self, eventQKeyEvent):
