@@ -119,7 +119,7 @@ class FATReader:
 
     # Читает директорию как директорию
     def reder_directory(self, claster_sequence: list) -> list:
-        claster = " "
+        # claster = " "
         catalog = []
         pos = 0
 
@@ -190,9 +190,8 @@ class FATReader:
         elif self.data.FAT_version == "FAT16":
             root_end_sector = (self.data.bpb_root_ent_cnt * 32
                                // self.data.bpb_byte_in_sector) + first_sector
-            claster_seek = ((element_claster - 2)
-                            * self.data.bpb_sector_in_claster) \
-                           + root_end_sector
+            e_len = ((element_claster - 2) * self.data.bpb_sector_in_claster)
+            claster_seek = e_len + root_end_sector
 
         claster_seek = claster_seek * self.data.bpb_byte_in_sector
 
@@ -213,8 +212,8 @@ class FATReader:
         record_last = record_last.hex()
         record_last = self.reversed_byte_ararry(record_last)
         record_last = int(str(record_last), 16)
-        record_last = record_last \
-                      & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
+        record_last = \
+            record_last & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
 
         return record_last
 
@@ -241,8 +240,8 @@ class FATReader:
         record_last = self._eof_point(len_fat_record)
 
         element_claster = int(str(element_claster), 10)
-        element_claster = element_claster \
-                          & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
+        element_claster = \
+            element_claster & ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
         claster_sequence.append(element_claster)
 
         while True:
@@ -253,11 +252,9 @@ class FATReader:
             element_claster = str(element_claster.hex())
             element_claster = self.reversed_byte_ararry(element_claster)
             element_claster = int(str(element_claster), 16)
-            element_claster = element_claster \
-                              & ~(1 << 28) \
-                              & ~(1 << 29) \
-                              & ~(1 << 30) \
-                              & ~(1 << 31)
+            element_claster = \
+                element_claster &\
+                ~(1 << 28) & ~(1 << 29) & ~(1 << 30) & ~(1 << 31)
 
             if element_claster == record_last \
                     or element_claster == record_empty:
