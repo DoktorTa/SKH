@@ -15,7 +15,7 @@ class TestELFReader(unittest.TestCase):
     def test_program_header_section_read(self):
         path = os.path.dirname(os.path.abspath(__file__))
         data = ELFData()
-        with open(path + r"\ls.elf", "rb") as file:
+        with open(path + r"/ls.elf", "rb") as file:
             elf = ELFReader(data, file)
             e_ident_b = self.e_load
             elf._e_load_init(e_ident_b)
@@ -50,7 +50,7 @@ class TestELFReader(unittest.TestCase):
     def test_program_header_table_read(self):
         path = os.path.dirname(os.path.abspath(__file__))
         data = ELFData()
-        with open(path + r"\ls.elf", "rb") as file:
+        with open(path + r"/ls.elf", "rb") as file:
             elf = ELFReader(data, file)
             e_ident_b = self.e_load
             elf._e_load_init(e_ident_b)
@@ -131,7 +131,7 @@ class TestELFReader(unittest.TestCase):
 
     def test_load_header_read(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\ls.elf", "rb") as file:
+        with open(path + r"/ls.elf", "rb") as file:
             data = ELFData()
             elf = ELFReader(data, file)
             elf.load_header_read()

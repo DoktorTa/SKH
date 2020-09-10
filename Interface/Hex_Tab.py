@@ -4,9 +4,11 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QWidget, QPushButton, QTextEdit, QLabel, \
     QGridLayout, QDialog
 
+from Interface.Picture_win import PictureDialog
 from Interface.Hex_Wiget import HexWidget
 from Modules.HexEditor.Read_file import HexOpen
 from Modules.HexEditor.Hex_save import HexSave
+
 
 
 class HexTab(QWidget):
@@ -22,6 +24,7 @@ class HexTab(QWidget):
         self.__create_history_manager()
         self._create_next_page_but()
         self._create_early_page_but()
+        self.__create_button_show_picture()
 
         self.__location_on_widget()
 
@@ -29,6 +32,7 @@ class HexTab(QWidget):
 
     def set_file_path(self, file_path: str):
         self.__file_path = file_path
+        self.__check_file_type()
 
     def read_first_block(self, file):
         self.hex_reader = HexOpen(file)
@@ -104,6 +108,20 @@ class HexTab(QWidget):
         self.history_list.setReadOnly(True)
         self.history_list.setMaximumSize(128, 400)
 
+    def __create_button_show_picture(self):
+        self.btn_show_picture = QPushButton("Show picture")
+        self.btn_show_picture.clicked.connect(self.__show_picture)
+
+    def __show_picture(self):
+        self.pix_win = PictureDialog(self.__file_path)
+
+    def __check_file_type(self):
+
+        if self.__file_path[-3:] == "png":
+            self.btn_show_picture.setEnabled(True)
+        else:
+            self.btn_show_picture.setEnabled(False)
+
     def _create_save_but(self):
         # TODO: Сделать нормальное сохранение как все нормальные люди.
         self.btn_save = QPushButton("Save end Close")
@@ -131,6 +149,7 @@ class HexTab(QWidget):
         self.layout.addWidget(self.btn_early_page, 3, 3)
         self.layout.addWidget(self.btn_delete_last, 2, 2)
         self.layout.addWidget(self.btn_delete_all, 2, 3)
+        self.layout.addWidget(self.btn_show_picture, 4, 2)
         self.setLayout(self.layout)
 
     def keyReleaseEvent(self, eventQKeyEvent):

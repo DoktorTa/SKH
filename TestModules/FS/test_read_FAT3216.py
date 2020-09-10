@@ -9,13 +9,13 @@ class TestReadFAT3216(unittest.TestCase):
 
     def test_root_catalog_reader(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\test16.img", "rb") as file:
+        with open(path + r"/test16.img", "rb") as file:
             data = FATData()
             r = FATReader(data, file)
             root = ([['T16        ', '10', '5072', 0, 3, '']], 0)
             self.assertEqual(r.root_catalog_read(), root)
 
-        with open(path + r"\t32.img", "rb") as file:
+        with open(path + r"/t32.img", "rb") as file:
             data1 = FATData()
             r1 = FATReader(data1, file)
             r1.set_seek_fs(4128768)
@@ -32,7 +32,7 @@ class TestReadFAT3216(unittest.TestCase):
     def test_mixing(self):
         data = FATData()
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\Test_load_sector_fat.txt", "rb") as file:
+        with open(path + r"/Test_load_sector_fat.txt", "rb") as file:
             reader = FATReader(data, file)
 
             fat16_seek_b = 2048
@@ -52,7 +52,7 @@ class TestReadFAT3216(unittest.TestCase):
     def test_build_cls_sequence(self):
         data = FATData()
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\t32.img", "rb") as file:
+        with open(path + r"/t32.img", "rb") as file:
             reader = FATReader(data, file)
             reader.set_seek_fs(4128768)
             reader.root_catalog_read()

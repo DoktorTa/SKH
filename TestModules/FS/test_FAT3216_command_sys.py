@@ -8,7 +8,7 @@ class TestComSysFAT3216(unittest.TestCase):
 
     def test_cd(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\test16.img", "rb") as file:
+        with open(path + r"/test16.img", "rb") as file:
             c = CommandFAT3216(file)
 
             answer_0 = [['.          ', '10', '5072', 0, 3, ''],
@@ -29,7 +29,7 @@ class TestComSysFAT3216(unittest.TestCase):
 
     def test_read(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\test16.img", "rb") as file:
+        with open(path + r"/test16.img", "rb") as file:
             c = CommandFAT3216(file)
 
             file.seek(122880)

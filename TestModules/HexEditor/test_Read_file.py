@@ -7,7 +7,7 @@ from Modules.HexEditor.Read_file import HexOpen
 class TestOpenFile(unittest.TestCase):
     def test_get_page(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r'\num.txt', r"rb") as file:
+        with open(path + r'/num.txt', r"rb") as file:
             error = 0
 
             h_open = HexOpen(file)
@@ -22,7 +22,7 @@ class TestOpenFile(unittest.TestCase):
 
     def test_get_data(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r'\num.txt', r"rb") as file:
+        with open(path + r'/num.txt', r"rb") as file:
             answer = file.read()
             error = 0
 

@@ -55,7 +55,7 @@ class TestComSysEXT2(unittest.TestCase):
 
     def test_cd(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\t_ext2.img", "rb") as file:
+        with open(path + r"/t_ext2.img", "rb") as file:
             com = CommandEXT2(file)
             root = com.get_root()
 
@@ -95,8 +95,8 @@ class TestComSysEXT2(unittest.TestCase):
 
     def test_read(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\t_ext2.img", "rb") as file:
-            with open(path + r"\Test_blocks_ext2.txt", "r") as file_blocks:
+        with open(path + r"/t_ext2.img", "rb") as file:
+            with open(path + r"/Test_blocks_ext2.txt", "r") as file_blocks:
                 # data = EXT2Data()
                 # p = EXT2Reader(data, file)
                 com = CommandEXT2(file)

@@ -10,7 +10,7 @@ class TestELFWork(unittest.TestCase):
     def test_get_header(self):
 
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\ls.elf", "rb") as file:
+        with open(path + r"/ls.elf", "rb") as file:
             data = ELFData()
             elf = ELFWork(file)
 
@@ -23,7 +23,7 @@ class TestELFWork(unittest.TestCase):
     def test_get_table_hendler(self):
 
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\ls.elf", "rb") as file:
+        with open(path + r"/ls.elf", "rb") as file:
             data = ELFData()
             elf = ELFWork(file)
 
@@ -46,7 +46,7 @@ class TestELFWork(unittest.TestCase):
 
     def test_get_section_table(self):
         path = os.path.dirname(os.path.abspath(__file__))
-        with open(path + r"\ls.elf", "rb") as file:
+        with open(path + r"/ls.elf", "rb") as file:
             data = ELFData()
             elf = ELFWork(file)
 
