@@ -10,7 +10,6 @@ from Modules.HexEditor.Read_file import HexOpen
 from Modules.HexEditor.Hex_save import HexSave
 
 
-
 class HexTab(QWidget):
     """
         Виджет представляет из себя простой шестандцатиричный редактор.
@@ -32,6 +31,9 @@ class HexTab(QWidget):
 
     def set_file_path(self, file_path: str):
         self.__file_path = file_path
+        self.__preparation()
+
+    def __preparation(self):
         self.__check_file_type()
 
     def read_first_block(self, file):
