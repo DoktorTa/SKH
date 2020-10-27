@@ -6,7 +6,7 @@ chardet==3.0.4
 click==7.1.2
 coverage==5.2.1
 crypto==1.4.1
-cryptography==3.1
+cryptography==3.2
 cycler==0.10.0
 deezer-python==1.6.1
 idna==2.10
