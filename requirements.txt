@@ -14,7 +14,7 @@ kiwisolver==1.2.0
 matplotlib==3.3.1
 Naked==0.1.31
 npyscreen==4.10.5
-numpy==1.19.1
+numpy==1.22.0
 paramiko==2.7.2
 Pillow==7.2.0
 pycparser==2.20
