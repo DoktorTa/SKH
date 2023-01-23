@@ -33,7 +33,7 @@ scipy==1.5.2
 shellescape==3.8.1
 six==1.15.0
 spark-parser==1.8.9
-spotipy==2.15.0
+spotipy==2.22.1
 uncompyle6==3.7.4
 urllib3==1.25.10
 urwid==2.1.1
